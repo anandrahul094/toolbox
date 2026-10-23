@@ -30,7 +30,7 @@ export default function Feedback() {
   const [done, setDone] = useState<'sent' | 'saved' | null>(null)
 
   useEffect(() => { setDone(null); setError(null) }, [kind])
-  useEffect(() => setMeta(`${KINDS.find(([k]) => k === kind)![1]} — Toolbox`, 'Send feedback, request a new tool or report a problem.'), [kind])
+  useEffect(() => setMeta(`${KINDS.find(([k]) => k === kind)![1]} — The Toolbox`, 'Send feedback, request a new tool or report a problem.'), [kind])
   useEffect(() => { if (user?.email && !email) setEmail(user.email) }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // help people find a tool that already exists before requesting it
@@ -72,7 +72,7 @@ export default function Feedback() {
           <h2>Thank you!</h2>
           <p className="muted" style={{ margin: 0 }}>
             {done === 'sent'
-              ? kind === 'tool-request' ? 'Your tool request was sent. Popular requests get built first.' : 'Your message was sent to the Toolbox team.'
+              ? kind === 'tool-request' ? 'Your tool request was sent. Popular requests get built first.' : 'Your message was sent to our team.'
               : 'Your message is saved in this browser and will be sent automatically once the feedback service is connected.'}
           </p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

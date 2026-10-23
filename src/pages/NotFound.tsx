@@ -5,7 +5,7 @@ import { Compass } from 'lucide-react'
 import { SearchBox } from '../components/Search'
 
 export default function NotFound() {
-  useEffect(() => setMeta('Page not found — Toolbox', 'This page could not be found.', { noindex: true }), [])
+  useEffect(() => setMeta('Page not found — The Toolbox', 'This page could not be found.', { noindex: true }), [])
   return (
     <div className="empty" style={{ padding: 40 }}>
       <Compass size={26} aria-hidden="true" />

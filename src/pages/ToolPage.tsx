@@ -18,7 +18,7 @@ export default function ToolPage() {
 
   useEffect(() => {
     if (!tool) return
-    setMeta(`${tool.name} — free online tool · Toolbox`, `${tool.description} Free, no sign-up, and it runs in your browser.`)
+    setMeta(`${tool.name} — free online tool · The Toolbox`, `${tool.description} Free, no sign-up, and it runs in your browser.`)
     actions.recordRecent(tool.id)
   }, [tool])
 
@@ -31,7 +31,7 @@ export default function ToolPage() {
   const faq: [string, string][] = [
     ...(tool.faq ?? []),
     ['Do I need an account?', 'No. Every tool is free to use without signing up.'],
-    ['Is my data uploaded?', 'No. This tool runs in your browser, so the text and files you use stay on your device. Toolbox does not save them.'],
+    ['Is my data uploaded?', 'No. This tool runs in your browser, so the text and files you use stay on your device. The Toolbox does not save them.'],
   ]
 
   return (

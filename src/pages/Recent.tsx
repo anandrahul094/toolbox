@@ -10,7 +10,7 @@ import { setMeta } from './meta'
 export default function Recent() {
   const recent = useStore((s) => s.recent)
   const keep = useStore((s) => s.settings.keepHistory)
-  useEffect(() => setMeta('Recently used — Toolbox', 'Tools you opened recently.', { noindex: true }), [])
+  useEffect(() => setMeta('Recently used — The Toolbox', 'Tools you opened recently.', { noindex: true }), [])
   return (
     <>
       <div className="page-head">

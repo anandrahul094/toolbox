@@ -32,7 +32,7 @@ export default function Home() {
   const pockets = useStore((s) => s.pockets)
   const keepHistory = useStore((s) => s.settings.keepHistory)
   const [creating, setCreating] = useState(false)
-  useEffect(() => setMeta('Toolbox — everyday online tools in one place', 'Resize images, merge PDFs, format JSON, calculate GST and more. Free, no sign-up, and your files stay in your browser.'), [])
+  useEffect(() => setMeta('The Toolbox — everyday online tools in one place', 'Resize images, merge PDFs, format JSON, calculate GST and more. Free, no sign-up, and your files stay in your browser.'), [])
 
   return (
     <>

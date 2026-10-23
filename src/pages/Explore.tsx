@@ -35,8 +35,8 @@ export default function Explore() {
   }
   useEffect(() => { try { localStorage.setItem('toolbox:view', view) } catch { /* ignore */ } }, [view])
   useEffect(() => {
-    if (fixed) setMeta(`${fixed.id} tools — Toolbox`, `Free online ${fixed.id.toLowerCase()} tools: ${fixed.blurb.toLowerCase()}. They run in your browser.`)
-    else setMeta('Explore all tools — Toolbox', `Browse ${tools.length} free online tools by category.`)
+    if (fixed) setMeta(`${fixed.id} tools — The Toolbox`, `Free online ${fixed.id.toLowerCase()} tools: ${fixed.blurb.toLowerCase()}. They run in your browser.`)
+    else setMeta('Explore all tools — The Toolbox', `Browse ${tools.length} free online tools by category.`)
   }, [fixed])
 
   const list = useMemo(() => {

@@ -32,7 +32,7 @@ export default class ErrorBoundary extends Component<Props, State> {
     const chunk = isChunkError(this.state.error)
     return (
       <div className="empty" role="alert">
-        <h2>{chunk ? 'Toolbox was updated' : this.props.scope === 'tool' ? 'This tool ran into a problem' : 'Something went wrong'}</h2>
+        <h2>{chunk ? 'The Toolbox was updated' : this.props.scope === 'tool' ? 'This tool ran into a problem' : 'Something went wrong'}</h2>
         <p>{chunk ? 'A newer version is available. Reload the page to continue.' : 'Your files and text were not sent anywhere. Reloading usually fixes it; if it keeps happening, try different input.'}</p>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn primary" onClick={() => window.location.reload()}>Reload page</button>

@@ -15,7 +15,7 @@ export default function Pockets() {
   const pockets = useStore((s) => s.pockets)
   const [creating, setCreating] = useState(false)
   const navigate = useNavigate()
-  useEffect(() => setMeta('My pockets — Toolbox', 'Your own collections of tools.', { noindex: true }), [])
+  useEffect(() => setMeta('My pockets — The Toolbox', 'Your own collections of tools.', { noindex: true }), [])
 
   return (
     <>
@@ -59,7 +59,7 @@ export function StarterPocket() {
   const { slug } = useParams()
   const p = STARTER_POCKETS.find((s) => s.slug === slug)
   const navigate = useNavigate()
-  useEffect(() => { if (p) setMeta(`${p.name} — Toolbox`, p.description) }, [p])
+  useEffect(() => { if (p) setMeta(`${p.name} — The Toolbox`, p.description) }, [p])
   if (!p) return <NotFoundPocket />
   return (
     <>
@@ -86,7 +86,7 @@ export function PocketDetail() {
   const [adding, setAdding] = useState(false)
   const [q, setQ] = useState('')
   const navigate = useNavigate()
-  useEffect(() => { if (pocket) setMeta(`${pocket.name} — Toolbox`, pocket.description || 'A pocket of tools.', { noindex: true }) }, [pocket])
+  useEffect(() => { if (pocket) setMeta(`${pocket.name} — The Toolbox`, pocket.description || 'A pocket of tools.', { noindex: true }) }, [pocket])
 
   const candidates = useMemo(() => (pocket ? searchTools(q, tools).filter((t) => !pocket.toolIds.includes(t.id)).slice(0, 8) : []), [q, pocket])
   if (!pocket) return <NotFoundPocket />
@@ -147,7 +147,7 @@ export function PocketDetail() {
           actions.deletePocket(pocket.id); navigate('/pockets')
           toast(`Deleted “${pocket.name}”`, { label: 'Undo', run: () => actions.restorePocket(copy, index) })
         }}>
-        The pocket is removed from this browser. The {list.length} tool{list.length === 1 ? '' : 's'} in it stay available in Toolbox.
+        The pocket is removed from this browser. The {list.length} tool{list.length === 1 ? '' : 's'} in it stay available in The Toolbox.
       </ConfirmDialog>
     </>
   )

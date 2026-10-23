@@ -11,7 +11,7 @@ export default function Favourites() {
   const favorites = useStore((s) => s.favorites)
   const [q, setQ] = useState('')
   const [sort, setSort] = useState<'pinned' | 'name' | 'category'>('pinned')
-  useEffect(() => setMeta('Pinned to your bench — Toolbox', 'Your favourite tools.', { noindex: true }), [])
+  useEffect(() => setMeta('Pinned to your bench — The Toolbox', 'Your favourite tools.', { noindex: true }), [])
 
   const list = useMemo(() => {
     let l = searchTools(q, favorites.map((id) => findTool(id)!))

@@ -64,7 +64,7 @@ function useRedirectIfSignedIn() {
 
 export function Login() {
   useRedirectIfSignedIn()
-  useEffect(() => setMeta('Log in — Toolbox', 'Log in to sync your pinned tools and pockets.', { noindex: true }), [])
+  useEffect(() => setMeta('Log in — The Toolbox', 'Log in to sync your pinned tools and pockets.', { noindex: true }), [])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -81,7 +81,7 @@ export function Login() {
   }
 
   return (
-    <AuthCard title="Log in" subtitle="Pick up your bench and pockets on any device." footer={<>New to Toolbox? <Link to="/join">Join now</Link></>}>
+    <AuthCard title="Log in" subtitle="Pick up your bench and pockets on any device." footer={<>New to The Toolbox? <Link to="/join">Join now</Link></>}>
       <form onSubmit={submit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <GoogleButton />
         <label className="field"><span className="field-label">Email</span><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required autoFocus /></label>
@@ -96,7 +96,7 @@ export function Login() {
 
 export function Join() {
   useRedirectIfSignedIn()
-  useEffect(() => setMeta('Join Toolbox', 'Create a free account to sync your pinned tools and pockets.', { noindex: true }), [])
+  useEffect(() => setMeta('Join The Toolbox', 'Create a free account to sync your pinned tools and pockets.', { noindex: true }), [])
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -130,14 +130,14 @@ export function Join() {
   }
 
   return (
-    <AuthCard title="Join Toolbox" subtitle="Free forever. Sync your pinned tools and pockets across devices." footer={<>Already have an account? <Link to="/login">Log in</Link></>}>
+    <AuthCard title="Join The Toolbox" subtitle="Free forever. Sync your pinned tools and pockets across devices." footer={<>Already have an account? <Link to="/login">Log in</Link></>}>
       <form onSubmit={submit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <GoogleButton />
         <label className="field"><span className="field-label">Name</span><input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" maxLength={80} required autoFocus /></label>
         <label className="field"><span className="field-label">Email</span><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required /></label>
         <PasswordField label="Password" value={password} onChange={setPassword} autoComplete="new-password" hint={strength ? `Strength: ${strength}` : 'At least 8 characters'} />
         <PasswordField label="Confirm password" value={confirm} onChange={setConfirm} autoComplete="new-password" />
-        <label className="check" style={{ alignItems: 'flex-start' }}><input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} style={{ marginTop: 3 }} /><span style={{ fontSize: 14 }}>I agree to the <Link to="/terms" target="_blank">terms of use</Link> and <Link to="/privacy" target="_blank">privacy policy</Link>. Toolbox never stores the files or text you use in tools.</span></label>
+        <label className="check" style={{ alignItems: 'flex-start' }}><input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} style={{ marginTop: 3 }} /><span style={{ fontSize: 14 }}>I agree to the <Link to="/terms" target="_blank">terms of use</Link> and <Link to="/privacy" target="_blank">privacy policy</Link>. The Toolbox never stores the files or text you use in tools.</span></label>
         {error && <div className="error" role="alert">{error}</div>}
         <button type="submit" className="btn primary" disabled={busy || !backendReady}>{busy ? 'Creating account…' : 'Create account'}</button>
       </form>
@@ -146,7 +146,7 @@ export function Join() {
 }
 
 export function ForgotPassword() {
-  useEffect(() => setMeta('Reset your password — Toolbox', 'Get a link to reset your password.', { noindex: true }), [])
+  useEffect(() => setMeta('Reset your password — The Toolbox', 'Get a link to reset your password.', { noindex: true }), [])
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -178,7 +178,7 @@ export function ForgotPassword() {
 }
 
 export function ResetPassword() {
-  useEffect(() => setMeta('Choose a new password — Toolbox', 'Set a new password for your account.', { noindex: true }), [])
+  useEffect(() => setMeta('Choose a new password — The Toolbox', 'Set a new password for your account.', { noindex: true }), [])
   const user = useUser()
   const navigate = useNavigate()
   const [password, setPassword] = useState('')

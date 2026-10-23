@@ -15,7 +15,7 @@ export default function Settings() {
   const pockets = useStore((s) => s.pockets).length
   const [resetting, setResetting] = useState(false)
   const file = useRef<HTMLInputElement>(null)
-  useEffect(() => setMeta('Settings — Toolbox', 'Appearance, history and your saved data.', { noindex: true }), [])
+  useEffect(() => setMeta('Settings — The Toolbox', 'Appearance, history and your saved data.', { noindex: true }), [])
 
   const importFile = async (f?: File) => {
     if (!f) return
@@ -43,7 +43,7 @@ export default function Settings() {
       <section className="panel" aria-labelledby="history-h">
         <h2 id="history-h">History</h2>
         <label className="check"><input type="checkbox" checked={settings.keepHistory} onChange={(e) => { actions.setSettings({ keepHistory: e.target.checked }); toast(e.target.checked ? 'History turned on' : 'History turned off and cleared') }} /> Remember recently used tools and searches</label>
-        <p className="muted" style={{ margin: 0, fontSize: 14 }}>Toolbox only remembers which tools you opened and the search words you chose. It never stores the text, files, passwords or tokens you put into a tool.</p>
+        <p className="muted" style={{ margin: 0, fontSize: 14 }}>The Toolbox only remembers which tools you opened and the search words you chose. It never stores the text, files, passwords or tokens you put into a tool.</p>
         <div><button className="btn" onClick={() => { actions.clearRecent(); toast('History cleared') }}>Clear history now</button></div>
       </section>
 

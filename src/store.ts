@@ -161,7 +161,7 @@ export const actions = {
   },
   importData(json: string) {
     const data = JSON.parse(json)
-    if (!data || data.app !== 'toolbox') throw new Error('This file is not a Toolbox export.')
+    if (!data || data.app !== 'toolbox') throw new Error('This file isn’t a backup from The Toolbox.')
     const favs = ids(data.favorites)
     const incoming = sanitizePockets(data.pockets)
     // merge rather than replace, so nothing already saved here is lost

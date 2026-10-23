@@ -25,9 +25,9 @@ function useThemeEffect() {
 
 function Brand() {
   return (
-    <Link to="/" className="brand" aria-label="Toolbox home">
+    <Link to="/" className="brand" aria-label="The Toolbox home">
       <span className="brand-mark"><Wrench size={17} strokeWidth={2} aria-hidden="true" /></span>
-      <span className="brand-name">Toolbox</span>
+      <span className="brand-name">The Toolbox</span>
     </Link>
   )
 }
@@ -177,7 +177,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         <Topbar />
         <main id="main" className="page" tabIndex={-1} style={{ outline: 'none' }}>{children}</main>
         <footer className="footer">
-          <span>Toolbox · {tools.length} tools · Tools process your files and text in your browser; nothing you enter is uploaded.</span>
+          <span>The Toolbox · {tools.length} tools · Tools process your files and text in your browser; nothing you enter is uploaded.</span>
           <span className="footer-links"><Link to="/feedback">Feedback</Link><Link to="/feedback?type=tool-request">Request a tool</Link><Link to="/feedback?type=problem">Report a problem</Link><Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link></span>
         </footer>
       </div>
