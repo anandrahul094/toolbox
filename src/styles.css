@@ -389,3 +389,4 @@ a.btn:hover { text-decoration: none; }
 /* readable fallback while the app loads (and for crawlers / no-JS) */
 .prerender { max-width: 900px; margin: 0 auto; padding: 24px 16px; line-height: 1.6; }
 .prerender nav { font-size: 14px; margin-bottom: 16px; }
+.rating-done { flex-direction: row; justify-content: space-between; align-items: center; flex-wrap: wrap; padding: 10px 16px; }
