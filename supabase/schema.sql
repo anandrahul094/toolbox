@@ -13,6 +13,9 @@ create table if not exists public.feedback (
   user_id     uuid references auth.users (id) on delete set null
 );
 alter table public.feedback enable row level security;
+-- explicit grants, so this works even when new tables aren't exposed to the API automatically
+grant insert on public.feedback to anon, authenticated;
+
 create policy "anyone can submit feedback" on public.feedback
   for insert to anon, authenticated
   with check (user_id is null or user_id = auth.uid());
