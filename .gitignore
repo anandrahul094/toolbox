@@ -1,0 +1,8 @@
+node_modules
+dist
+*.tsbuildinfo
+.DS_Store
+# secrets: keep real keys out of git (.env.example is the template)
+.env
+.env.local
+.env.*.local

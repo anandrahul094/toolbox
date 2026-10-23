@@ -1,0 +1,45 @@
+import {
+  AppWindow, AtSign, BadgePercent, Binary, Blend, Braces, Calculator, CalendarClock, CalendarDays, CaseSensitive, Clock, Code, Coins, Combine, Contact,
+  Crop, Database, Dices, Diff, Droplets, Eraser, FileCode, FileDigit, FileImage, FileJson, FileOutput, FileStack, FileText, FileType, Fingerprint, Gauge,
+  Globe, Hash, HeartPulse, Image, Images, IndianRupee, Info, Keyboard, KeyRound, Landmark, LayoutGrid, Link, Link2, ListOrdered, Lock, Mail, MessageCircle,
+  Minimize2, MonitorSmartphone, Network, Palette, Percent, Phone, PiggyBank, Pilcrow, Pipette, QrCode, Quote, Radio, Ratio, Receipt, Regex, Repeat, Replace,
+  Ruler, ScanText, Scissors, ScrollText, Server, Share2, Shield, Square, Stamp, Table, Tags, Terminal, Text, Timer, TrendingUp, Type, Wallet, Wifi,
+  Wrench, Code2, PenTool, Briefcase, Scissors as ScissorsIcon, Eraser as EraserIcon, type LucideIcon,
+} from 'lucide-react'
+import type { Category } from './registry'
+
+export const CATEGORY_ICONS: Record<Category, LucideIcon> = {
+  Image: Image, PDF: FileText, Text: Type, Developer: Code2, 'Web & SEO': Globe, Design: PenTool, 'QR Codes': QrCode, 'Finance & India': IndianRupee, Everyday: Briefcase,
+}
+
+export const TOOL_ICONS: Record<string, LucideIcon> = {
+  'image-compressor': Minimize2, 'image-editor': Crop, 'image-converter': Repeat, 'image-watermark': Stamp, 'exif-viewer': Info, 'image-palette': Pipette,
+  'favicon-generator': AppWindow, 'social-image-resizer': Share2, 'image-base64': FileCode, 'background-remover': ScissorsIcon, 'watermark-remover': EraserIcon,
+  'pdf-merge': Combine, 'pdf-split': Scissors, 'pdf-organize': LayoutGrid, 'image-to-pdf': FileImage, 'pdf-to-image': Images, 'pdf-page-numbers': ListOrdered,
+  'pdf-watermark': Droplets, 'pdf-to-text': ScanText, 'pdf-compress': FileStack,
+  'word-counter': Pilcrow, 'case-converter': CaseSensitive, 'text-cleaner': Eraser, 'find-replace': Replace, 'text-extractor': AtSign, 'line-tools': ListOrdered,
+  'text-diff': Diff, 'lorem-ipsum': Quote, 'markdown-preview': FileType, slugify: Link, 'unicode-inspector': Text, 'morse-code': Radio,
+  'json-formatter': Braces, 'yaml-json': FileJson, 'csv-json': Table, 'sql-formatter': Database, base64: Binary, 'url-encode': Link2, 'jwt-decoder': KeyRound,
+  'html-entities': Code, 'string-escape': Terminal, 'regex-tester': Regex, hash: Fingerprint, uuid: Hash, timestamp: Clock, cron: CalendarClock,
+  'number-base': FileDigit, chmod: Shield,
+  'meta-tags': Tags, 'utm-builder': Link2, 'user-agent': MonitorSmartphone, cidr: Network, 'http-status': Server,
+  'color-converter': Palette, gradient: Blend, 'box-shadow': Square, 'svg-minifier': FileOutput, 'aspect-ratio': Ratio,
+  'qr-code': QrCode, 'qr-wifi': Wifi, 'qr-vcard': Contact, 'qr-upi': IndianRupee, 'qr-whatsapp': MessageCircle, 'qr-email': Mail, 'qr-phone': Phone,
+  gst: Receipt, emi: Landmark, sip: TrendingUp, 'compound-interest': PiggyBank, 'ctc-inhand': Wallet, 'salary-hike': BadgePercent, 'profit-margin': Coins,
+  inflation: Gauge, 'lakh-crore': ScrollText, 'rupees-words': IndianRupee, percentage: Percent, 'tip-split': Receipt,
+  calculator: Calculator, 'unit-converter': Ruler, timezone: Globe, 'date-diff': CalendarDays, timer: Timer, password: Lock, bmi: HeartPulse,
+  random: Dices, 'typing-test': Keyboard,
+}
+export const toolIcon = (id: string, category: Category): LucideIcon => TOOL_ICONS[id] ?? CATEGORY_ICONS[category] ?? Wrench
+
+// Curated: tools added in the latest release, newest first. Not a popularity measure.
+export const RECENTLY_ADDED = ['background-remover', 'watermark-remover', 'pdf-merge', 'pdf-split', 'pdf-organize', 'image-to-pdf', 'pdf-to-image', 'pdf-compress', 'image-editor', 'image-converter', 'exif-viewer', 'favicon-generator', 'social-image-resizer', 'gst', 'sip', 'ctc-inhand', 'qr-upi', 'qr-wifi', 'meta-tags', 'cidr', 'typing-test', 'text-cleaner']
+export const NEW_SET = new Set(RECENTLY_ADDED.concat(['pdf-page-numbers', 'pdf-watermark', 'pdf-to-text', 'image-watermark', 'image-palette', 'compound-interest', 'salary-hike', 'profit-margin', 'inflation', 'lakh-crore', 'rupees-words', 'qr-vcard', 'qr-whatsapp', 'qr-email', 'qr-phone', 'find-replace', 'text-extractor', 'morse-code', 'utm-builder', 'user-agent']))
+
+// Built-in starter pockets: shortcuts into the catalogue, separate from the person's own pockets
+export const STARTER_POCKETS: { slug: string; name: string; description: string; toolIds: string[] }[] = [
+  { slug: 'office', name: 'Office work', description: 'Documents, PDFs and everyday paperwork', toolIds: ['pdf-merge', 'pdf-split', 'image-to-pdf', 'pdf-to-text', 'word-counter', 'text-cleaner', 'rupees-words', 'gst', 'date-diff', 'csv-json'] },
+  { slug: 'developer', name: 'Developer kit', description: 'Formatters, encoders and debugging helpers', toolIds: ['json-formatter', 'yaml-json', 'base64', 'jwt-decoder', 'regex-tester', 'timestamp', 'uuid', 'sql-formatter', 'cron', 'text-diff'] },
+  { slug: 'creator', name: 'Creator & social', description: 'Images sized and ready to post', toolIds: ['social-image-resizer', 'image-compressor', 'image-editor', 'image-watermark', 'qr-code', 'favicon-generator', 'meta-tags', 'utm-builder'] },
+  { slug: 'money', name: 'Money matters', description: 'Salary, loans, savings and tax', toolIds: ['ctc-inhand', 'salary-hike', 'emi', 'sip', 'compound-interest', 'gst', 'inflation', 'percentage'] },
+]
