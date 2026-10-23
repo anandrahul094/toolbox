@@ -43,7 +43,8 @@ function PasswordField({ label, value, onChange, autoComplete, hint }: { label: 
 
 function GoogleButton() {
   const [busy, setBusy] = useState(false)
-  if (!backendReady) return null
+  // shown only once Google is enabled in Supabase (Authentication → Providers) and VITE_GOOGLE_SIGNIN=true is set
+  if (!backendReady || import.meta.env.VITE_GOOGLE_SIGNIN !== 'true') return null
   return (
     <>
       <button type="button" className="btn" disabled={busy} onClick={async () => { setBusy(true); try { await auth.signInWithGoogle() } catch (e) { toast((e as Error).message); setBusy(false) } }}>
