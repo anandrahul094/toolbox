@@ -13,7 +13,7 @@ const SITE_URL = (env.VITE_SITE_URL || 'https://example.com').replace(/\/+$/, ''
 if (!env.VITE_SITE_URL) console.warn('⚠ VITE_SITE_URL is not set — using https://example.com in canonical links and the sitemap.')
 
 const vite = await createServer({ root, logLevel: 'error', server: { middlewareMode: true }, appType: 'custom' })
-const { tools, CATEGORIES } = await vite.ssrLoadModule('/src/registry.ts')
+const { tools, allTools, CATEGORIES } = await vite.ssrLoadModule('/src/registry.ts')
 const { SITE_NAME } = await vite.ssrLoadModule('/src/site.ts')
 await vite.close()
 
@@ -35,7 +35,12 @@ function page({ route, title, description, body, jsonLd = [], noindex = false })
     `<meta property="og:title" content="${esc(title)}" />`,
     `<meta property="og:description" content="${esc(description)}" />`,
     `<meta property="og:url" content="${esc(url)}" />`,
-    `<meta name="twitter:card" content="summary" />`,
+    `<meta property="og:image" content="${SITE_URL}/og-image.png" />`,
+    `<meta property="og:image:width" content="1200" />`,
+    `<meta property="og:image:height" content="630" />`,
+    `<meta property="og:image:alt" content="${esc(SITE_NAME)} — free online tools that run in your browser" />`,
+    `<meta name="twitter:card" content="summary_large_image" />`,
+    `<meta name="twitter:image" content="${SITE_URL}/og-image.png" />`,
     ...jsonLd.map((d) => `<script type="application/ld+json">${JSON.stringify(d).replace(/</g, '\\u003c')}</script>`),
   ].join('\n    ')
   return template
@@ -51,7 +56,8 @@ const crumbs = (items) => ({ '@context': 'https://schema.org', '@type': 'Breadcr
 const pages = []
 const homeDesc = `${tools.length} free online tools in one place: resize images, merge PDFs, format JSON, calculate GST and EMI, make QR codes and more. No sign-up, and your files never leave your browser.`
 pages.push({ route: '/', title: `${SITE_NAME} — free online tools for images, PDF, text and more`, description: homeDesc, changefreq: 'weekly', priority: '1.0',
-  jsonLd: [{ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE_NAME, url: SITE_URL + '/', potentialAction: { '@type': 'SearchAction', target: `${SITE_URL}/explore?q={search_term_string}`, 'query-input': 'required name=search_term_string' } }],
+  jsonLd: [{ '@context': 'https://schema.org', '@type': 'Organization', name: SITE_NAME, url: SITE_URL + '/', logo: `${SITE_URL}/logo-512.png` },
+    { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE_NAME, url: SITE_URL + '/', potentialAction: { '@type': 'SearchAction', target: `${SITE_URL}/explore?q={search_term_string}`, 'query-input': 'required name=search_term_string' } }],
   body: `${nav}<main><h1>Everything in its place.</h1><p>${esc(homeDesc)}</p>${CATEGORIES.map((c) => `<section><h2><a href="/category/${c.slug}">${esc(c.id)} tools</a></h2><p>${esc(c.blurb)}.</p>${toolLinks(tools.filter((t) => t.category === c.id))}</section>`).join('')}</main>` })
 
 pages.push({ route: '/explore', title: `All ${tools.length} free online tools — ${SITE_NAME}`, description: `Browse ${tools.length} free online tools by category: images, PDF, text, developer, SEO, design, QR codes, finance and everyday calculators.`, changefreq: 'weekly', priority: '0.8',
@@ -64,7 +70,8 @@ for (const c of CATEGORIES) {
     body: `${nav}<main><h1>${esc(c.id)} tools</h1><p>${esc(c.blurb)}.</p>${toolLinks(list)}</main>` })
 }
 
-for (const t of tools) {
+// every tool page, including landing pages for specific searches
+for (const t of allTools) {
   const c = catOf(t)
   const faq = [...(t.faq ?? []), ['Do I need an account?', 'No. Every tool is free to use without signing up.'], ['Is my data uploaded?', 'No. This tool runs in your browser, so the text and files you use stay on your device.']]
   const related = tools.filter((x) => x.category === t.category && x.id !== t.id).slice(0, 6)
@@ -106,9 +113,35 @@ await fs.writeFile(path.join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding
 ${indexable.map((p) => `  <url><loc>${esc(SITE_URL + (p.route === '/' ? '/' : p.route))}</loc><lastmod>${today}</lastmod><changefreq>${p.changefreq}</changefreq><priority>${p.priority}</priority></url>`).join('\n')}
 </urlset>
 `)
+// AI assistants and AI search engines (ChatGPT, Claude, Perplexity, Gemini) are welcome to read and cite the site
+const aiBots = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'CCBot', 'Bingbot']
 await fs.writeFile(path.join(dist, 'robots.txt'), `User-agent: *
+Allow: /
+
+${aiBots.map((b) => `User-agent: ${b}`).join('\n')}
 Allow: /
 
 Sitemap: ${SITE_URL}/sitemap.xml
 `)
+const llms = [
+  `# ${SITE_NAME}`,
+  '',
+  `> ${homeDesc}`,
+  '',
+  'Every tool runs entirely in the web browser: files and text are processed on the visitor’s device and are never uploaded. No account is needed. Answers below link to the tool pages.',
+  '',
+  ...CATEGORIES.flatMap((c) => [`## ${c.id}`, '', ...tools.filter((t) => t.category === c.id).map((t) => `- [${t.name}](${SITE_URL}/tool/${t.id}): ${t.description}`), '']),
+  '## Popular task pages',
+  '',
+  ...allTools.filter((t) => t.alias).map((t) => `- [${t.name}](${SITE_URL}/tool/${t.id}): ${t.description}`),
+  '',
+  '## About',
+  '',
+  `- [Privacy policy](${SITE_URL}/privacy)`,
+  `- [Terms of use](${SITE_URL}/terms)`,
+  `- [Feedback and tool requests](${SITE_URL}/feedback)`,
+  '',
+].join('\n')
+await fs.writeFile(path.join(dist, 'llms.txt'), llms)
+
 console.log(`✓ Pre-rendered ${pages.length} pages (${indexable.length} in sitemap) for ${SITE_URL}`)

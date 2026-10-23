@@ -11,7 +11,7 @@ export const CATEGORIES: CategoryInfo[] = [
   { id: 'Developer', slug: 'developer', icon: '🧑‍💻', blurb: 'Formatters, encoders, converters and generators' },
   { id: 'Web & SEO', slug: 'web-seo', icon: '🌐', blurb: 'Meta tags, UTM links, networking and HTTP' },
   { id: 'Design', slug: 'design', icon: '🎨', blurb: 'Colors, gradients, shadows and SVG' },
-  { id: 'QR Codes', slug: 'qr', icon: '🔳', blurb: 'QR codes for links, Wi-Fi, contacts and UPI payments' },
+  { id: 'QR Codes', slug: 'qr', icon: '🔳', blurb: 'Create and scan QR codes and barcodes' },
   { id: 'Finance & India', slug: 'finance', icon: '💰', blurb: 'GST, SIP, EMI, salary and money calculators' },
   { id: 'Everyday', slug: 'everyday', icon: '🧰', blurb: 'Calculators, converters, timers and generators' },
 ]
@@ -23,6 +23,8 @@ export interface Tool {
   category: Category
   keywords: string[]
   howTo: string[]
+  /** a landing page for a specific search (e.g. “compress image to 50KB”); not listed separately in the catalogue */
+  alias?: boolean
   faq?: [string, string][]
   component: LazyExoticComponent<ComponentType>
 }
@@ -32,10 +34,20 @@ type Loader = () => Promise<{ default: ComponentType<never> }>
 const t = (id: string, name: string, category: Category, description: string, keywords: string[], load: Loader, howTo: string[], faq?: [string, string][]): Tool =>
   ({ id, name, category, description, keywords, howTo, faq, component: lazy(load as () => Promise<{ default: ComponentType }>) })
 
+const withProps = (load: () => Promise<{ default: ComponentType<never> }>, props: Record<string, unknown>) => () =>
+  load().then((m) => ({ default: () => createElement(m.default as ComponentType<Record<string, unknown>>, props) }))
+const alias = (tool: Tool): Tool => ({ ...tool, alias: true })
+const exam = (preset: string) => withProps(() => import('./tools/ExamPhotoResizer'), { preset })
+const toKB = (targetKB: number) => withProps(() => import('./tools/CompressToSize'), { targetKB })
+const convert = (to: string, from: string) => withProps(() => import('./tools/ImageConverter'), { to, from })
+const EXAM_HOW = ['Pick your exam and whether it’s a photo or a signature', 'Upload the image, then zoom and position it inside the frame', 'Check the size shows green (within the limit) and download the JPG']
+const EXAM_FAQ: [string, string][] = [['Are these sizes official?', 'They are typical requirements from recent notifications. Limits can change between years and posts, so always check your exam’s latest official notification and adjust the size fields if needed.'], ['My photo is rejected for being too small in KB — what now?', 'The tool raises quality first and, if needed, pads the JPG file so it meets the minimum size without changing how the picture looks.']]
+const KB_HOW = (kb: string) => [`Upload your image`, `The tool finds the highest quality that fits under ${kb}`, 'Download the compressed image']
+
 const qr = (preset: string) => () => import('./tools/QrCode').then((m) => ({ default: () => createElement(m.default, { preset }) }))
 const QR_HOW = ['Fill in the details', 'Pick colors, size and error correction', 'Download the QR code as PNG or SVG and test it with your phone camera']
 
-export const tools: Tool[] = [
+export const allTools: Tool[] = [
   // Image
   t('image-compressor', 'Image Resizer & Compressor', 'Image', 'Resize and compress photos to JPEG, PNG or WebP, with a before-and-after preview.', ['make image smaller', 'reduce size', 'shrink photo', 'webp', 'kb'], () => import('./tools/ImageCompressor'), ['Choose an image', 'Drag the width and quality sliders until the size looks right', 'Download the compressed file']),
   t('image-editor', 'Crop, Rotate & Resize Image', 'Image', 'Crop to any aspect ratio, rotate, flip and resize a photo.', ['crop photo', 'rotate picture', 'flip', 'mirror', 'resize image', 'cut', 'passport photo', 'resize photo'], () => import('./tools/ImageEditor'), ['Choose an image', 'Drag on the preview to select a crop area, or pick an aspect ratio', 'Rotate or flip if needed, set the output width, then download']),
@@ -131,7 +143,33 @@ export const tools: Tool[] = [
   t('bmi', 'BMI Calculator', 'Everyday', 'Body mass index in metric or imperial units.', ['health', 'weight', 'height'], () => import('./tools/BmiCalculator'), ['Choose units', 'Enter height and weight']),
   t('random', 'Random Picker', 'Everyday', 'Random numbers, pick from a list, flip a coin or roll dice.', ['raffle', 'winner', 'dice', 'coin', 'lottery'], () => import('./tools/RandomPicker'), ['Generate numbers, pick from a list, or flip a coin']),
   t('typing-test', 'Typing Speed Test', 'Everyday', 'Measure your words per minute and accuracy.', ['wpm', 'typing practice', 'keyboard'], () => import('./tools/TypingTest'), ['Choose a test length', 'Start typing — the timer begins with your first key', 'See WPM and accuracy at the end']),
+  // ── added for high-demand searches ──
+  t('exam-photo-resizer', 'Exam Photo & Signature Resizer', 'Image', 'Resize photos and signatures to the exact KB and size for SSC, UPSC, IBPS, SBI, NEET and JEE forms.', ['ssc photo resize', 'upsc photo', 'ibps photo', 'neet photo', 'jee photo', 'signature resize', '20kb', '50kb', 'exam form', 'passport size photo', 'photo 20 to 50 kb'], exam('ssc-photo'), EXAM_HOW, EXAM_FAQ),
+  t('compress-image-to-size', 'Compress Image to Exact KB', 'Image', 'Shrink a photo under a target size such as 20KB, 50KB, 100KB or 200KB without guesswork.', ['compress to kb', 'reduce image size in kb', 'image under 100kb', 'photo size reducer', 'compress jpeg'], toKB(100), KB_HOW('your target size')),
+  t('heic-to-jpg', 'HEIC to JPG Converter', 'Image', 'Convert iPhone HEIC photos to JPG or PNG in your browser — no upload.', ['heic', 'heif', 'iphone photo', 'convert heic', 'heic to png', 'apple photo format'], () => import('./tools/HeicToJpg'), ['Add one or more HEIC photos from your iPhone', 'Choose JPG or PNG and the quality', 'Download each photo or all of them as a ZIP'], [['Why can’t I open HEIC photos?', 'HEIC is Apple’s photo format. Windows, many websites and older apps can’t open it, so converting to JPG makes the photo work everywhere.']]),
+  t('signature-maker', 'Online Signature Maker', 'Image', 'Draw or type your signature and download it as a transparent PNG.', ['e-signature', 'digital signature image', 'draw signature', 'signature png', 'sign online'], () => import('./tools/SignatureMaker'), ['Draw your signature with a mouse or finger, or type your name and pick a style', 'Choose the ink colour and pen size', 'Download a transparent PNG or a JPG on white'], [['Is this a legally valid digital signature?', 'It creates an image of your signature for documents and forms. It is not a certified digital signature (DSC) that some government filings require.']]),
+  t('qr-scanner', 'QR Code Scanner', 'QR Codes', 'Read a QR code from a photo, a screenshot or your camera.', ['scan qr', 'qr reader', 'read qr code from image', 'decode qr', 'qr from screenshot'], () => import('./tools/QrScanner'), ['Upload a photo or screenshot of the QR code, or use your camera', 'See what the code contains — link, text, Wi-Fi, contact or UPI', 'Copy the result or open the link after checking it'], [['Is it safe to open links from QR codes?', 'Check the address first. QR codes can point to fake payment or login pages.']]),
+  t('barcode-generator', 'Barcode Generator', 'QR Codes', 'Create Code 128, EAN-13, UPC and other barcodes as PNG or SVG.', ['barcode', 'ean 13', 'upc', 'code 128', 'code 39', 'product barcode', 'label'], () => import('./tools/BarcodeGenerator'), ['Choose the barcode type', 'Enter the value', 'Download the barcode as PNG or SVG'], [['Do I need to register product barcodes?', 'Yes, for products sold in shops. EAN and UPC numbers must be licensed from GS1. This tool only draws the barcode.']]),
+
+  // ── landing pages for specific searches (same tools, preset for the job) ──
+  ...[20, 50, 100, 200, 500].map((kb) => alias(t(`compress-image-to-${kb}kb`, `Compress Image to ${kb}KB`, 'Image', `Reduce a JPG or PNG photo to under ${kb} KB in seconds — free, private, no upload.`, [`${kb}kb`, `image ${kb}kb`, `photo ${kb}kb`, `resize to ${kb}kb`, 'compress image'], toKB(kb), KB_HOW(`${kb} KB`)))),
+  alias(t('compress-image-to-1mb', 'Compress Image to 1MB', 'Image', 'Reduce a large photo to under 1 MB for email and uploads — free, private, no upload.', ['1mb', 'image under 1mb', 'photo 1mb'], toKB(1024), KB_HOW('1 MB'))),
+  alias(t('ssc-photo-resizer', 'SSC Photo & Signature Resizer', 'Image', 'Resize your photo to 20–50 KB and signature to 10–20 KB for SSC CGL, CHSL, MTS and GD forms.', ['ssc', 'ssc cgl photo', 'ssc chsl', 'ssc mts', 'ssc gd'], exam('ssc-photo'), EXAM_HOW, EXAM_FAQ)),
+  alias(t('bank-exam-photo-resizer', 'IBPS / SBI Photo & Signature Resizer', 'Image', 'Resize photo (20–50 KB, 200×230) and signature (10–20 KB, 140×60) for IBPS, SBI and RBI exams.', ['ibps', 'sbi po', 'sbi clerk', 'rbi', 'bank exam photo'], exam('ibps-photo'), EXAM_HOW, EXAM_FAQ)),
+  alias(t('upsc-photo-resizer', 'UPSC Photo & Signature Resizer', 'Image', 'Resize your photo and signature to the 20–300 KB limits for UPSC online forms.', ['upsc', 'upsc cse photo', 'ias form photo'], exam('upsc-photo'), EXAM_HOW, EXAM_FAQ)),
+  alias(t('neet-photo-resizer', 'NEET / JEE Photo & Signature Resizer', 'Image', 'Resize your photo (10–200 KB) and signature (4–30 KB) for NTA forms: NEET, JEE Main and CUET.', ['neet', 'jee main', 'cuet', 'nta photo'], exam('nta-photo'), EXAM_HOW, EXAM_FAQ)),
+  alias(t('signature-resizer', 'Signature Resizer for Exam Forms', 'Image', 'Resize a scanned signature to 10–20 KB with a clean white background for exam applications.', ['signature resize', 'signature 20kb', 'signature 10kb', 'scan signature'], exam('ssc-sign'), EXAM_HOW, EXAM_FAQ)),
+  ...([['jpg-to-png', 'JPG to PNG', 'image/png', 'JPG'], ['png-to-jpg', 'PNG to JPG', 'image/jpeg', 'PNG'], ['webp-to-jpg', 'WebP to JPG', 'image/jpeg', 'WebP'], ['jpg-to-webp', 'JPG to WebP', 'image/webp', 'JPG'], ['png-to-webp', 'PNG to WebP', 'image/webp', 'PNG']] as const).map(([id, name, to, from]) =>
+    alias(t(id, `${name} Converter`, 'Image', `Convert ${from} images to ${name.split(' to ')[1]} in bulk — free and private, nothing is uploaded.`, [name.toLowerCase(), `convert ${from.toLowerCase()}`, id.replace(/-/g, ' ')], convert(to, from), [`Add one or more ${from} images`, 'Adjust quality if you like', 'Download each file or all as a ZIP']))),
+  alias(t('jpg-to-pdf', 'JPG to PDF Converter', 'PDF', 'Turn JPG photos and scans into one PDF, in the order you choose.', ['jpg to pdf', 'photo to pdf', 'image to pdf'], () => import('./tools/ImageToPdf'), ['Add your JPG images and put them in order', 'Choose the page size and margins', 'Create and download the PDF'])),
+  alias(t('pdf-to-jpg', 'PDF to JPG Converter', 'PDF', 'Save every page of a PDF as a JPG image.', ['pdf to jpg', 'pdf to image', 'pdf pages to jpg'], () => import('./tools/PdfToImage'), ['Choose a PDF', 'Pick the resolution', 'Download pages one by one or as a ZIP'])),
+  alias(t('rotate-pdf', 'Rotate PDF', 'PDF', 'Rotate single pages or the whole PDF and save it.', ['rotate pdf', 'turn pdf pages', 'pdf sideways'], () => import('./tools/PdfOrganize'), ['Choose a PDF', 'Rotate pages with ↻ or use “Rotate all”', 'Save the new PDF'])),
+  alias(t('age-calculator', 'Age Calculator', 'Everyday', 'Find your exact age in years, months and days, and days until your next birthday.', ['age', 'how old am i', 'date of birth calculator', 'birthday'], () => import('./tools/DateDiff'), ['Enter your date of birth', 'Leave the end date as today, or pick another date', 'Read your exact age'])),
+  alias(t('character-counter', 'Character Counter', 'Text', 'Count characters, words and lines — with and without spaces.', ['character count', 'letter counter', 'count characters'], () => import('./tools/WordCounter'), ['Type or paste your text', 'Character and word counts update as you type'])),
 ]
 
-export const findTool = (id: string) => tools.find((t) => t.id === id)
+/** the catalogue shown in lists; landing pages for specific searches are reachable by link and search */
+export const tools: Tool[] = allTools.filter((x) => !x.alias)
+
+export const findTool = (id: string) => allTools.find((t) => t.id === id)
 export const categoryBySlug = (slug: string) => CATEGORIES.find((c) => c.slug === slug)

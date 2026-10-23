@@ -5,9 +5,9 @@ import { baseName, canvasFits, canvasToBlob, downloadBlob, ErrorBox, extOf, Fiel
 const FORMATS: [string, string][] = [['image/jpeg', 'JPG'], ['image/png', 'PNG'], ['image/webp', 'WebP']]
 interface Result { name: string; from: number; blob: Blob }
 
-export default function ImageConverter() {
+export default function ImageConverter({ to = 'image/jpeg', from }: { to?: string; from?: string }) {
   const [files, setFiles] = useState<File[]>([])
-  const [format, setFormat] = useState('image/jpeg')
+  const [format, setFormat] = useState(to)
   const [quality, setQuality] = useState(90)
   const [bg, setBg] = useState('#ffffff')
   const [results, setResults] = useState<Result[]>([])
@@ -43,7 +43,7 @@ export default function ImageConverter() {
 
   return (
     <>
-      <FileDrop accept="image/*" multiple disabled={busy} onFiles={(fs) => { setFiles((p) => [...p, ...fs]); setResults([]) }} label={files.length ? `${files.length} image${files.length > 1 ? 's' : ''} selected — click or drop to add more` : 'Drop images here or click to choose'} />
+      <FileDrop accept="image/*" multiple disabled={busy} onFiles={(fs) => { setFiles((p) => [...p, ...fs]); setResults([]) }} label={files.length ? `${files.length} image${files.length > 1 ? 's' : ''} selected — click or drop to add more` : (from ? `Drop ${from} images here or click to choose` : 'Drop images here or click to choose')} />
       <Row>
         <Field label="Convert to"><select value={format} onChange={(e) => setFormat(e.target.value)}>{FORMATS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></Field>
         {format !== 'image/png' && <Field label={`Quality: ${quality}%`}><input type="range" min={10} max={100} value={quality} onChange={(e) => setQuality(+e.target.value)} /></Field>}

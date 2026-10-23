@@ -4,7 +4,7 @@ import {
   Globe, Hash, HeartPulse, Image, Images, IndianRupee, Info, Keyboard, KeyRound, Landmark, LayoutGrid, Link, Link2, ListOrdered, Lock, Mail, MessageCircle,
   Minimize2, MonitorSmartphone, Network, Palette, Percent, Phone, PiggyBank, Pilcrow, Pipette, QrCode, Quote, Radio, Ratio, Receipt, Regex, Repeat, Replace,
   Ruler, ScanText, Scissors, ScrollText, Server, Share2, Shield, Square, Stamp, Table, Tags, Terminal, Text, Timer, TrendingUp, Type, Wallet, Wifi,
-  Wrench, Code2, PenTool, Briefcase, Scissors as ScissorsIcon, Eraser as EraserIcon, type LucideIcon,
+  Wrench, Code2, PenTool, Briefcase, Scissors as ScissorsIcon, Eraser as EraserIcon, IdCard, FileDown, Smartphone, ScanLine, Barcode, Signature, type LucideIcon,
 } from 'lucide-react'
 import type { Category } from './registry'
 
@@ -15,6 +15,10 @@ export const CATEGORY_ICONS: Record<Category, LucideIcon> = {
 export const TOOL_ICONS: Record<string, LucideIcon> = {
   'image-compressor': Minimize2, 'image-editor': Crop, 'image-converter': Repeat, 'image-watermark': Stamp, 'exif-viewer': Info, 'image-palette': Pipette,
   'favicon-generator': AppWindow, 'social-image-resizer': Share2, 'image-base64': FileCode, 'background-remover': ScissorsIcon, 'watermark-remover': EraserIcon,
+  'exam-photo-resizer': IdCard, 'compress-image-to-size': FileDown, 'heic-to-jpg': Smartphone, 'qr-scanner': ScanLine, 'barcode-generator': Barcode, 'signature-maker': Signature,
+  'ssc-photo-resizer': IdCard, 'bank-exam-photo-resizer': IdCard, 'upsc-photo-resizer': IdCard, 'neet-photo-resizer': IdCard, 'signature-resizer': Signature,
+  'compress-image-to-20kb': FileDown, 'compress-image-to-50kb': FileDown, 'compress-image-to-100kb': FileDown, 'compress-image-to-200kb': FileDown, 'compress-image-to-500kb': FileDown, 'compress-image-to-1mb': FileDown,
+  'jpg-to-png': Repeat, 'png-to-jpg': Repeat, 'webp-to-jpg': Repeat, 'jpg-to-webp': Repeat, 'png-to-webp': Repeat, 'jpg-to-pdf': FileImage, 'pdf-to-jpg': Images, 'rotate-pdf': LayoutGrid, 'age-calculator': CalendarDays, 'character-counter': Pilcrow,
   'pdf-merge': Combine, 'pdf-split': Scissors, 'pdf-organize': LayoutGrid, 'image-to-pdf': FileImage, 'pdf-to-image': Images, 'pdf-page-numbers': ListOrdered,
   'pdf-watermark': Droplets, 'pdf-to-text': ScanText, 'pdf-compress': FileStack,
   'word-counter': Pilcrow, 'case-converter': CaseSensitive, 'text-cleaner': Eraser, 'find-replace': Replace, 'text-extractor': AtSign, 'line-tools': ListOrdered,
@@ -33,8 +37,8 @@ export const TOOL_ICONS: Record<string, LucideIcon> = {
 export const toolIcon = (id: string, category: Category): LucideIcon => TOOL_ICONS[id] ?? CATEGORY_ICONS[category] ?? Wrench
 
 // Curated: tools added in the latest release, newest first. Not a popularity measure.
-export const RECENTLY_ADDED = ['background-remover', 'watermark-remover', 'pdf-merge', 'pdf-split', 'pdf-organize', 'image-to-pdf', 'pdf-to-image', 'pdf-compress', 'image-editor', 'image-converter', 'exif-viewer', 'favicon-generator', 'social-image-resizer', 'gst', 'sip', 'ctc-inhand', 'qr-upi', 'qr-wifi', 'meta-tags', 'cidr', 'typing-test', 'text-cleaner']
-export const NEW_SET = new Set(RECENTLY_ADDED.concat(['pdf-page-numbers', 'pdf-watermark', 'pdf-to-text', 'image-watermark', 'image-palette', 'compound-interest', 'salary-hike', 'profit-margin', 'inflation', 'lakh-crore', 'rupees-words', 'qr-vcard', 'qr-whatsapp', 'qr-email', 'qr-phone', 'find-replace', 'text-extractor', 'morse-code', 'utm-builder', 'user-agent']))
+export const RECENTLY_ADDED = ['exam-photo-resizer', 'compress-image-to-size', 'heic-to-jpg', 'qr-scanner', 'barcode-generator', 'signature-maker', 'background-remover', 'watermark-remover', 'pdf-merge', 'pdf-split', 'pdf-organize', 'image-to-pdf', 'pdf-to-image', 'pdf-compress', 'image-editor', 'image-converter', 'exif-viewer', 'favicon-generator', 'social-image-resizer', 'gst', 'sip', 'ctc-inhand', 'qr-upi', 'qr-wifi', 'meta-tags', 'cidr', 'typing-test', 'text-cleaner']
+export const NEW_SET = new Set(RECENTLY_ADDED.concat(['ssc-photo-resizer', 'bank-exam-photo-resizer', 'upsc-photo-resizer', 'neet-photo-resizer', 'signature-resizer', 'pdf-page-numbers', 'pdf-watermark', 'pdf-to-text', 'image-watermark', 'image-palette', 'compound-interest', 'salary-hike', 'profit-margin', 'inflation', 'lakh-crore', 'rupees-words', 'qr-vcard', 'qr-whatsapp', 'qr-email', 'qr-phone', 'find-replace', 'text-extractor', 'morse-code', 'utm-builder', 'user-agent']))
 
 // Built-in starter pockets: shortcuts into the catalogue, separate from the person's own pockets
 export const STARTER_POCKETS: { slug: string; name: string; description: string; toolIds: string[] }[] = [
