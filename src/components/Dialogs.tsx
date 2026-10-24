@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { actions, type Pocket } from '../store'
 import { toast } from '../toast'
+import { tr } from '../i18n'
 
 function useModal(open: boolean) {
   const ref = useRef<HTMLDialogElement>(null)
@@ -27,11 +28,11 @@ export function PocketDialog({ open, onClose, pocket, initialTool }: { open: boo
     if (!name.trim()) return
     if (pocket) {
       actions.updatePocket(pocket.id, { name: name.trim(), description: desc.trim() })
-      toast('Pocket updated')
+      toast(tr("Pocket updated"))
       onClose(pocket.id)
     } else {
       const id = actions.createPocket(name, desc, initialTool ? [initialTool] : [])
-      toast(initialTool ? `Created “${name.trim()}” and added the tool` : `Created “${name.trim()}”`)
+      toast(initialTool ? tr('Created “{name}” and added the tool', { name: name.trim() }) : tr('Created “{name}”', { name: name.trim() }))
       onClose(id)
     }
   }
@@ -39,16 +40,16 @@ export function PocketDialog({ open, onClose, pocket, initialTool }: { open: boo
   return (
     <dialog ref={ref} className="dialog" onClose={() => onClose()} onClick={onBackdrop(() => onClose())} aria-labelledby={titleId}>
       <form method="dialog" onSubmit={(e) => { e.preventDefault(); submit() }}>
-        <h2 id={titleId}>{pocket ? 'Edit pocket' : 'New pocket'}</h2>
-        <label className="field"><span className="field-label">Name</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={60} placeholder="e.g. Client invoices" autoFocus required />
+        <h2 id={titleId}>{pocket ? tr("Edit pocket") : tr("New pocket")}</h2>
+        <label className="field"><span className="field-label">{tr("Name")}</span>
+          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={60} placeholder={tr("e.g. Client invoices")} autoFocus required />
         </label>
-        <label className="field"><span className="field-label">Description <span className="muted">(optional)</span></span>
-          <input value={desc} onChange={(e) => setDesc(e.target.value)} maxLength={200} placeholder="What is this pocket for?" />
+        <label className="field"><span className="field-label">{tr("Description")} <span className="muted">{tr("(optional)")}</span></span>
+          <input value={desc} onChange={(e) => setDesc(e.target.value)} maxLength={200} placeholder={tr("What is this pocket for?")} />
         </label>
         <div className="d-actions">
-          <button type="button" className="btn" onClick={() => onClose()}>Cancel</button>
-          <button type="submit" className="btn primary" disabled={!name.trim()}>{pocket ? 'Save' : 'Create pocket'}</button>
+          <button type="button" className="btn" onClick={() => onClose()}>{tr("Cancel")}</button>
+          <button type="submit" className="btn primary" disabled={!name.trim()}>{pocket ? 'Save' : tr("Create pocket")}</button>
         </div>
       </form>
     </dialog>
@@ -64,7 +65,7 @@ export function ConfirmDialog({ open, title, children, confirmLabel, onConfirm, 
         <h2 id={titleId} style={{ overflowWrap: 'anywhere' }}>{title}</h2>
         <div className="muted">{children}</div>
         <div className="d-actions">
-          <button type="button" className="btn" onClick={onClose} autoFocus>Cancel</button>
+          <button type="button" className="btn" onClick={onClose} autoFocus>{tr("Cancel")}</button>
           <button type="submit" className="btn primary">{confirmLabel}</button>
         </div>
       </form>

@@ -1,4 +1,5 @@
 import { useEffect, useState, type InputHTMLAttributes, type ReactNode } from 'react'
+import { tr } from '../i18n'
 
 async function copyText(value: string) {
   try {
@@ -29,7 +30,7 @@ export function CopyButton({ value, label = 'Copy' }: { value: string; label?: s
         setTimeout(() => setState('idle'), 1400)
       }}
     >
-      <span aria-live="polite">{state === 'copied' ? 'Copied ✓' : state === 'failed' ? 'Copy failed' : label}</span>
+      <span aria-live="polite">{state === 'copied' ? tr('Copied ✓') : state === 'failed' ? tr('Copy failed') : label === 'Copy' ? tr('Copy') : label}</span>
     </button>
   )
 }
@@ -104,7 +105,7 @@ export function FileDrop({ onFiles, accept, multiple, label, hint, disabled }: {
   const take = (list: File[]) => {
     const ok = list.filter((f) => matchesAccept(f, accept))
     const bad = list.length - ok.length
-    setRejected(bad ? `${bad === list.length ? 'That file type isn’t supported here' : `${bad} file${bad > 1 ? 's were' : ' was'} skipped (unsupported type)`}.` : null)
+    setRejected(bad ? (bad === list.length ? tr('That file type isn’t supported here.') : tr('{n} file(s) skipped (unsupported type).', { n: bad })) : null)
     if (ok.length) onFiles(multiple ? ok : ok.slice(0, 1))
   }
   return (
@@ -118,8 +119,8 @@ export function FileDrop({ onFiles, accept, multiple, label, hint, disabled }: {
         {/* visually hidden but focusable, so keyboard users can Tab to it and press Enter/Space */}
         <input className="sr-only" type="file" accept={accept} multiple={multiple} disabled={disabled}
           onChange={(e) => { const fs = [...(e.target.files ?? [])]; if (fs.length) take(fs); e.target.value = '' }} />
-        <div className="drop-title">{disabled ? 'Working… please wait' : label ?? (multiple ? 'Drop files here or click to choose' : 'Drop a file here or click to choose')}</div>
-        <div className="field-hint">{hint ?? 'Files stay on your device.'}</div>
+        <div className="drop-title">{disabled ? tr('Working… please wait') : label ?? (multiple ? tr('Drop files here or click to choose') : tr('Drop a file here or click to choose'))}</div>
+        <div className="field-hint">{hint ?? tr('Files stay on your device.')}</div>
       </label>
       {rejected && <div className="error" role="alert" style={{ marginTop: 8 }}>{rejected}</div>}
     </div>
@@ -140,7 +141,7 @@ export function loadImage(src: Blob | string): Promise<HTMLImageElement> {
   })
 }
 
-export const IMAGE_LOAD_ERROR = 'This file could not be opened as an image. HEIC and RAW photos are not supported by browsers — convert them to JPG first.'
+export const IMAGE_LOAD_ERROR = tr('This file could not be opened as an image. HEIC and RAW photos are not supported by browsers — convert them to JPG first.')
 
 /** Load the chosen image file; ignores results from a previously chosen file that finishes late. */
 export function useImageFile() {
@@ -216,7 +217,7 @@ export function NumberInput({ value, onValue, min, max, step, ...rest }: { value
   const n = draft === null || draft.trim() === '' ? NaN : Number(draft)
   const invalid = draft !== null && draft.trim() !== '' && !(Number.isFinite(n) && (min === undefined || n >= min) && (max === undefined || n <= max))
   const fmt = (x: number) => x.toLocaleString(undefined, { maximumFractionDigits: 2 })
-  const range = min !== undefined && max !== undefined ? `between ${fmt(min)} and ${fmt(max)}` : min !== undefined ? `of at least ${fmt(min)}` : `up to ${fmt(max!)}`
+  const range = min !== undefined && max !== undefined ? tr('between {a} and {b}', { a: fmt(min), b: fmt(max) }) : min !== undefined ? tr('of at least {a}', { a: fmt(min) }) : tr('up to {a}', { a: fmt(max!) })
   return (
     <>
       <input
@@ -229,7 +230,7 @@ export function NumberInput({ value, onValue, min, max, step, ...rest }: { value
         }}
         onBlur={(e) => { setDraft(null); rest.onBlur?.(e) }}
       />
-      {invalid && <span className="field-error" role="alert">Enter a number {range}.</span>}
+      {invalid && <span className="field-error" role="alert">{tr('Enter a number {range}.', { range })}</span>}
     </>
   )
 }

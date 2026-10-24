@@ -4,6 +4,9 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import ErrorBoundary from './components/ErrorBoundary'
 import './styles.css'
+import { LANG } from './i18n'
+
+document.documentElement.lang = LANG
 
 // links from the earlier version looked like /#/tool/json-formatter; send them to the clean URL
 if (window.location.hash.startsWith('#/')) {
@@ -12,7 +15,7 @@ if (window.location.hash.startsWith('#/')) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={LANG === 'en' ? undefined : `/${LANG}`}>
       <ErrorBoundary scope="app">
         <App />
       </ErrorBoundary>

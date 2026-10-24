@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { CheckCircle2, TriangleAlert } from 'lucide-react'
 import { baseName, downloadBlob, ErrorBox, Field, FileDrop, fmtBytes, imageSize, NumberInput, Row, Stat, useImageFile } from '../components/ui'
+import { tr } from '../i18n'
 import { encodeToSize, type SizedResult } from '../lib/compressToSize'
 
 // Typical requirements from recent notifications. They change, so the page asks people to check.
@@ -88,56 +89,56 @@ export default function ExamPhotoResizer({ preset: initial = 'ssc-photo' }: { pr
     return () => { cancelled = true; clearTimeout(t); if (url) URL.revokeObjectURL(url) }
   }, [cropped, minKB, maxKB])
 
-  const rangeError = minKB > maxKB ? 'Minimum size can’t be larger than the maximum.' : null
+  const rangeError = minKB > maxKB ? tr('Minimum size can’t be larger than the maximum.') : null
   const kb = result ? result.blob.size / 1024 : 0
 
   return (
     <>
-      <Field label="Exam and document type">
+      <Field label={tr("Exam and document type")}>
         <select value={presetId} onChange={(e) => setPresetId(e.target.value)}>
-          {PRESETS.map((p) => <option key={p.id} value={p.id}>{p.label}{p.id !== 'custom' ? ` · ${p.minKB}–${p.maxKB} KB` : ''}</option>)}
+          {PRESETS.map((p) => <option key={p.id} value={p.id}>{tr(p.label)}{p.id !== 'custom' ? ` · ${p.minKB}–${p.maxKB} KB` : ''}</option>)}
         </select>
       </Field>
-      <div className="notice"><TriangleAlert size={16} aria-hidden="true" /><span>These are typical requirements. Rules change between years and posts — always check the size limits in your exam’s latest official notification and adjust below if needed.</span></div>
-      <FileDrop accept="image/*" onFiles={(f) => setFile(f[0])} label={file ? `${file.name} — ${fmtBytes(file.size)} · drop or click to replace` : `Drop your ${preset.kind} here, or click to choose`} hint="Use a clear, recent photo with a plain light background. It never leaves your device." />
+      <div className="notice"><TriangleAlert size={16} aria-hidden="true" /><span>{tr('These are typical requirements. Rules change between years and posts — always check the size limits in your exam’s latest official notification and adjust below if needed.')}</span></div>
+      <FileDrop accept="image/*" onFiles={(f) => setFile(f[0])} label={file ? tr('{name} — {size} · drop or click to replace', { name: file.name, size: fmtBytes(file.size) }) : tr(preset.kind === 'photo' ? 'Drop your photo here, or click to choose' : 'Drop your signature here, or click to choose')} hint={tr('Use a clear, recent photo with a plain light background. It never leaves your device.')} />
       <ErrorBox message={error} />
 
       <Row>
-        <Field label="Width (px)"><NumberInput min={20} max={2000} step={1} value={w} onValue={(v) => { setW(Math.round(v)); setPresetId('custom') }} /></Field>
-        <Field label="Height (px)"><NumberInput min={20} max={2000} step={1} value={h} onValue={(v) => { setH(Math.round(v)); setPresetId('custom') }} /></Field>
-        <Field label="Min size (KB)"><NumberInput min={0} max={2000} step={1} value={minKB} onValue={(v) => { setMinKB(Math.round(v)); setPresetId('custom') }} /></Field>
-        <Field label="Max size (KB)"><NumberInput min={1} max={5000} step={1} value={maxKB} onValue={(v) => { setMaxKB(Math.round(v)); setPresetId('custom') }} /></Field>
+        <Field label={tr("Width (px)")}><NumberInput min={20} max={2000} step={1} value={w} onValue={(v) => { setW(Math.round(v)); setPresetId('custom') }} /></Field>
+        <Field label={tr("Height (px)")}><NumberInput min={20} max={2000} step={1} value={h} onValue={(v) => { setH(Math.round(v)); setPresetId('custom') }} /></Field>
+        <Field label={tr("Min size (KB)")}><NumberInput min={0} max={2000} step={1} value={minKB} onValue={(v) => { setMinKB(Math.round(v)); setPresetId('custom') }} /></Field>
+        <Field label={tr("Max size (KB)")}><NumberInput min={1} max={5000} step={1} value={maxKB} onValue={(v) => { setMaxKB(Math.round(v)); setPresetId('custom') }} /></Field>
       </Row>
-      {preset.unit === 'cm' && presetId !== 'custom' && <p className="muted" style={{ margin: 0, fontSize: 13 }}>{preset.w} × {preset.h} cm, converted to {w} × {h} px at {DPI} DPI.</p>}
+      {preset.unit === 'cm' && presetId !== 'custom' && <p className="muted" style={{ margin: 0, fontSize: 13 }}>{tr('{a} × {b} cm, converted to {w} × {h} px at {dpi} DPI.', { a: preset.w, b: preset.h, w, h, dpi: DPI })}</p>}
       <ErrorBox message={rangeError} />
 
       {img && cropped && (
         <>
           <div className="cols">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <Field label={`Zoom: ${Math.round(zoom * 100)}%`}><input type="range" min={1} max={3} step={0.05} value={zoom} onChange={(e) => setZoom(+e.target.value)} /></Field>
-              <Field label="Move left / right"><input type="range" min={0} max={100} value={posX} onChange={(e) => setPosX(+e.target.value)} /></Field>
-              <Field label="Move up / down"><input type="range" min={0} max={100} value={posY} onChange={(e) => setPosY(+e.target.value)} /></Field>
-              <label className="check"><input type="checkbox" checked={whiten} onChange={(e) => setWhiten(e.target.checked)} /> Clean background (makes paper white, ink darker — best for signatures)</label>
+              <Field label={tr('Zoom: {n}%', { n: Math.round(zoom * 100) })}><input type="range" min={1} max={3} step={0.05} value={zoom} onChange={(e) => setZoom(+e.target.value)} /></Field>
+              <Field label={tr("Move left / right")}><input type="range" min={0} max={100} value={posX} onChange={(e) => setPosX(+e.target.value)} /></Field>
+              <Field label={tr("Move up / down")}><input type="range" min={0} max={100} value={posY} onChange={(e) => setPosY(+e.target.value)} /></Field>
+              <label className="check"><input type="checkbox" checked={whiten} onChange={(e) => setWhiten(e.target.checked)} /> {tr('Clean background (makes paper white, ink darker — best for signatures)')}</label>
             </div>
             <div style={{ display: 'grid', placeItems: 'center', background: 'var(--surface-2)', borderRadius: 8, padding: 12 }}>
-              <canvas ref={preview} aria-label="Preview of the resized image" style={{ maxWidth: '100%', maxHeight: 280, border: '1px solid var(--border)', background: '#fff' }} />
+              <canvas ref={preview} aria-label={tr("Preview of the resized image")} style={{ maxWidth: '100%', maxHeight: 280, border: '1px solid var(--border)', background: '#fff' }} />
             </div>
           </div>
 
           {result && (
             <>
               <div className="stats" aria-live="polite">
-                <Stat label="File size" value={<span style={{ color: result.hitTarget ? 'var(--ok)' : 'var(--danger)' }}>{kb.toFixed(1)} KB</span>} />
-                <Stat label="Required" value={<span style={{ fontSize: 16 }}>{minKB}–{maxKB} KB</span>} />
-                <Stat label="Dimensions" value={<span style={{ fontSize: 16 }}>{result.width}×{result.height}</span>} />
-                <Stat label="Format" value={<span style={{ fontSize: 16 }}>JPG</span>} />
+                <Stat label={tr("File size")} value={<span style={{ color: result.hitTarget ? 'var(--ok)' : 'var(--danger)' }}>{kb.toFixed(1)} KB</span>} />
+                <Stat label={tr("Required")} value={<span style={{ fontSize: 16 }}>{minKB}–{maxKB} KB</span>} />
+                <Stat label={tr("Dimensions")} value={<span style={{ fontSize: 16 }}>{result.width}×{result.height}</span>} />
+                <Stat label={tr("Format")} value={<span style={{ fontSize: 16 }}>JPG</span>} />
               </div>
               {result.hitTarget
-                ? <div className="badge"><CheckCircle2 size={14} aria-hidden="true" />Ready to upload — within {minKB}–{maxKB} KB{result.padded ? ' (padded to reach the minimum size)' : ''}</div>
-                : <div className="error" role="alert">Couldn’t fit {maxKB} KB at these dimensions. Reduce the width and height, or check the limits.</div>}
+                ? <div className="badge"><CheckCircle2 size={14} aria-hidden="true" />{tr('Ready to upload — within {a}–{b} KB', { a: minKB, b: maxKB })}{result.padded ? tr(' (padded to reach the minimum size)') : ''}</div>
+                : <div className="error" role="alert">{tr('Couldn’t fit {b} KB at these dimensions. Reduce the width and height, or check the limits.', { b: maxKB })}</div>}
               <Row>
-                <button className="btn primary" disabled={busy || !result.hitTarget} onClick={() => downloadBlob(`${baseName(file!.name)}-${presetId}.jpg`, result.blob)}>{busy ? 'Working…' : 'Download JPG'}</button>
+                <button className="btn primary" disabled={busy || !result.hitTarget} onClick={() => downloadBlob(`${baseName(file!.name)}-${presetId}.jpg`, result.blob)}>{busy ? tr('Working…') : tr('Download JPG')}</button>
               </Row>
             </>
           )}

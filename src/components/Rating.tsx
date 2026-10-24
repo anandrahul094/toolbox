@@ -4,8 +4,9 @@ import { Bug, Star } from 'lucide-react'
 import type { Tool } from '../registry'
 import { backendReady, myRatings, rateTool, ratingSummary, type RatingSummary } from '../lib/backend'
 import { toast } from '../toast'
+import { tr } from '../i18n'
 
-const LABELS = ['', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent']
+const LABELS = ['', tr('Poor'), tr('Fair'), tr('Good'), tr('Very good'), tr('Excellent')]
 
 export function Stars({ value, size = 14 }: { value: number; size?: number }) {
   return (
@@ -30,8 +31,8 @@ export function useRatingSummary(toolId: string, refresh = 0) {
 export function RatingSummaryBadge({ summary }: { summary: RatingSummary | null }) {
   if (!summary || summary.count === 0) return null
   return (
-    <span className="tag" style={{ fontSize: 13 }} aria-label={`Rated ${summary.average} out of 5 by ${summary.count} people`}>
-      <Stars value={summary.average} /> {summary.average.toFixed(1)} · {summary.count} rating{summary.count === 1 ? '' : 's'}
+    <span className="tag" style={{ fontSize: 13 }} aria-label={tr('Rated {avg} out of 5 by {n} people', { avg: summary.average, n: summary.count })}>
+      <Stars value={summary.average} /> {summary.average.toFixed(1)} · {tr(summary.count === 1 ? '{n} rating' : '{n} ratings', { n: summary.count })}
     </span>
   )
 }
@@ -64,7 +65,7 @@ export default function RateTool({ tool, onRated }: { tool: Tool; onRated?: () =
     const r = await save(stars, withComment ? comment : '')
     if (!withComment) setComment('')
     setStep('done')
-    toast(r === 'sent' ? 'Thanks for your feedback!' : 'Thanks! Your rating is saved on this device.')
+    toast(r === 'sent' ? tr("Thanks for your feedback!") : tr("Thanks! Your rating is saved on this device."))
   }
 
   const onKey = (e: KeyboardEvent) => {
@@ -73,15 +74,15 @@ export default function RateTool({ tool, onRated }: { tool: Tool; onRated?: () =
     if ((e.key === 'Enter' || e.key === ' ') && hover) { e.preventDefault(); void pick(hover) }
   }
   const shown = hover || stars
-  const report = <Link to={`/feedback?type=problem&tool=${tool.id}`} style={{ fontSize: 13, display: 'inline-flex', gap: 6, alignItems: 'center' }}><Bug size={14} aria-hidden="true" />Report a problem</Link>
+  const report = <Link to={`/feedback?type=problem&tool=${tool.id}`} style={{ fontSize: 13, display: 'inline-flex', gap: 6, alignItems: 'center' }}><Bug size={14} aria-hidden="true" />{tr("Report a problem")}</Link>
 
   if (step === 'done') {
     return (
-      <section className="rating-box rating-done" aria-label="Your rating">
+      <section className="rating-box rating-done" aria-label={tr("Your rating")}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <Stars value={stars} size={16} />
-          <span style={{ fontSize: 14 }}>You rated this <b>{LABELS[stars].toLowerCase()}</b>. Thanks for your feedback!</span>
-          <button className="btn ghost-text sm" onClick={() => setStep('rate')}>Edit</button>
+          <span style={{ fontSize: 14 }}>{tr('You rated this “{label}”. Thanks for your feedback!', { label: LABELS[stars] })}</span>
+          <button className="btn ghost-text sm" onClick={() => setStep('rate')}>{tr("Edit")}</button>
         </span>
         {report}
       </section>
@@ -91,31 +92,31 @@ export default function RateTool({ tool, onRated }: { tool: Tool; onRated?: () =
   return (
     <section className="rating-box" aria-labelledby="rate-h">
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-        <h2 id="rate-h" style={{ fontSize: 15 }}>{step === 'comment' ? 'Thanks! Anything else to add?' : 'How useful was this tool?'}</h2>
+        <h2 id="rate-h" style={{ fontSize: 15 }}>{step === 'comment' ? tr("Thanks! Anything else to add?") : tr("How useful was this tool?")}</h2>
         {report}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-        <div className="stars" role="radiogroup" aria-label={`Rate ${tool.name}`} onKeyDown={onKey} onMouseLeave={() => setHover(0)}>
+        <div className="stars" role="radiogroup" aria-label={tr('Rate {name}', { name: tool.name })} onKeyDown={onKey} onMouseLeave={() => setHover(0)}>
           {[1, 2, 3, 4, 5].map((n) => (
-            <button key={n} type="button" role="radio" aria-checked={stars === n} aria-label={`${n} star${n > 1 ? 's' : ''} — ${LABELS[n]}`}
+            <button key={n} type="button" role="radio" aria-checked={stars === n} aria-label={tr(n > 1 ? '{n} stars — {label}' : '{n} star — {label}', { n, label: LABELS[n] })}
               tabIndex={stars ? (stars === n ? 0 : -1) : n === 1 ? 0 : -1}
               className={`star-btn ${shown >= n ? 'on' : ''}`} onMouseEnter={() => setHover(n)} onClick={() => void pick(n)}>
               <Star size={24} fill={shown >= n ? 'currentColor' : 'none'} aria-hidden="true" />
             </button>
           ))}
         </div>
-        <span className="muted" style={{ fontSize: 14, minWidth: 80 }}>{shown ? LABELS[shown] : 'Tap a star'}</span>
+        <span className="muted" style={{ fontSize: 14, minWidth: 80 }}>{shown ? LABELS[shown] : tr("Tap a star")}</span>
       </div>
       {step === 'comment' && (
         <>
           <label className="field">
-            <span className="field-label">Comment <span className="muted">(optional)</span></span>
-            <textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={1000} autoFocus style={{ minHeight: 70, fontFamily: 'inherit', fontSize: 14 }} placeholder={stars <= 3 ? 'What would make it better?' : 'What did you use it for?'} />
+            <span className="field-label">{tr("Comment")} <span className="muted">{tr("(optional)")}</span></span>
+            <textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={1000} autoFocus style={{ minHeight: 70, fontFamily: 'inherit', fontSize: 14 }} placeholder={stars <= 3 ? tr("What would make it better?") : tr("What did you use it for?")} />
           </label>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <button className="btn primary sm" disabled={busy || !comment.trim()} onClick={() => finish(true)}>{busy ? 'Saving…' : 'Send comment'}</button>
-            <button className="btn sm" disabled={busy} onClick={() => finish(false)}>No thanks</button>
-            {!backendReady && <span className="muted" style={{ fontSize: 12 }}>Ratings are kept on this device until the ratings service is connected.</span>}
+            <button className="btn primary sm" disabled={busy || !comment.trim()} onClick={() => finish(true)}>{busy ? tr("Saving…") : tr("Send comment")}</button>
+            <button className="btn sm" disabled={busy} onClick={() => finish(false)}>{tr("No thanks")}</button>
+            {!backendReady && <span className="muted" style={{ fontSize: 12 }}>{tr("Ratings are kept on this device until the ratings service is connected.")}</span>}
           </div>
         </>
       )}

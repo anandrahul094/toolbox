@@ -6,6 +6,8 @@ import { NEW_SET, toolIcon, CATEGORY_ICONS } from '../meta'
 import { actions, useStore } from '../store'
 import { toast } from '../toast'
 import { PocketDialog } from './Dialogs'
+import { tr } from '../i18n'
+import { catLabel } from '../i18n/localize'
 
 export function ToolIcon({ tool, size = 'md' }: { tool: Tool; size?: 'sm' | 'md' | 'lg' }) {
   const Icon = toolIcon(tool.id, tool.category)
@@ -14,7 +16,7 @@ export function ToolIcon({ tool, size = 'md' }: { tool: Tool; size?: 'sm' | 'md'
 
 export function CategoryTag({ tool }: { tool: Tool }) {
   const Icon = CATEGORY_ICONS[tool.category]
-  return <span className="tag"><Icon size={12} aria-hidden="true" />{tool.category}</span>
+  return <span className="tag"><Icon size={12} aria-hidden="true" />{catLabel(tool.category)}</span>
 }
 
 export function StarButton({ tool, size = 'sm', withLabel }: { tool: Tool; size?: 'sm' | 'md'; withLabel?: boolean }) {
@@ -24,18 +26,18 @@ export function StarButton({ tool, size = 'sm', withLabel }: { tool: Tool; size?
     const index = favorites.indexOf(tool.id)
     const now = actions.toggleFavorite(tool.id)
     // Undo puts it back exactly where it was, and does nothing if it was re-pinned meanwhile
-    toast(now ? `Pinned ${tool.name} to your bench` : `Unpinned ${tool.name}`, now ? undefined : { label: 'Undo', run: () => actions.restoreFavorite(tool.id, index) })
+    toast(now ? tr('Pinned {name} to your bench', { name: tool.name }) : tr('Unpinned {name}', { name: tool.name }), now ? undefined : { label: tr("Undo"), run: () => actions.restoreFavorite(tool.id, index) })
   }
   if (withLabel) {
     return (
       <button className="btn" onClick={click} aria-pressed={on}>
         <Star size={16} fill={on ? 'var(--accent)' : 'none'} color={on ? 'var(--accent)' : 'currentColor'} aria-hidden="true" />
-        {on ? 'Pinned' : 'Pin to bench'}
+        {on ? tr("Pinned") : tr("Pin to bench")}
       </button>
     )
   }
   return (
-    <button className={`icon-only ${size === 'sm' ? 'sm' : ''} ${on ? 'on' : ''}`} onClick={click} aria-pressed={on} aria-label={`Pin ${tool.name} to bench`} title={on ? 'Unpin from bench' : 'Pin to bench'}>
+    <button className={`icon-only ${size === 'sm' ? 'sm' : ''} ${on ? 'on' : ''}`} onClick={click} aria-pressed={on} aria-label={tr('Pin {name} to bench', { name: tool.name })} title={on ? tr("Unpin from bench") : tr("Pin to bench")}>
       <Star size={size === 'sm' ? 15 : 17} fill={on ? 'currentColor' : 'none'} aria-hidden="true" />
     </button>
   )
@@ -75,22 +77,22 @@ export function PocketMenu({ tool, variant = 'icon' }: { tool: Tool; variant?: '
   return (
     <div className={`menu-wrap ${open ? 'open' : ''}`} ref={wrap}>
       {variant === 'button'
-        ? <button ref={trigger} className="btn" onClick={() => setOpen(!open)} aria-haspopup="menu" aria-expanded={open}><FolderPlus size={16} aria-hidden="true" />{inCount ? `In ${inCount} pocket${inCount > 1 ? 's' : ''}` : 'Add to pocket'}</button>
-        : <button ref={trigger} className={`icon-only sm ${inCount ? 'on' : ''}`} onClick={() => setOpen(!open)} aria-haspopup="menu" aria-expanded={open} aria-label={`Add ${tool.name} to a pocket`} title="Add to pocket"><FolderPlus size={15} aria-hidden="true" /></button>}
+        ? <button ref={trigger} className="btn" onClick={() => setOpen(!open)} aria-haspopup="menu" aria-expanded={open}><FolderPlus size={16} aria-hidden="true" />{inCount ? tr(inCount > 1 ? 'In {n} pockets' : 'In {n} pocket', { n: inCount }) : tr("Add to pocket")}</button>
+        : <button ref={trigger} className={`icon-only sm ${inCount ? 'on' : ''}`} onClick={() => setOpen(!open)} aria-haspopup="menu" aria-expanded={open} aria-label={tr('Add {name} to a pocket', { name: tool.name })} title={tr("Add to pocket")}><FolderPlus size={15} aria-hidden="true" /></button>}
       {open && (
-        <div className={`menu ${up ? 'up' : ''}`} role="menu" aria-label="Pockets">
-          <div className="m-title">Add to pocket</div>
-          {pockets.length === 0 && <div className="muted" style={{ padding: '4px 8px 8px', fontSize: 13 }}>You don't have any pockets yet.</div>}
+        <div className={`menu ${up ? 'up' : ''}`} role="menu" aria-label={tr("Pockets")}>
+          <div className="m-title">{tr("Add to pocket")}</div>
+          {pockets.length === 0 && <div className="muted" style={{ padding: '4px 8px 8px', fontSize: 13 }}>{tr("You don't have any pockets yet.")}</div>}
           {pockets.map((p) => {
             const has = p.toolIds.includes(tool.id)
             return (
-              <button key={p.id} className="m-item" role="menuitemcheckbox" aria-checked={has} onClick={() => { const on = actions.toggleInPocket(p.id, tool.id); toast(on ? `Added to “${p.name}”` : `Removed from “${p.name}”`) }}>
+              <button key={p.id} className="m-item" role="menuitemcheckbox" aria-checked={has} onClick={() => { const on = actions.toggleInPocket(p.id, tool.id); toast(on ? tr('Added to “{name}”', { name: p.name }) : tr('Removed from “{name}”', { name: p.name })) }}>
                 <span className="m-check">{has && <Check size={16} aria-hidden="true" />}</span>{p.name}<span className="muted" style={{ marginLeft: 'auto', fontSize: 12 }}>{p.toolIds.length}</span>
               </button>
             )
           })}
           <div className="m-sep" />
-          <button className="m-item" role="menuitem" onClick={() => { close(false); setCreating(true) }}><Plus size={16} aria-hidden="true" />New pocket…</button>
+          <button className="m-item" role="menuitem" onClick={() => { close(false); setCreating(true) }}><Plus size={16} aria-hidden="true" />{tr("New pocket…")}</button>
         </div>
       )}
       {/* mounted only while needed, so a page of tiles doesn't hold dozens of hidden dialogs */}
@@ -107,7 +109,7 @@ export function ToolTile({ tool, showCategory = true }: { tool: Tool; showCatego
       <div className="t-body">
         <span className="t-name">{tool.name}</span>
         <span className="t-desc">{tool.description}</span>
-        {(showCategory || NEW_SET.has(tool.id)) && <span className="t-meta">{showCategory && <CategoryTag tool={tool} />}{NEW_SET.has(tool.id) && <span className="new-tag">New</span>}</span>}
+        {(showCategory || NEW_SET.has(tool.id)) && <span className="t-meta">{showCategory && <CategoryTag tool={tool} />}{NEW_SET.has(tool.id) && <span className="new-tag">{tr("New")}</span>}</span>}
       </div>
       <div className="t-actions"><StarButton tool={tool} /><PocketMenu tool={tool} /></div>
     </article>
@@ -119,7 +121,7 @@ export function ToolRow({ tool, extra }: { tool: Tool; extra?: ReactNode }) {
     <div className="row-item">
       <Link to={`/tool/${tool.id}`} className="cover" aria-label={tool.name} />
       <ToolIcon tool={tool} size="sm" />
-      <span className="t-name">{tool.name}{NEW_SET.has(tool.id) && <> <span className="new-tag">New</span></>}</span>
+      <span className="t-name">{tool.name}{NEW_SET.has(tool.id) && <> <span className="new-tag">{tr("New")}</span></>}</span>
       <span className="t-desc">{tool.description}</span>
       <span className="t-cat"><CategoryTag tool={tool} /></span>
       <span className="t-actions">{extra}<StarButton tool={tool} /><PocketMenu tool={tool} /></span>
