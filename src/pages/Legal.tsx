@@ -44,6 +44,8 @@ export function Privacy() {
       <ul>
         <li><b>Supabase</b> stores accounts, feedback and ratings.</li>
         <li><b>Google Fonts</b> provides the typefaces; your browser requests them from Google when a page loads.</li>
+        <li><b>ExchangeRate-API</b> supplies the daily rate table for the Currency Converter. Only the table is downloaded; the amounts you enter are not sent.</li>
+        <li><b>jsDelivr</b> serves the text-recognition engine and language data the first time you use Image to Text. Your images are not sent.</li>
         <li>Our hosting provider serves the website and may keep standard technical logs (such as IP address and browser type) for security.</li>
       </ul>
       <p>We do not sell your information, show ads, or use analytics or advertising trackers.</p>
