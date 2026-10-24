@@ -396,3 +396,8 @@ a.btn:hover { text-decoration: none; }
 .lang-banner { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 24px 0; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--surface-2); }
 .lang-banner span { flex: 1 1 200px; }
 @media (max-width: 720px) { .lang-banner { margin: 10px 16px 0; } }
+
+/* data transformer */
+.op-item { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 6px 10px; background: none; border: 0; border-top: 1px solid var(--border); color: var(--text); font: inherit; font-size: 14px; cursor: pointer; }
+.op-item:hover, .op-item:focus-visible { background: var(--surface-2); }
+.op-item.suggestion { display: block; border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
