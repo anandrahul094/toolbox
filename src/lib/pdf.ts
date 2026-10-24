@@ -39,7 +39,7 @@ export async function renderPage(doc: PDFDocumentProxy, pageNo: number, scale: n
 export const pdfBlob = (bytes: Uint8Array) => new Blob([bytes as BlobPart], { type: 'application/pdf' })
 
 export const isEncryptedError = (e: unknown) => /encrypt|password/i.test(String(e))
-export const PASSWORD_MESSAGE = 'This PDF is password-protected or restricts editing. Remove the protection first (for example, open it and “Print to PDF”), then try again.'
+export const PASSWORD_MESSAGE = 'This PDF is password-protected or restricts editing. Remove the protection first with the Unlock PDF tool, then try again.'
 
 /**
  * The page as people see it: width/height after the page's /Rotate is applied, and a function
