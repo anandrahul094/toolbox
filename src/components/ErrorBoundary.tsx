@@ -17,20 +17,28 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: unknown, info: ErrorInfo) {
     console.error('Toolbox error:', error, info.componentStack)
-    // after a redeploy, old code chunks no longer exist: reload once to pick up the new version
-    if (isChunkError(error)) {
+    // after a redeploy, old code chunks no longer exist: reload to pick up the new version —
+    // at most once a minute (and never while offline), so a missing file can't cause a reload loop
+    if (isChunkError(error) && navigator.onLine) {
       try {
-        if (!sessionStorage.getItem(RELOAD_KEY)) { sessionStorage.setItem(RELOAD_KEY, '1'); window.location.reload() }
+        const last = +(sessionStorage.getItem(RELOAD_KEY) ?? 0)
+        if (Date.now() - last > 60_000) { sessionStorage.setItem(RELOAD_KEY, String(Date.now())); window.location.reload() }
       } catch { /* storage blocked: show the message instead */ }
     }
   }
 
   render() {
-    if (!this.state.error) {
-      try { sessionStorage.removeItem(RELOAD_KEY) } catch { /* ignore */ }
-      return this.props.children
-    }
+    if (!this.state.error) return this.props.children
     const chunk = isChunkError(this.state.error)
+    if (chunk && !navigator.onLine) {
+      return (
+        <div className="empty" role="alert">
+          <h2>{tr("You're offline")}</h2>
+          <p>{tr('This tool hasn’t been opened on this device yet, so it isn’t saved for offline use. Connect once and open it — after that it works without internet.')}</p>
+          <div><button className="btn primary" onClick={() => window.location.reload()}>{tr('Try again')}</button></div>
+        </div>
+      )
+    }
     return (
       <div className="empty" role="alert">
         <h2>{chunk ? tr("The Toolbox was updated") : this.props.scope === 'tool' ? tr("This tool ran into a problem") : tr("Something went wrong")}</h2>

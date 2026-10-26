@@ -16,6 +16,7 @@ const vite = await createServer({ root, logLevel: 'error', server: { middlewareM
 const { tools, allTools, CATEGORIES } = await vite.ssrLoadModule('/src/registry.ts')
 const { SITE_NAME } = await vite.ssrLoadModule('/src/site.ts')
 const { localizeTool, catLabel, catBlurb } = await vite.ssrLoadModule('/src/i18n/localize.ts')
+const { GUIDES } = await vite.ssrLoadModule('/src/guides/data.ts')
 await vite.close()
 
 const template = await fs.readFile(path.join(dist, 'index.html'), 'utf8')
@@ -28,9 +29,10 @@ const LANGS = ['en', 'hi']
 const pre = (lang) => (lang === 'en' ? '' : `/${lang}`)
 const abs = (lang, route) => SITE_URL + pre(lang) + (route === '/' ? (lang === 'en' ? '/' : '') : route)
 
-function page({ route, lang, title, description, body, jsonLd = [], noindex = false }) {
+function page({ route, lang, title, description, body, jsonLd = [], noindex = false, single = false }) {
   const url = abs(lang, route)
-  const alternates = noindex ? [] : [...LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${esc(abs(l, route))}" />`), `<link rel="alternate" hreflang="x-default" href="${esc(abs('en', route))}" />`]
+  // single = English-only page (guides), so no Hindi alternate is announced
+  const alternates = noindex || single ? [] : [...LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${esc(abs(l, route))}" />`), `<link rel="alternate" hreflang="x-default" href="${esc(abs('en', route))}" />`]
   const head = [
     `<title>${esc(title)}</title>`,
     `<meta name="description" content="${esc(description)}" />`,
@@ -147,6 +149,34 @@ for (const lang of LANGS) {
   }
 }
 
+// how-to guides (English only for now)
+{
+  const nav = `<nav><a href="/">${esc(SITE_NAME)}</a> · <a href="/explore">All tools</a> · <a href="/guides">Guides</a></nav>`
+  const list = (gs) => `<ul>${gs.map((g) => `<li><a href="/guides/${g.slug}">${esc(g.title)}</a> — ${esc(g.description)}</li>`).join('')}</ul>`
+  pages.push({ lang: 'en', single: true, route: '/guides', title: `How-to guides — ${SITE_NAME}`, description: 'Step-by-step guides for exam photo sizes, PDFs, GST invoices, CGPA, EMI and more — with free tools that work in your browser.', changefreq: 'weekly', priority: '0.7',
+    body: `${nav}<main><h1>How-to guides</h1>${list(GUIDES)}</main>` })
+  for (const g of GUIDES) {
+    const tool = allTools.find((t) => t.id === g.toolId)
+    const url = `${SITE_URL}/guides/${g.slug}`
+    const text = (x) => esc(x)
+    const sections = (g.sections ?? []).map((sec) => `<h2>${text(sec.heading)}</h2>${(sec.paragraphs ?? []).map((p) => `<p>${text(p)}</p>`).join('')}${sec.bullets ? `<ul>${sec.bullets.map((b) => `<li>${text(b)}</li>`).join('')}</ul>` : ''}${sec.table ? `<table><thead><tr>${sec.table.head.map((h) => `<th>${text(h)}</th>`).join('')}</tr></thead><tbody>${sec.table.rows.map((r) => `<tr>${r.map((c) => `<td>${text(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>` : ''}`).join('')
+    pages.push({
+      lang: 'en', single: true, route: `/guides/${g.slug}`, title: `${g.title} — ${SITE_NAME}`, description: g.description, changefreq: 'monthly', priority: '0.8',
+      jsonLd: [
+        { '@context': 'https://schema.org', '@type': 'Article', headline: g.title, description: g.description, dateModified: g.updated, datePublished: g.updated, mainEntityOfPage: url, author: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL + '/' }, publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: `${SITE_URL}/logo-512.png` } }, image: `${SITE_URL}/og-image.png` },
+        { '@context': 'https://schema.org', '@type': 'HowTo', name: g.title, description: g.description, totalTime: `PT${Math.max(2, g.steps.length)}M`, tool: tool ? [{ '@type': 'HowToTool', name: tool.name }] : undefined, step: g.steps.map((st, i) => ({ '@type': 'HowToStep', position: i + 1, name: st.title, text: st.text, url: `${url}#step-${i + 1}` })) },
+        { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: g.faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+        { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Guides', item: `${SITE_URL}/guides` }, { '@type': 'ListItem', position: 2, name: g.title, item: url }] },
+      ],
+      body: `${nav}<main><article><h1>${text(g.title)}</h1><p>Updated ${g.updated} · ${g.minutes} min read</p>${g.intro.map((p) => `<p>${text(p)}</p>`).join('')}`
+        + (tool ? `<p><a href="/tool/${tool.id}">${text(g.cta)} — ${text(tool.name)}</a></p>` : '')
+        + `<h2>Step by step</h2><ol>${g.steps.map((st, i) => `<li id="step-${i + 1}"><strong>${text(st.title)}</strong> ${text(st.text)}</li>`).join('')}</ol>${sections}`
+        + `<h2>Questions</h2>${g.faq.map(([q, a]) => `<h3>${text(q)}</h3><p>${text(a)}</p>`).join('')}`
+        + `<h2>Related guides</h2>${list(g.related.map((r) => GUIDES.find((x) => x.slug === r)).filter(Boolean))}</article></main>`,
+    })
+  }
+}
+
 // write files as /tool/x.html (served at /tool/x without a trailing slash by Cloudflare Pages, Netlify and Vercel)
 for (const p of pages) {
   const dir = p.lang === 'en' ? dist : path.join(dist, p.lang)
@@ -162,7 +192,7 @@ await fs.writeFile(path.join(dist, '404.html'), template.replace(/<title>[\s\S]*
 const indexable = pages.filter((p) => !p.noindex)
 await fs.writeFile(path.join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${indexable.map((p) => `  <url><loc>${esc(abs(p.lang, p.route))}</loc>${LANGS.map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${esc(abs(l, p.route))}"/>`).join('')}<lastmod>${today}</lastmod><changefreq>${p.changefreq}</changefreq><priority>${p.priority}</priority></url>`).join('\n')}
+${indexable.map((p) => `  <url><loc>${esc(abs(p.lang, p.route))}</loc>${p.single ? '' : LANGS.map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${esc(abs(l, p.route))}"/>`).join('')}<lastmod>${today}</lastmod><changefreq>${p.changefreq}</changefreq><priority>${p.priority}</priority></url>`).join('\n')}
 </urlset>
 `)
 // AI assistants and AI search engines (ChatGPT, Claude, Perplexity, Gemini) are welcome to read and cite the site
@@ -190,6 +220,10 @@ const llms = [
   '## हिंदी (Hindi)',
   '',
   `Every page is also available in Hindi under ${SITE_URL}/hi — for example [${SITE_NAME} हिंदी](${SITE_URL}/hi).`,
+  '',
+  '## How-to guides',
+  '',
+  ...GUIDES.map((g) => `- [${g.title}](${SITE_URL}/guides/${g.slug}): ${g.description}`),
   '',
   '## About',
   '',

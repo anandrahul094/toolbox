@@ -4,9 +4,18 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import ErrorBoundary from './components/ErrorBoundary'
 import './styles.css'
-import { LANG } from './i18n'
+import { LANG, tr } from './i18n'
 
 document.documentElement.lang = LANG
+
+// installable app: offline support, and a notice when a new version is ready
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  import('virtual:pwa-register').then(({ registerSW }) => {
+    const update = registerSW({
+      onNeedRefresh() { import('./toast').then(({ toast }) => toast(tr('A new version of The Toolbox is ready.'), { label: tr('Reload'), run: () => update(true) })) },
+    })
+  })
+}
 
 // links from the earlier version looked like /#/tool/json-formatter; send them to the clean URL
 if (window.location.hash.startsWith('#/')) {

@@ -70,10 +70,11 @@ export default function PassportPhoto() {
   const layout = () => {
     const long = mm(Math.max(sheet.wmm, sheet.hmm)), short = mm(Math.min(sheet.wmm, sheet.hmm))
     const W = sheet.id === 'a4' ? short : long, H = sheet.id === 'a4' ? long : short
-    const pw = mm(size.wmm), ph = mm(size.hmm), gap = mm(3), margin = mm(4)
-    const cols = Math.max(1, Math.floor((W - 2 * margin + gap) / (pw + gap)))
-    const rows = Math.max(1, Math.floor((H - 2 * margin + gap) / (ph + gap)))
-    return { W, H, pw, ph, gap, cols, rows }
+    const pw = mm(size.wmm), ph = mm(size.hmm)
+    // roomy spacing when it costs nothing; tighter (down to edge-to-edge) when that fits more photos, e.g. six 2×2 in on 4×6
+    const fit = (gap: number, margin: number) => ({ gap, cols: Math.max(1, Math.floor((W - 2 * margin + gap) / (pw + gap))), rows: Math.max(1, Math.floor((H - 2 * margin + gap) / (ph + gap))) })
+    const best = [fit(mm(3), mm(4)), fit(mm(1), mm(1)), fit(0, 0)].reduce((a, b) => (b.cols * b.rows > a.cols * a.rows ? b : a))
+    return { W, H, pw, ph, ...best }
   }
   const sheetCount = (() => { const l = layout(); return l.cols * l.rows })()
 

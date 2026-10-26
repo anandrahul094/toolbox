@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Plus, Star } from 'lucide-react'
+import { ArrowRight, BookOpen, Plus, Star } from 'lucide-react'
 import { useState } from 'react'
 import { CATEGORIES, findTool, tools } from '../registry'
 import { CATEGORY_ICONS, RECENTLY_ADDED, STARTER_POCKETS } from '../meta'
@@ -91,6 +91,8 @@ export default function Home() {
         </div>
       </section>
 
+      <PopularGuides />
+
       <section className="section" aria-labelledby="new-h">
         <div className="section-head"><h2 id="new-h">{tr("Recently added")}</h2><Link to="/explore?sort=new">{tr("See more")}</Link></div>
         <div className="tiles">{RECENTLY_ADDED.slice(0, 8).map((id) => <ToolTile key={id} tool={findTool(id)!} />)}</div>
@@ -98,5 +100,30 @@ export default function Home() {
 
       <PocketDialog open={creating} onClose={() => setCreating(false)} />
     </>
+  )
+}
+
+// a few guides, loaded separately so the home page stays light
+const POPULAR = ['ssc-photo-signature-size', 'compress-image-to-20kb-50kb', 'gst-invoice-format-free', 'cgpa-to-percentage']
+function PopularGuides() {
+  const [list, setList] = useState<{ slug: string; title: string; minutes: number }[]>([])
+  useEffect(() => {
+    let cancelled = false
+    import('../guides/data').then(({ GUIDES }) => { if (!cancelled) setList(POPULAR.map((s) => GUIDES.find((g) => g.slug === s)).filter(Boolean).map((g) => ({ slug: g!.slug, title: g!.title, minutes: g!.minutes }))) }).catch(() => {})
+    return () => { cancelled = true }
+  }, [])
+  if (!list.length) return null
+  return (
+    <section className="section" aria-labelledby="guides-h">
+      <div className="section-head"><h2 id="guides-h">{tr('How-to guides')}</h2><Link to="/guides">{tr('See all')}</Link></div>
+      <div className="guide-grid">
+        {list.map((g) => (
+          <Link key={g.slug} to={`/guides/${g.slug}`} className="guide-card">
+            <BookOpen size={18} aria-hidden="true" style={{ flex: 'none', marginTop: 2, color: 'var(--primary)' }} />
+            <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}><strong style={{ fontSize: 15 }}>{g.title}</strong><span className="muted" style={{ fontSize: 12 }}>{g.minutes} {tr('min read')}</span></span>
+          </Link>
+        ))}
+      </div>
+    </section>
   )
 }

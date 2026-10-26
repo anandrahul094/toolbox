@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Shell from './components/Shell'
 import Home from './pages/Home'
@@ -11,6 +12,11 @@ import NotFound from './pages/NotFound'
 import Feedback from './pages/Feedback'
 import { Privacy, Terms } from './pages/Legal'
 import { ForgotPassword, Join, Login, ResetPassword } from './pages/Auth'
+
+// guides carry a lot of text, so they load only when opened
+const GuidesIndex = lazy(() => import('./pages/Guides').then((m) => ({ default: m.GuidesIndex })))
+const GuidePage = lazy(() => import('./pages/Guides').then((m) => ({ default: m.GuidePage })))
+const wait = (el: JSX.Element) => <Suspense fallback={<div className="muted" role="status">…</div>}>{el}</Suspense>
 
 export default function App() {
   return (
@@ -26,6 +32,8 @@ export default function App() {
         <Route path="/recent" element={<Recent />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/tool/:id" element={<ToolPage />} />
+        <Route path="/guides" element={wait(<GuidesIndex />)} />
+        <Route path="/guides/:slug" element={wait(<GuidePage />)} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />

@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ShieldCheck } from 'lucide-react'
+import { BookOpen, ShieldCheck } from 'lucide-react'
+import { GUIDE_ALSO } from '../guides/links'
 import { CATEGORIES, findTool, tools } from '../registry'
 import { STARTER_POCKETS } from '../meta'
 import { actions } from '../store'
@@ -9,6 +10,7 @@ import NotFound from './NotFound'
 import ErrorBoundary from '../components/ErrorBoundary'
 import RateTool, { RatingSummaryBadge, useRatingSummary } from '../components/Rating'
 import { setMeta } from './meta'
+import { ShareBar, ShareButton } from '../components/Share'
 import { tr } from '../i18n'
 import { catLabel } from '../i18n/localize'
 
@@ -17,6 +19,17 @@ export default function ToolPage() {
   const tool = findTool(id)
   const [rated, setRated] = useState(0)
   const summary = useRatingSummary(id, rated)
+  const [guide, setGuide] = useState<{ slug: string; title: string } | null>(null)
+  // the guide text is a separate chunk; only its title is needed here
+  useEffect(() => {
+    let cancelled = false
+    setGuide(null)
+    import('../guides/data').then(({ GUIDES }) => {
+      const g = GUIDES.find((x) => x.toolId === id || GUIDE_ALSO[x.slug]?.includes(id))
+      if (!cancelled && g) setGuide({ slug: g.slug, title: g.title })
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [id])
 
   useEffect(() => {
     if (!tool) return
@@ -25,6 +38,7 @@ export default function ToolPage() {
   }, [tool])
 
   if (!tool) return <NotFound />
+  const shareText = tr('{name} — free, works in your browser, nothing is uploaded', { name: tool.name })
   const cat = CATEGORIES.find((c) => c.id === tool.category)!
   const Comp = tool.component
   // related: same category first, then tools that share a starter pocket
@@ -51,7 +65,7 @@ export default function ToolPage() {
             <RatingSummaryBadge summary={summary} />
           </span>
         </div>
-        <div className="th-actions"><StarButton tool={tool} withLabel /><PocketMenu tool={tool} variant="button" /></div>
+        <div className="th-actions"><StarButton tool={tool} withLabel /><PocketMenu tool={tool} variant="button" /><ShareButton path={`/tool/${tool.id}`} text={shareText} /></div>
       </div>
 
       <section className="panel" aria-label={tr('{name} workspace', { name: tool.name })}>
@@ -61,6 +75,8 @@ export default function ToolPage() {
           </Suspense>
         </ErrorBoundary>
       </section>
+
+      {guide && <Link to={`/guides/${guide.slug}`} className="guide-cta" style={{ margin: 0 }}><BookOpen size={18} aria-hidden="true" /><span style={{ flex: 1 }}><span className="muted" style={{ fontSize: 12, display: 'block' }}>{tr('Step-by-step guide')}</span><strong>{guide.title}</strong></span></Link>}
 
       <div className="info-cols">
         <section className="section" aria-labelledby="howto-h">
@@ -74,6 +90,8 @@ export default function ToolPage() {
       </div>
 
       <RateTool tool={tool} onRated={() => setRated((n) => n + 1)} />
+
+      <ShareBar path={`/tool/${tool.id}`} text={shareText} />
 
       {related.length > 0 && (
         <section className="section" aria-labelledby="related-h">
