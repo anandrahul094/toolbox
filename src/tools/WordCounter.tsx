@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Stat } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 export default function WordCounter() {
   const [text, setText] = useState('')
@@ -22,7 +23,7 @@ export default function WordCounter() {
 
   return (
     <>
-      <textarea aria-label="Input text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Start typing or paste your text…" style={{ minHeight: 240, fontFamily: 'inherit', fontSize: 15 }} />
+      <CodeEditor value={text} onChange={setText} prose language="text" placeholder="Start typing or paste your text…" minHeight={240} ariaLabel="Input text" />
       <div className="stats">
         <Stat label="Words" value={s.words.toLocaleString()} />
         <Stat label="Characters" value={s.chars.toLocaleString()} />

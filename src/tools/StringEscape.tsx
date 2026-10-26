@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CopyButton, ErrorBox, Field, Row } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 type Fmt = 'json' | 'js' | 'regex' | 'sql' | 'unicode'
 const FORMATS: [Fmt, string][] = [['json', 'JSON string'], ['js', 'JavaScript string'], ['regex', 'Regular expression'], ['sql', 'SQL string'], ['unicode', 'Unicode \\uXXXX']]
@@ -40,8 +41,8 @@ export default function StringEscape() {
         <CopyButton value={result.out ?? ''} />
       </Row>
       <div className="cols">
-        <textarea aria-label="Input text" value={input} onChange={(e) => setInput(e.target.value)} spellCheck={false} />
-        <textarea aria-label="Output" value={result.out ?? ''} readOnly />
+        <CodeEditor value={input} onChange={setInput} language="text" minHeight={260} ariaLabel="Input" />
+        <CodeEditor value={result.out ?? ''} readOnly language="text" minHeight={260} ariaLabel="Output" />
       </div>
       <ErrorBox message={result.error} />
     </>

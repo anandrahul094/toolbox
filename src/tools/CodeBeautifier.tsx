@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CopyButton, downloadBlob, ErrorBox, Field, FileDrop, fmtBytes, Row, Stat } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 type Lang = 'html' | 'css' | 'js' | 'xml'
 type Mode = 'beautify' | 'minify'
@@ -191,8 +192,8 @@ export default function CodeBeautifier() {
         {busy && <span className="muted" style={{ fontSize: 13 }} aria-live="polite">{mode === 'minify' && lang === 'js' ? 'Loading minifier…' : 'Working…'}</span>}
       </Row>
       <div className="cols">
-        <textarea className="mono" aria-label="Input code" value={input} onChange={(e) => setInput(e.target.value)} spellCheck={false} placeholder="Paste HTML, CSS, JavaScript or XML here" style={{ minHeight: 320 }} />
-        <textarea className="mono" aria-label="Output code" value={output} readOnly spellCheck={false} style={{ minHeight: 320 }} />
+        <CodeEditor value={input} onChange={setInput} language="auto" placeholder="Paste HTML, CSS, JavaScript or XML here" minHeight={320} ariaLabel="Input code" />
+        <CodeEditor value={output} readOnly language="auto" minHeight={320} ariaLabel="Output code" />
       </div>
       <ErrorBox message={error} />
       <div className="stats" aria-live="polite">

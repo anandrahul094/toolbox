@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CopyButton, Row } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 const OPTIONS: [string, string, (s: string) => string][] = [
   ['spaces', 'Collapse repeated spaces', (s) => s.replace(/[ \t]{2,}/g, ' ')],
@@ -27,8 +28,8 @@ export default function TextCleaner() {
         ))}
       </Row>
       <div className="cols">
-        <textarea aria-label="Input text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste messy text" />
-        <textarea aria-label="Output" value={out} readOnly />
+        <CodeEditor value={text} onChange={setText} language="text" placeholder="Paste messy text" minHeight={240} ariaLabel="Input text" />
+        <CodeEditor value={out} readOnly language="text" minHeight={240} ariaLabel="Output" />
       </div>
       <Row>
         <CopyButton value={out} />

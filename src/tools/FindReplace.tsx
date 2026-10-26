@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { CopyButton, ErrorBox, Field, Row } from '../components/ui'
 import { useRegex } from '../lib/safeRegex'
+import CodeEditor from '../components/CodeEditor'
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -32,8 +33,8 @@ export default function FindReplace() {
       </Row>
       <ErrorBox message={result.error} />
       <div className="cols">
-        <textarea aria-label="Input text" value={text} onChange={(e) => setText(e.target.value)} style={{ fontFamily: 'inherit' }} />
-        <textarea aria-label="Output" value={result.out} readOnly style={{ fontFamily: 'inherit' }} />
+        <CodeEditor value={text} onChange={setText} language="text" minHeight={240} ariaLabel="Input text" />
+        <CodeEditor value={result.out} readOnly language="text" minHeight={240} ariaLabel="Output" />
       </div>
       <Row>
         <CopyButton value={result.out} />

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { CopyButton, Row } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 const SAMPLE = `# Hello, Markdown
 
@@ -28,7 +29,7 @@ export default function MarkdownPreview() {
     <>
       <Row><CopyButton value={html} label="Copy HTML" /><CopyButton value={md} label="Copy Markdown" /></Row>
       <div className="cols">
-        <textarea aria-label="Input text" value={md} onChange={(e) => setMd(e.target.value)} style={{ minHeight: 400 }} spellCheck={false} />
+        <CodeEditor value={md} onChange={setMd} language="markdown" minHeight={400} height={520} ariaLabel="Markdown" />
         <div className="markdown output" style={{ fontFamily: 'inherit', fontSize: 15, whiteSpace: 'normal', wordBreak: 'normal' }} dangerouslySetInnerHTML={{ __html: html }} />
       </div>
     </>

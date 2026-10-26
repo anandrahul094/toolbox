@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Row } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 type Op = { type: 'same' | 'add' | 'del'; text: string }
 
@@ -51,8 +52,8 @@ export default function TextDiff() {
   return (
     <>
       <div className="cols">
-        <textarea aria-label="Input text" value={left} onChange={(e) => setLeft(e.target.value)} placeholder="Original" spellCheck={false} />
-        <textarea aria-label="Input text" value={right} onChange={(e) => setRight(e.target.value)} placeholder="Changed" spellCheck={false} />
+        <CodeEditor value={left} onChange={setLeft} placeholder="Original" minHeight={220} ariaLabel="Original text" />
+        <CodeEditor value={right} onChange={setRight} placeholder="Changed" minHeight={220} ariaLabel="Changed text" />
       </div>
       <Row>
         <label className="check"><input type="checkbox" checked={ignoreCase} onChange={(e) => setIgnoreCase(e.target.checked)} /> Ignore case</label>

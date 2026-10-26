@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { format, type SqlLanguage } from 'sql-formatter'
 import { CopyButton, ErrorBox, Field, Row } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 const DIALECTS: [SqlLanguage, string][] = [['sql', 'Standard SQL'], ['mysql', 'MySQL'], ['postgresql', 'PostgreSQL'], ['sqlite', 'SQLite'], ['transactsql', 'SQL Server'], ['plsql', 'Oracle PL/SQL'], ['bigquery', 'BigQuery']]
 
@@ -35,8 +36,8 @@ export default function SqlFormatter() {
         <CopyButton value={result.out ?? ''} />
       </Row>
       <div className="cols">
-        <textarea aria-label="Input text" value={input} onChange={(e) => setInput(e.target.value)} spellCheck={false} />
-        <textarea aria-label="Output" value={result.out ?? ''} readOnly />
+        <CodeEditor value={input} onChange={setInput} language="sql" minHeight={260} ariaLabel="Input" />
+        <CodeEditor value={result.out ?? ''} readOnly language="sql" minHeight={260} ariaLabel="Output" />
       </div>
       <ErrorBox message={result.error} />
     </>

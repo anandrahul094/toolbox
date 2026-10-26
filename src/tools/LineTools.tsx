@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CopyButton, Row } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 const OPS: [string, (l: string[]) => string[]][] = [
   ['Sort A→Z', (l) => [...l].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))],
@@ -22,7 +23,7 @@ export default function LineTools() {
         {OPS.map(([name, fn]) => <button key={name} className="btn" onClick={() => setText(fn(text.split('\n')).join('\n'))}>{name}</button>)}
         <CopyButton value={text} />
       </Row>
-      <textarea aria-label="Input text" value={text} onChange={(e) => setText(e.target.value)} style={{ minHeight: 300 }} />
+      <CodeEditor value={text} onChange={setText} language="text" minHeight={300} ariaLabel="Input text" />
       <div className="muted">{lines.length} lines · {new Set(lines).size} unique</div>
     </>
   )

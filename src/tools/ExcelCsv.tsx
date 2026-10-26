@@ -41,7 +41,7 @@ export default function ExcelCsv() {
     if (!ws || !lib) return
     const csv = lib.utils.sheet_to_csv(ws, { FS: sep, blankrows: false })
     // BOM so Excel opens UTF-8 (₹, Hindi) correctly
-    downloadBlob(`${name}${sheetName}.${sep === '\t' ? 'tsv' : 'csv'}`, new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }))
+    downloadBlob(`${name}${sheetName}.${sep === '\t' ? 'tsv' : 'csv'}`, new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }))
   }
   const toXlsx = () => {
     if (!wb || !lib) return
@@ -55,7 +55,7 @@ export default function ExcelCsv() {
     if (!wb || !lib) return
     const JSZip = (await import('jszip')).default
     const zip = new JSZip()
-    wb.SheetNames.forEach((s) => zip.file(`${s.replace(/[^\w-]+/g, '_')}.csv`, '﻿' + lib.utils.sheet_to_csv(wb.Sheets[s], { FS: sep, blankrows: false })))
+    wb.SheetNames.forEach((s) => zip.file(`${s.replace(/[^\w-]+/g, '_')}.csv`, '\ufeff' + lib.utils.sheet_to_csv(wb.Sheets[s], { FS: sep, blankrows: false })))
     downloadBlob(`${name}-csv.zip`, await zip.generateAsync({ type: 'blob' }))
   }
 

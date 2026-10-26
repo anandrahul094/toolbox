@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import yaml from 'js-yaml'
 import { CopyButton, ErrorBox, Row } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 export default function YamlJson() {
   const [mode, setMode] = useState<'yaml2json' | 'json2yaml'>('yaml2json')
@@ -27,8 +28,8 @@ export default function YamlJson() {
         <CopyButton value={result.out ?? ''} />
       </Row>
       <div className="cols">
-        <textarea aria-label="Input text" value={input} onChange={(e) => setInput(e.target.value)} spellCheck={false} />
-        <textarea aria-label="Output" value={result.out ?? ''} readOnly />
+        <CodeEditor value={input} onChange={setInput} language="auto" minHeight={260} ariaLabel="Input" />
+        <CodeEditor value={result.out ?? ''} readOnly language="auto" minHeight={260} ariaLabel="Output" />
       </div>
       <ErrorBox message={result.error} />
     </>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CopyButton } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 const words = (s: string) => s.replace(/([a-z0-9])([A-Z])/g, '$1 $2').split(/[^\p{L}\p{N}]+/u).filter(Boolean)
 const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
@@ -23,7 +24,7 @@ export default function CaseConverter() {
   const [text, setText] = useState('The quick brown fox jumps over the lazy dog')
   return (
     <>
-      <textarea aria-label="Input text" value={text} onChange={(e) => setText(e.target.value)} style={{ minHeight: 100, fontFamily: 'inherit', fontSize: 15 }} />
+      <CodeEditor value={text} onChange={setText} prose language="text" minHeight={110} ariaLabel="Input text" />
       <table>
         <tbody>
           {CASES.map(([name, fn]) => {

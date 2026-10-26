@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CopyButton, Row } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 const PATTERNS: Record<string, [string, RegExp]> = {
   emails: ['Email addresses', /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi],
@@ -27,7 +28,7 @@ export default function TextExtractor() {
   const out = items.join('\n')
   return (
     <>
-      <textarea aria-label="Input text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste any text, HTML or document content" style={{ fontFamily: 'inherit' }} />
+      <CodeEditor value={text} onChange={setText} language="text" placeholder="Paste any text, HTML or document content" minHeight={200} ariaLabel="Input text" />
       <Row>{Object.entries(PATTERNS).map(([k, [label]]) => <button key={k} className={`chip ${kind === k ? 'active' : ''}`} onClick={() => setKind(k)}>{label}</button>)}</Row>
       <Row>
         <label className="check"><input type="checkbox" checked={dedupe} onChange={(e) => setDedupe(e.target.checked)} /> Remove duplicates</label>
@@ -36,7 +37,7 @@ export default function TextExtractor() {
         <CopyButton value={out} label="Copy list" />
         <CopyButton value={items.join(', ')} label="Copy comma-separated" />
       </Row>
-      <textarea aria-label="Output" value={out} readOnly style={{ minHeight: 160 }} placeholder="Nothing found yet" />
+      <CodeEditor value={out} readOnly language="text" placeholder="Nothing found yet" minHeight={160} ariaLabel="Output" />
     </>
   )
 }

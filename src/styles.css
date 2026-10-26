@@ -401,3 +401,38 @@ a.btn:hover { text-decoration: none; }
 .op-item { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 6px 10px; background: none; border: 0; border-top: 1px solid var(--border); color: var(--text); font: inherit; font-size: 14px; cursor: pointer; }
 .op-item:hover, .op-item:focus-visible { background: var(--surface-2); }
 .op-item.suggestion { display: block; border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
+
+/* code editor (CodeMirror, Sublime-style) */
+.code-editor { display: flex; flex-direction: column; border: 1px solid var(--input-border); border-radius: var(--r-sm); overflow: hidden; background: var(--surface); min-width: 0; }
+.code-editor:focus-within { outline: 2px solid var(--focus); outline-offset: 1px; }
+.code-editor.is-full { position: fixed; inset: 0; z-index: 1000; border-radius: 0; border: 0; outline: none; }
+.code-editor.is-full .ce-host { flex: 1; min-height: 0; }
+.ce-host { display: flex; flex-direction: column; min-width: 0; }
+.ce-host .cm-editor { flex: 1; min-height: inherit; outline: none; }
+.ce-host .cm-editor .cm-scroller { min-height: inherit; }
+.ce-bar, .ce-status { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; padding: 3px 6px; background: var(--surface-2); font-size: 12px; color: var(--muted); }
+.ce-bar { border-bottom: 1px solid var(--border); }
+.ce-status { border-top: 1px solid var(--border); }
+.code-editor.is-dark .ce-bar, .code-editor.is-dark .ce-status { background: #1e1f1c; color: #a8a89c; border-color: #3e3d32; }
+.code-editor.is-dark { background: #272822; border-color: #3e3d32; }
+.ce-spacer { flex: 1; }
+.ce-btn { display: inline-flex; align-items: center; gap: 4px; padding: 3px 7px; border: 1px solid transparent; border-radius: 5px; background: none; color: inherit; font: inherit; font-size: 12px; cursor: pointer; }
+.ce-btn:hover { background: rgb(128 128 128 / .15); }
+.ce-btn.on { color: var(--text); border-color: var(--border); background: var(--surface); }
+.code-editor.is-dark .ce-btn.on { color: #f8f8f2; background: #3e3d32; border-color: #49483e; }
+.ce-multi { color: var(--accent-text); font-weight: 600; }
+.ce-lang { width: auto; flex: none; font-size: 12px; padding: 1px 4px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: inherit; }
+.ce-overlay { position: fixed; inset: 0; z-index: 1100; background: rgb(0 0 0 / .35); display: flex; justify-content: center; align-items: flex-start; padding: 10vh 16px 16px; }
+.ce-palette, .ce-dialog { width: min(640px, 100%); background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow-lg); overflow: hidden; }
+.ce-dialog { padding: 16px; max-height: 80vh; overflow: auto; }
+.ce-palette input { width: 100%; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; padding: 12px 14px; font-size: 15px; }
+.ce-palette-list { max-height: min(55vh, 420px); overflow: auto; padding: 4px; }
+.ce-palette-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.ce-palette-item.sel { background: var(--accent-soft); }
+kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; background: var(--surface-2); white-space: nowrap; }
+@media (max-width: 600px) { .ce-btn svg + span { display: none; } .ce-btn.map-btn, .cm-minimap-gutter { display: none !important; } }
+.te-tabs { display: flex; gap: 2px; overflow-x: auto; border-bottom: 1px solid var(--border); }
+.te-tab { display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px 6px 12px; font-size: 13px; border: 1px solid transparent; border-bottom: 0; border-radius: 6px 6px 0 0; cursor: pointer; white-space: nowrap; color: var(--muted); }
+.te-tab.active { background: var(--surface); border-color: var(--border); color: var(--text); font-weight: 600; margin-bottom: -1px; }
+.te-close { display: inline-grid; place-items: center; width: 18px; height: 18px; border: 0; border-radius: 4px; background: none; color: inherit; cursor: pointer; }
+.te-close:hover { background: rgb(128 128 128 / .2); }

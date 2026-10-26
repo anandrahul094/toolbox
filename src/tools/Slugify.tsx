@@ -6,7 +6,7 @@ export default function Slugify() {
   const [sep, setSep] = useState('-')
   const [lower, setLower] = useState(true)
   const slug = useMemo(() => {
-    let s = text.normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/&/g, ' and ')
+    let s = text.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, ' and ')
     s = s.replace(/[^A-Za-z0-9]+/g, sep).replace(new RegExp(`^\\${sep}+|\\${sep}+$`, 'g'), '')
     return lower ? s.toLowerCase() : s
   }, [text, sep, lower])

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CopyButton, ErrorBox, Row } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 export default function JsonFormatter() {
   const [input, setInput] = useState('{"name":"Toolbox","tools":["json","base64"],"free":true}')
@@ -34,8 +35,8 @@ export default function JsonFormatter() {
         <CopyButton value={output} />
       </Row>
       <div className="cols">
-        <textarea aria-label="Input text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Paste JSON here" spellCheck={false} />
-        <textarea aria-label="Output" value={output} readOnly placeholder="Formatted output" />
+        <CodeEditor value={input} onChange={setInput} language="json" placeholder="Paste JSON here" minHeight={300} ariaLabel="JSON input" />
+        <CodeEditor value={output} readOnly language="json" placeholder="Formatted output" minHeight={300} ariaLabel="Formatted JSON" />
       </div>
       <ErrorBox message={error && `Invalid JSON: ${error}`} />
       {warning && <div className="notice">{warning}</div>}

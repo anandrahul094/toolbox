@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CopyButton, downloadBlob, ErrorBox, Field, Row, Stat, fmtBytes } from '../components/ui'
+import CodeEditor from '../components/CodeEditor'
 
 type Mode = 'format' | 'minify' | 'xml2json' | 'json2xml'
 
@@ -229,8 +230,8 @@ export default function XmlFormatter() {
         <button className="btn" onClick={() => setInput('')}>Clear</button>
       </Row>
       <div className="cols">
-        <textarea className="mono" aria-label={mode === 'json2xml' ? 'Input JSON' : 'Input XML'} value={input} onChange={(e) => setInput(e.target.value)} spellCheck={false} placeholder={mode === 'json2xml' ? 'Paste JSON here' : 'Paste XML here'} style={{ minHeight: 320 }} />
-        <textarea className="mono" aria-label="Output" value={result.out} readOnly spellCheck={false} style={{ minHeight: 320 }} />
+        <CodeEditor value={input} onChange={setInput} language={mode === 'json2xml' ? 'json' : 'xml'} placeholder={mode === 'json2xml' ? 'Paste JSON here' : 'Paste XML here'} minHeight={320} ariaLabel={mode === 'json2xml' ? 'Input JSON' : 'Input XML'} />
+        <CodeEditor value={result.out} readOnly language={mode === 'xml2json' ? 'json' : 'xml'} minHeight={320} ariaLabel="Output" />
       </div>
       <ErrorBox message={parseMsg ?? result.error} />
       {stats && (
