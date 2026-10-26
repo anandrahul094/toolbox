@@ -10,8 +10,17 @@ export class QpdfError extends Error {
   constructor(message: string, readonly log: string) { super(message) }
 }
 
+// Runs are queued one at a time: starting the module swaps console.log/error, which must not overlap.
+let queue: Promise<unknown> = Promise.resolve()
+
 /** Run `qpdf [args] in.pdf out.pdf` and return the output file. */
-export async function runQpdf(input: Uint8Array, args: string[]): Promise<Uint8Array> {
+export function runQpdf(input: Uint8Array, args: string[]): Promise<Uint8Array> {
+  const run = queue.then(() => runNow(input, args))
+  queue = run.catch(() => undefined)
+  return run
+}
+
+async function runNow(input: Uint8Array, args: string[]): Promise<Uint8Array> {
   const [{ default: createModule }, { default: wasmUrl }] = await Promise.all([
     import('@neslinesli93/qpdf-wasm'),
     import('@neslinesli93/qpdf-wasm/dist/qpdf.wasm?url'),

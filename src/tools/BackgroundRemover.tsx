@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
 import { Pipette, RotateCcw } from 'lucide-react'
 import { baseName, canvasToBlob, downloadBlob, ErrorBox, Field, FileDrop, fmtBytes, loadImage, Row } from '../components/ui'
+import BatchRunner, { BulkToggle, type BatchProcess } from '../components/Batch'
 
 type RGB = [number, number, number]
 const MAX_PIXELS = 16_000_000
@@ -62,7 +63,60 @@ function removeBackground(src: ImageData, bg: RGB, tolerance: number, feather: n
   return out
 }
 
+/** Pixels of the image, scaled down to MAX_PIXELS if needed. */
+function readPixels(img: HTMLImageElement): ImageData {
+  let w = img.naturalWidth || 1024, h = img.naturalHeight || 1024
+  if (w * h > MAX_PIXELS) { const s = Math.sqrt(MAX_PIXELS / (w * h)); w = Math.round(w * s); h = Math.round(h * s) }
+  const c = document.createElement('canvas'); c.width = w; c.height = h
+  const ctx = c.getContext('2d', { willReadFrequently: true })!
+  ctx.drawImage(img, 0, 0, w, h)
+  return ctx.getImageData(0, 0, w, h)
+}
+
+const removedShare = (d: ImageData) => {
+  let n = 0
+  for (let i = 3; i < d.data.length; i += 4) if (d.data[i] === 0) n++
+  return Math.round((n / (d.data.length / 4)) * 100)
+}
+
+/** Automatic removal for one file (edge colour detected per image) — used by bulk mode. */
+async function removeOne(file: File, o: { tolerance: number; feather: number; connected: boolean }) {
+  const img = await loadImage(file).catch(() => { throw new Error('This file could not be opened as an image.') })
+  const src = readPixels(img)
+  const bg = borderColour(src.data, src.width, src.height)
+  const out = removeBackground(src, bg, o.tolerance, o.feather, o.connected, [])
+  const c = document.createElement('canvas'); c.width = out.width; c.height = out.height
+  c.getContext('2d')!.putImageData(out, 0, 0)
+  const pct = removedShare(out)
+  const note = `${hex(bg)} · ${pct}% removed${pct === 0 ? ' — nothing matched' : pct > 95 ? ' — almost everything, lower the tolerance' : ''}`
+  return { name: `${baseName(file.name)}-no-bg.png`, blob: await canvasToBlob(c, 'image/png'), note }
+}
+
+function BulkRemover({ onSingle }: { onSingle: () => void }) {
+  const [tolerance, setTolerance] = useState(12)
+  const [feather, setFeather] = useState(8)
+  const [connected, setConnected] = useState(true)
+  const process: BatchProcess = (file) => removeOne(file, { tolerance, feather, connected })
+  return (
+    <>
+      <BulkToggle bulk onChange={(b) => { if (!b) onSingle() }} />
+      <div className="notice" style={{ background: 'var(--sage-soft)' }}>Works best for logos, signatures, product shots and graphics on a plain or near-plain background. Busy photo backgrounds (people outdoors, rooms) need AI-based removal, which this tool doesn't do.</div>
+      <Row>
+        <Field label={`Tolerance: ${tolerance}%`} hint="Higher removes more similar shades"><input type="range" min={0} max={60} value={tolerance} onChange={(e) => setTolerance(+e.target.value)} /></Field>
+        <Field label={`Edge softness: ${feather}%`}><input type="range" min={0} max={30} value={feather} onChange={(e) => setFeather(+e.target.value)} /></Field>
+      </Row>
+      <Row>
+        <label className="check"><input type="radio" checked={connected} onChange={() => setConnected(true)} /> Only background connected to the edges</label>
+        <label className="check"><input type="radio" checked={!connected} onChange={() => setConnected(false)} /> This colour everywhere (e.g. inside letters)</label>
+      </Row>
+      <p className="muted" style={{ margin: 0, fontSize: 13 }}>The background colour is detected from each image’s edges and saved as a transparent PNG. To pick a colour or click away leftover areas, use single mode for that image.</p>
+      <BatchRunner accept="image/*" process={process} settingsKey={`${tolerance}|${feather}|${connected}`} runLabel="Remove all backgrounds" zipName="no-background" />
+    </>
+  )
+}
+
 export default function BackgroundRemover() {
+  const [bulk, setBulk] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [src, setSrc] = useState<ImageData | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -83,24 +137,14 @@ export default function BackgroundRemover() {
     setError(null); setSrc(null); setSeeds([])
     loadImage(file).then((img) => {
       if (cancelled) return
-      let w = img.naturalWidth || 1024, h = img.naturalHeight || 1024
-      if (w * h > MAX_PIXELS) { const s = Math.sqrt(MAX_PIXELS / (w * h)); w = Math.round(w * s); h = Math.round(h * s) }
-      const c = document.createElement('canvas'); c.width = w; c.height = h
-      const ctx = c.getContext('2d', { willReadFrequently: true })!
-      ctx.drawImage(img, 0, 0, w, h)
-      const data = ctx.getImageData(0, 0, w, h)
-      setSrc(data); setBg(borderColour(data.data, w, h))
+      const data = readPixels(img)
+      setSrc(data); setBg(borderColour(data.data, data.width, data.height))
     }).catch(() => { if (!cancelled) setError('This file could not be opened as an image.') })
     return () => { cancelled = true }
   }, [file])
 
   const result = useMemo(() => (src ? removeBackground(src, bg, tolerance, feather, connected, seeds) : null), [src, bg, tolerance, feather, connected, seeds])
-  const removedPct = useMemo(() => {
-    if (!result) return 0
-    let n = 0
-    for (let i = 3; i < result.data.length; i += 4) if (result.data[i] === 0) n++
-    return Math.round((n / (result.data.length / 4)) * 100)
-  }, [result])
+  const removedPct = useMemo(() => (result ? removedShare(result) : 0), [result])
 
   useEffect(() => {
     const c = view.current
@@ -109,7 +153,7 @@ export default function BackgroundRemover() {
     const ctx = c.getContext('2d')!
     ctx.putImageData(result, 0, 0)
     if (fill === 'colour') { ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = fillColour; ctx.fillRect(0, 0, c.width, c.height); ctx.globalCompositeOperation = 'source-over' }
-  }, [result, fill, fillColour])
+  }, [result, fill, fillColour, bulk]) // bulk: the canvas is remounted when coming back from bulk mode
 
   const onClick = (e: MouseEvent<HTMLCanvasElement>) => {
     if (!src) return
@@ -128,8 +172,10 @@ export default function BackgroundRemover() {
     setBusy(false)
   }
 
+  if (bulk) return <BulkRemover onSingle={() => setBulk(false)} />
   return (
     <>
+      <BulkToggle bulk={false} onChange={setBulk} />
       <div className="notice" style={{ background: 'var(--sage-soft)' }}>Works best for logos, signatures, product shots and graphics on a plain or near-plain background. Busy photo backgrounds (people outdoors, rooms) need AI-based removal, which this tool doesn't do.</div>
       <FileDrop accept="image/*" onFiles={(f) => setFile(f[0])} label={file && src ? `${file.name} — ${src.width}×${src.height}px, ${fmtBytes(file.size)} · drop or click to replace` : 'Drop an image here, or click to choose'} />
       <ErrorBox message={error} />

@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, type PointerEvent as RPointerEvent } from 
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import { PDFDocument } from 'pdf-lib'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { baseName, downloadBlob, ErrorBox, Field, FileDrop, Row } from '../components/ui'
+import { baseName, downloadBlob, ErrorBox, Field, FileDrop, NumberInput, Row } from '../components/ui'
+import BatchRunner, { BulkToggle, type BatchProcess } from '../components/Batch'
 import { isEncryptedError, openPdf, PASSWORD_MESSAGE, parseRanges, pdfBlob, renderPage, visualFrame } from '../lib/pdf'
 
 // The crop is kept as fractions of the displayed page, so it fits pages of different sizes.
@@ -10,7 +11,46 @@ interface Box { l: number; t: number; r: number; b: number }
 const FULL: Box = { l: 0, t: 0, r: 1, b: 1 }
 const clamp = (v: number) => Math.max(0, Math.min(1, v))
 
+/** Crop the chosen pages (1-based; all by default) to the box. */
+async function cropPdf(file: File, box: Box, pick?: (total: number) => number[]) {
+  const pdf = await PDFDocument.load(await file.arrayBuffer())
+  const pages = pdf.getPages()
+  const targets = pick ? pick(pages.length) : pages.map((_, i) => i + 1)
+  for (const n of targets) {
+    const page = pages[n - 1]
+    const f = visualFrame(page)
+    // the box as seen (origin top-left) → two corners in PDF coordinates
+    const a = f.toPage(box.l * f.width, (1 - box.b) * f.height), c = f.toPage(box.r * f.width, (1 - box.t) * f.height)
+    const x = Math.min(a.x, c.x), y = Math.min(a.y, c.y), w = Math.abs(c.x - a.x), h = Math.abs(c.y - a.y)
+    page.setCropBox(x, y, w, h)
+    page.setMediaBox(x, y, w, h) // some viewers ignore the crop box
+  }
+  return pdfBlob(await pdf.save())
+}
+
+function BulkCrop({ onSingle }: { onSingle: () => void }) {
+  // margins to cut, in % of the page as displayed
+  const [m, setM] = useState({ t: 5, r: 5, b: 5, l: 5 })
+  const box: Box = { l: m.l / 100, t: m.t / 100, r: 1 - m.r / 100, b: 1 - m.b / 100 }
+  const process: BatchProcess = async (file) => {
+    try {
+      return { name: `${baseName(file.name)}-cropped.pdf`, blob: await cropPdf(file, box) }
+    } catch (e) { throw isEncryptedError(e) ? new Error(PASSWORD_MESSAGE) : e }
+  }
+  const blocked = m.l + m.r > 98 || m.t + m.b > 98 ? 'The margins leave nothing of the page — make them smaller.' : null
+  const input = (k: keyof typeof m, label: string) => <Field label={label}><NumberInput min={0} max={98} step={0.5} value={m[k]} onValue={(v) => setM((c) => ({ ...c, [k]: v }))} /></Field>
+  return (
+    <>
+      <BulkToggle bulk onChange={(b) => { if (!b) onSingle() }} />
+      <Row>{input('t', 'Cut top (%)')}{input('r', 'Cut right (%)')}{input('b', 'Cut bottom (%)')}{input('l', 'Cut left (%)')}</Row>
+      <p className="muted" style={{ margin: 0, fontSize: 13 }}>The same margins are cut from every page of every file, measured as a share of each page, so pages of different sizes are trimmed alike.</p>
+      <BatchRunner accept="application/pdf,.pdf" process={process} settingsKey={`${m.t}|${m.r}|${m.b}|${m.l}`} runLabel="Crop all" zipName="cropped-pdfs" blocked={blocked} />
+    </>
+  )
+}
+
 export default function PdfCrop() {
+  const [bulk, setBulk] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null)
   const [pageNo, setPageNo] = useState(1)
@@ -38,7 +78,7 @@ export default function PdfCrop() {
     doc.getPage(pageNo).then((p) => { const v = p.getViewport({ scale: 1 }); if (!cancelled) setRatio(v.width / v.height) })
     renderPage(doc, pageNo, 1.4, canvas.current).catch(() => {})
     return () => { cancelled = true }
-  }, [doc, pageNo])
+  }, [doc, pageNo, bulk]) // the canvas is new after coming back from bulk mode
 
   const at = (e: RPointerEvent): [number, number] => { const r = stage.current!.getBoundingClientRect(); return [clamp((e.clientX - r.left) / r.width), clamp((e.clientY - r.top) / r.height)] }
   const down = (e: RPointerEvent<HTMLDivElement>) => {
@@ -72,29 +112,20 @@ export default function PdfCrop() {
     if (!file || !doc) return
     setBusy(true); setError(null)
     try {
-      const pdf = await PDFDocument.load(await file.arrayBuffer())
-      const pages = pdf.getPages()
-      let targets: number[]
-      if (scope === 'this') targets = [pageNo]
-      else if (scope === 'range') targets = parseRanges(range, pages.length).flatMap(([a, b]) => Array.from({ length: b - a + 1 }, (_, i) => a + i))
-      else targets = pages.map((_, i) => i + 1)
-      for (const n of targets) {
-        const page = pages[n - 1]
-        const f = visualFrame(page)
-        // the box as seen (origin top-left) → two corners in PDF coordinates
-        const a = f.toPage(box.l * f.width, (1 - box.b) * f.height), c = f.toPage(box.r * f.width, (1 - box.t) * f.height)
-        const x = Math.min(a.x, c.x), y = Math.min(a.y, c.y), w = Math.abs(c.x - a.x), h = Math.abs(c.y - a.y)
-        page.setCropBox(x, y, w, h)
-        page.setMediaBox(x, y, w, h) // some viewers ignore the crop box
-      }
-      downloadBlob(`${baseName(file.name)}-cropped.pdf`, pdfBlob(await pdf.save()))
+      const blob = await cropPdf(file, box, (total) =>
+        scope === 'this' ? [pageNo]
+          : scope === 'range' ? parseRanges(range, total).flatMap(([a, b]) => Array.from({ length: b - a + 1 }, (_, i) => a + i))
+            : Array.from({ length: total }, (_, i) => i + 1))
+      downloadBlob(`${baseName(file.name)}-cropped.pdf`, blob)
     } catch (e) {
       setError(isEncryptedError(e) ? PASSWORD_MESSAGE : (e as Error).message)
     } finally { setBusy(false) }
   }
 
+  if (bulk) return <BulkCrop onSingle={() => setBulk(false)} />
   return (
     <>
+      <BulkToggle bulk={false} onChange={setBulk} />
       <FileDrop accept="application/pdf,.pdf" disabled={busy} onFiles={(f) => setFile(f[0])} label={file ? `📄 ${file.name} (click to change)` : 'Drop a PDF here, or click to choose'} hint="Cropped on your device — nothing is uploaded." />
       <ErrorBox message={error} />
       {doc && (

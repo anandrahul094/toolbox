@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
 import { FlipHorizontal2, FlipVertical2, Link2, Link2Off, RotateCcw, RotateCw } from 'lucide-react'
-import { baseName, canvasToBlob, downloadBlob, ErrorBox, Field, FileDrop, fmtBytes, loadImage, NumberInput, Row } from '../components/ui'
+import { baseName, canvasToBlob, downloadBlob, ErrorBox, extOf, Field, FileDrop, fmtBytes, loadImage, NumberInput, prepareCanvas, Row } from '../components/ui'
+import BatchRunner, { BulkToggle, type BatchProcess } from '../components/Batch'
 
 type Rect = { x: number; y: number; w: number; h: number } // in pixels of the rotated/flipped image
 const RATIOS: [string, number | null][] = [['Free', null], ['1:1', 1], ['4:3', 4 / 3], ['3:2', 3 / 2], ['16:9', 16 / 9], ['9:16', 9 / 16], ['4:5', 4 / 5], ['Passport 35×45', 35 / 45]]
@@ -9,7 +10,76 @@ const MIN_STAGE = 360 // small images are shown enlarged so they can be cropped 
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
 
+/** Full-size image after rotate/flip. */
+function orient(img: HTMLImageElement, rot: number, flipH: boolean, flipV: boolean) {
+  const nw = img.naturalWidth || 1024, nh = img.naturalHeight || 1024 // SVGs without a size
+  const swap = rot % 180 !== 0
+  const c = document.createElement('canvas')
+  c.width = swap ? nh : nw
+  c.height = swap ? nw : nh
+  const ctx = c.getContext('2d')!
+  ctx.translate(c.width / 2, c.height / 2)
+  ctx.rotate((rot * Math.PI) / 180)
+  ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1)
+  ctx.drawImage(img, -nw / 2, -nh / 2, nw, nh)
+  return c
+}
+
+const sameFormat = (file: File) => (file.type === 'image/jpeg' ? 'image/jpeg' : file.type === 'image/webp' ? 'image/webp' : 'image/png')
+
+interface BulkEdit { rot: number; flipH: boolean; flipV: boolean; maxSide: number; format: string; quality: number }
+
+/** Rotate/flip, shrink to a longest side (0 = keep) and re-encode one file — used by bulk mode. */
+async function editOne(file: File, o: BulkEdit) {
+  const img = await loadImage(file).catch(() => { throw new Error('Not an image this browser can open (HEIC/RAW: convert to JPG first).') })
+  const base = orient(img, o.rot, o.flipH, o.flipV)
+  const k = o.maxSide ? Math.min(1, o.maxSide / Math.max(base.width, base.height)) : 1
+  const W = Math.max(1, Math.round(base.width * k)), H = Math.max(1, Math.round(base.height * k))
+  if (Math.max(W, H) > MAX_SIDE) throw new Error(`Larger than ${MAX_SIDE}px — set a smaller longest side.`)
+  const format = o.format === 'same' ? sameFormat(file) : o.format
+  const { c, ctx } = prepareCanvas(W, H, format)
+  ctx.drawImage(base, 0, 0, W, H)
+  const blob = await canvasToBlob(c, format, o.quality / 100)
+  return { name: `${baseName(file.name)}-${W}x${H}.${extOf(blob.type)}`, blob, note: `${W}×${H}` }
+}
+
+function BulkEditor({ onSingle }: { onSingle: () => void }) {
+  const [o, setO] = useState<BulkEdit>({ rot: 0, flipH: false, flipV: false, maxSide: 0, format: 'same', quality: 92 })
+  const set = (patch: Partial<BulkEdit>) => setO({ ...o, ...patch })
+  const process: BatchProcess = (file) => editOne(file, o)
+  return (
+    <>
+      <BulkToggle bulk onChange={(b) => { if (!b) onSingle() }} />
+      <Row>
+        <span className="field-label">Rotate clockwise</span>
+        <div className="seg" role="group" aria-label="Rotate clockwise">
+          {[0, 90, 180, 270].map((r) => <button key={r} aria-pressed={o.rot === r} onClick={() => set({ rot: r })}>{r ? `${r}°` : 'None'}</button>)}
+        </div>
+        <button className="btn" aria-pressed={o.flipH} onClick={() => set({ flipH: !o.flipH })}><FlipHorizontal2 size={15} aria-hidden="true" />Flip horizontal</button>
+        <button className="btn" aria-pressed={o.flipV} onClick={() => set({ flipV: !o.flipV })}><FlipVertical2 size={15} aria-hidden="true" />Flip vertical</button>
+      </Row>
+      <Row>
+        <Field label="Resize">
+          <select value={o.maxSide ? 'max' : 'keep'} onChange={(e) => set({ maxSide: e.target.value === 'max' ? 1920 : 0 })}>
+            <option value="keep">Keep original size</option><option value="max">Longest side up to…</option>
+          </select>
+        </Field>
+        {o.maxSide > 0 && <Field label="Pixels"><NumberInput min={1} max={MAX_SIDE} value={o.maxSide} onValue={(v) => set({ maxSide: Math.max(1, Math.round(v)) })} /></Field>}
+        <Field label="Format">
+          <select value={o.format} onChange={(e) => set({ format: e.target.value })}>
+            <option value="same">Same as original</option><option value="image/png">PNG (keeps transparency)</option><option value="image/jpeg">JPG</option><option value="image/webp">WebP</option>
+          </select>
+        </Field>
+      </Row>
+      {o.format !== 'image/png' && <Field label={`Quality: ${o.quality}%`}><input type="range" min={10} max={100} value={o.quality} onChange={(e) => set({ quality: +e.target.value })} /></Field>}
+      <p className="muted" style={{ margin: 0, fontSize: 13 }}>Images smaller than the limit are never enlarged. Cropping is different for every image, so it’s only available in single mode.</p>
+      <BatchRunner accept="image/*" process={process} settingsKey={JSON.stringify(o)} runLabel="Edit all" zipName="edited-images" hint="JPG, PNG, WebP, GIF, BMP or SVG. Your images never leave this device." />
+    </>
+  )
+}
+
 export default function ImageEditor() {
+  const [bulk, setBulk] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [img, setImg] = useState<HTMLImageElement | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -37,20 +107,7 @@ export default function ImageEditor() {
   }, [file])
 
   // full-size image after rotate/flip; crop is applied on top of this
-  const base = useMemo(() => {
-    if (!img) return null
-    const nw = img.naturalWidth || 1024, nh = img.naturalHeight || 1024 // SVGs without a size
-    const swap = rot % 180 !== 0
-    const c = document.createElement('canvas')
-    c.width = swap ? nh : nw
-    c.height = swap ? nw : nh
-    const ctx = c.getContext('2d')!
-    ctx.translate(c.width / 2, c.height / 2)
-    ctx.rotate((rot * Math.PI) / 180)
-    ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1)
-    ctx.drawImage(img, -nw / 2, -nh / 2, nw, nh)
-    return c
-  }, [img, rot, flipH, flipV])
+  const base = useMemo(() => (img ? orient(img, rot, flipH, flipV) : null), [img, rot, flipH, flipV])
   const baseUrl = useMemo(() => base?.toDataURL('image/png'), [base])
 
   // reset the crop to the full image whenever the oriented image changes
@@ -58,9 +115,11 @@ export default function ImageEditor() {
   // keep the output size in step with the crop
   useEffect(() => { setOut({ w: Math.round(crop.w), h: Math.round(crop.h) }) }, [crop.w, crop.h])
 
+  if (bulk) return <BulkEditor onSingle={() => setBulk(false)} />
   if (!file || error || !img || !base || !baseUrl) {
     return (
       <>
+        <BulkToggle bulk={false} onChange={setBulk} />
         <FileDrop accept="image/*" onFiles={(f) => setFile(f[0])} label={file && !error ? 'Loading…' : 'Drop an image here, or click to choose'} hint="JPG, PNG, WebP, GIF, BMP or SVG. Your image never leaves this device." />
         <ErrorBox message={error} />
       </>
@@ -143,6 +202,7 @@ export default function ImageEditor() {
 
   return (
     <>
+      <BulkToggle bulk={false} onChange={setBulk} />
       <FileDrop accept="image/*" onFiles={(f) => setFile(f[0])} label={`${file.name} — ${BW}×${BH}px, ${fmtBytes(file.size)} · drop or click to replace`} />
       <Row>
         <button className="btn" onClick={() => setRot((rot + 270) % 360)}><RotateCcw size={15} aria-hidden="true" />Rotate left</button>

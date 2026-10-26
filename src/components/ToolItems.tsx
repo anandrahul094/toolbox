@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Check, FolderPlus, Plus, Star } from 'lucide-react'
 import type { Tool } from '../registry'
-import { NEW_SET, toolIcon, CATEGORY_ICONS } from '../meta'
+import { BULK_SET, NEW_SET, toolIcon, CATEGORY_ICONS } from '../meta'
 import { actions, useStore } from '../store'
 import { toast } from '../toast'
 import { PocketDialog } from './Dialogs'
@@ -109,7 +109,7 @@ export function ToolTile({ tool, showCategory = true }: { tool: Tool; showCatego
       <div className="t-body">
         <span className="t-name">{tool.name}</span>
         <span className="t-desc">{tool.description}</span>
-        {(showCategory || NEW_SET.has(tool.id)) && <span className="t-meta">{showCategory && <CategoryTag tool={tool} />}{NEW_SET.has(tool.id) && <span className="new-tag">{tr("New")}</span>}</span>}
+        {(showCategory || NEW_SET.has(tool.id) || BULK_SET.has(tool.id)) && <span className="t-meta">{showCategory && <CategoryTag tool={tool} />}{NEW_SET.has(tool.id) && <span className="new-tag">{tr("New")}</span>}{BULK_SET.has(tool.id) && <span className="new-tag bulk-tag" title={tr('Works on many files at once')}>{tr('Bulk')}</span>}</span>}
       </div>
       <div className="t-actions"><StarButton tool={tool} /><PocketMenu tool={tool} /></div>
     </article>
@@ -121,7 +121,7 @@ export function ToolRow({ tool, extra }: { tool: Tool; extra?: ReactNode }) {
     <div className="row-item">
       <Link to={`/tool/${tool.id}`} className="cover" aria-label={tool.name} />
       <ToolIcon tool={tool} size="sm" />
-      <span className="t-name">{tool.name}{NEW_SET.has(tool.id) && <> <span className="new-tag">{tr("New")}</span></>}</span>
+      <span className="t-name">{tool.name}{NEW_SET.has(tool.id) && <> <span className="new-tag">{tr("New")}</span></>}{BULK_SET.has(tool.id) && <> <span className="new-tag bulk-tag">{tr('Bulk')}</span></>}</span>
       <span className="t-desc">{tool.description}</span>
       <span className="t-cat"><CategoryTag tool={tool} /></span>
       <span className="t-actions">{extra}<StarButton tool={tool} /><PocketMenu tool={tool} /></span>

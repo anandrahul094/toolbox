@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import exifr from 'exifr'
 import { baseName, canvasToBlob, downloadBlob, ErrorBox, extOf, FileDrop, fmtBytes, IMAGE_LOAD_ERROR, imageSize, loadImage, prepareCanvas, Row } from '../components/ui'
+import BatchRunner, { BulkToggle, type BatchProcess } from '../components/Batch'
 
 const fmt = (v: unknown): string => {
   if (v instanceof Date) return v.toLocaleString()
@@ -12,7 +13,38 @@ const fmt = (v: unknown): string => {
 
 const HIGHLIGHT = ['Make', 'Model', 'LensModel', 'DateTimeOriginal', 'ExposureTime', 'FNumber', 'ISO', 'FocalLength', 'ImageWidth', 'ImageHeight', 'ExifImageWidth', 'ExifImageHeight', 'Software', 'Artist', 'Copyright']
 
+/** Re-encode the image (keeping its format where the browser can), which drops all metadata. */
+async function cleanCopy(file: File) {
+  const img = await loadImage(file).catch(() => { throw new Error(IMAGE_LOAD_ERROR) })
+  const type = file.type === 'image/png' || file.type === 'image/gif' ? 'image/png' : file.type === 'image/webp' ? 'image/webp' : 'image/jpeg'
+  const { w, h } = imageSize(img)
+  const { c, ctx } = prepareCanvas(w, h, type)
+  ctx.drawImage(img, 0, 0, w, h)
+  const blob = await canvasToBlob(c, type, 0.95)
+  return { name: `${baseName(file.name)}-clean.${extOf(blob.type)}`, blob }
+}
+
+const stripOne: BatchProcess = async (file) => {
+  let gps: string
+  try {
+    const g = await exifr.gps(file)
+    gps = g && Number.isFinite(g.latitude) && Number.isFinite(g.longitude) ? '📍 GPS location found — removed' : 'No GPS location found'
+  } catch { gps = 'Metadata unreadable — removed anyway' }
+  return { ...(await cleanCopy(file)), note: gps }
+}
+
+function BulkExif({ onSingle }: { onSingle: () => void }) {
+  return (
+    <>
+      <BulkToggle bulk onChange={(b) => { if (!b) onSingle() }} />
+      <p className="muted" style={{ margin: 0, fontSize: 13 }}>Re-encodes every image, which removes EXIF, GPS, XMP and IPTC data. JPG, PNG and WebP keep their format; others are saved as JPG (GIF as PNG).</p>
+      <BatchRunner accept="image/*" process={stripOne} runLabel="Remove metadata from all" zipName="clean-images" />
+    </>
+  )
+}
+
 export default function ExifViewer() {
+  const [bulk, setBulk] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [data, setData] = useState<Record<string, unknown> | null>(null)
   const [busy, setBusy] = useState(false)
@@ -35,15 +67,10 @@ export default function ExifViewer() {
     if (!file) return
     setBusy(true); setError(null)
     try {
-      const img = await loadImage(file)
-      const type = file.type === 'image/png' || file.type === 'image/gif' ? 'image/png' : file.type === 'image/webp' ? 'image/webp' : 'image/jpeg'
-      const { w, h } = imageSize(img)
-      const { c, ctx } = prepareCanvas(w, h, type)
-      ctx.drawImage(img, 0, 0, w, h)
-      const blob = await canvasToBlob(c, type, 0.95)
-      downloadBlob(`${baseName(file.name)}-clean.${extOf(blob.type)}`, blob)
+      const { name, blob } = await cleanCopy(file)
+      downloadBlob(name, blob)
     } catch (e) {
-      setError((e as Error).message === 'Could not read this image.' ? IMAGE_LOAD_ERROR : (e as Error).message)
+      setError((e as Error).message)
     } finally { setBusy(false) }
   }
 
@@ -52,8 +79,10 @@ export default function ExifViewer() {
   const top = entries.filter(([k]) => HIGHLIGHT.includes(k))
   const rest = entries.filter(([k]) => !HIGHLIGHT.includes(k))
 
+  if (bulk) return <BulkExif onSingle={() => setBulk(false)} />
   return (
     <>
+      <BulkToggle bulk={false} onChange={setBulk} />
       <FileDrop accept="image/*" onFiles={(f) => load(f[0])} label={file ? `🖼️ ${file.name} — ${fmtBytes(file.size)} (click to change)` : 'Drop a photo or click to choose'} />
       {data && (
         <>

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { LayoutGrid, LayoutList, Search, X } from 'lucide-react'
 import { CATEGORIES, categoryBySlug, tools, type Tool } from '../registry'
-import { CATEGORY_ICONS, NEW_SET, RECENTLY_ADDED } from '../meta'
+import { BULK_SET, CATEGORY_ICONS, NEW_SET, RECENTLY_ADDED } from '../meta'
 import { searchTools } from '../search'
 import { ToolRow, ToolTile } from '../components/ToolItems'
 import { SUGGESTIONS } from '../components/Search'
@@ -27,6 +27,7 @@ export default function Explore() {
   const sort: Sort = sortOptions.includes(rawSort) ? rawSort : q ? 'relevance' : fixed ? 'name' : 'category'
   const [view, setView] = useState<'grid' | 'list'>(() => { try { return localStorage.getItem('toolbox:view') === 'list' ? 'list' : 'grid' } catch { return 'grid' } })
   const onlyNew = params.get('new') === '1'
+  const onlyBulk = params.get('bulk') === '1'
   const limit = Math.max(PAGE, Number(params.get('show')) || PAGE) // in the URL so Back keeps "Show more"
 
   const update = (patch: Record<string, string>) => {
@@ -44,11 +45,12 @@ export default function Explore() {
   const list = useMemo(() => {
     let l: Tool[] = searchTools(q, cat ? tools.filter((t) => t.category === cat) : tools)
     if (onlyNew) l = l.filter((t) => NEW_SET.has(t.id))
+    if (onlyBulk) l = l.filter((t) => BULK_SET.has(t.id))
     if (sort === 'name') l = [...l].sort((a, b) => a.name.localeCompare(b.name))
     if (sort === 'new') l = [...l].sort((a, b) => rank(a) - rank(b))
     if (sort === 'category') l = [...l].sort((a, b) => catIndex(a) - catIndex(b))
     return l
-  }, [q, cat, sort, onlyNew])
+  }, [q, cat, sort, onlyNew, onlyBulk])
 
   const shown = list.slice(0, limit)
   if (slug && !fixed) return <NotFound />
@@ -78,6 +80,7 @@ export default function Explore() {
           {q && <button className="icon-only sm" onClick={() => update({ q: '' })} aria-label={tr("Clear filter")}><X size={15} /></button>}
         </div>
         <label className="check"><input type="checkbox" checked={onlyNew} onChange={(e) => update({ new: e.target.checked ? '1' : '' })} /> {tr("New only")}</label>
+        <label className="check"><input type="checkbox" checked={onlyBulk} onChange={(e) => update({ bulk: e.target.checked ? '1' : '' })} /> {tr('Bulk (many files)')}</label>
         <span style={{ marginLeft: 'auto' }} />
         <label className="check" style={{ gap: 6 }}>
           <span className="muted" style={{ fontSize: 13 }}>{tr("Sort")}</span>

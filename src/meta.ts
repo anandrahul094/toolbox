@@ -56,3 +56,11 @@ export const STARTER_POCKETS: { slug: string; name: string; description: string;
   { slug: 'creator', name: 'Creator & social', description: 'Images sized and ready to post', toolIds: ['social-image-resizer', 'image-compressor', 'image-editor', 'image-watermark', 'qr-code', 'favicon-generator', 'meta-tags', 'utm-builder'] },
   { slug: 'money', name: 'Money matters', description: 'Salary, loans, savings and tax', toolIds: ['ctc-inhand', 'salary-hike', 'emi', 'sip', 'compound-interest', 'gst', 'inflation', 'percentage'] },
 ]
+
+// Tools with a "Many files (bulk)" mode — shown with a Bulk tag and filter
+export const BULK_SET = new Set([
+  'image-compressor', 'image-converter', 'heic-to-jpg', 'compress-image-to-size', 'compress-image-to-20kb', 'compress-image-to-50kb', 'compress-image-to-100kb', 'compress-image-to-200kb', 'compress-image-to-500kb', 'compress-image-to-1mb',
+  'jpg-to-png', 'png-to-jpg', 'webp-to-jpg', 'jpg-to-webp', 'png-to-webp', 'image-watermark', 'exif-viewer', 'social-image-resizer', 'background-remover', 'image-editor', 'image-to-svg', 'image-to-text',
+  'pdf-compress', 'pdf-watermark', 'pdf-page-numbers', 'protect-pdf', 'unlock-pdf', 'pdf-to-image', 'pdf-to-jpg', 'pdf-to-text', 'pdf-to-word', 'crop-pdf', 'pdf-organize', 'rotate-pdf', 'pdf-merge', 'image-to-pdf', 'jpg-to-pdf',
+  'qr-code', 'barcode-generator', 'hash', 'md5-generator', 'sha256-generator', 'video-to-mp3', 'compress-video', 'encrypt-text', 'zip-tool',
+])

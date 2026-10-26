@@ -440,4 +440,8 @@ export const HI_UI: Record<string, string> = {
   'Read this page in Hindi': 'यह पेज हिंदी में पढ़ें',
   'This site is also available in Hindi.': 'यह साइट हिंदी में भी उपलब्ध है।',
   'Switch to Hindi': 'हिंदी में देखें',
+  // bulk
+  'Bulk': 'एक साथ कई',
+  'Works on many files at once': 'एक साथ कई फ़ाइलों पर काम करता है',
+  'Bulk (many files)': 'एक साथ कई फ़ाइलें',
 }

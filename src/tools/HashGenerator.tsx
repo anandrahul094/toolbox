@@ -1,9 +1,137 @@
-import { useEffect, useState } from 'react'
-import { CheckCircle2 } from 'lucide-react'
-import { CopyButton, Field, FileDrop, fmtBytes, Row } from '../components/ui'
+import { useEffect, useRef, useState } from 'react'
+import { CheckCircle2, Download } from 'lucide-react'
+import { CopyButton, downloadBlob, Field, FileDrop, fmtBytes, Row } from '../components/ui'
+import BatchRunner, { BulkToggle, type BatchProcess } from '../components/Batch'
 import { enc, fromBase64, fromHex, hash, HASHES, hmac, HMAC_HASHES, toBase64, toHex, type HashName } from '../lib/codec'
 
 const COMMON: HashName[] = ['MD5', 'SHA-1', 'SHA-256', 'SHA-512']
+
+// ── bulk: checksums for many files ──
+interface Hashed { path: string; size: number; hashes: Partial<Record<HashName, string>> }
+type Verdict = 'match' | 'mismatch' | 'not listed'
+
+const fileKey = (f: File) => f.webkitRelativePath || f.name
+const sumsName = (a: HashName) => `${a.replace(/-/g, '').toUpperCase()}SUMS.txt`
+const csvCell = (s: string) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s)
+const lastPart = (p: string) => p.split(/[\\/]/).pop()!.toLowerCase()
+
+/** Reads GNU (`<hash>  <name>`, `*` for binary mode) and BSD (`SHA256 (name) = <hash>`) checksum lists. */
+function parseSums(text: string) {
+  const out: { name: string; hash: string }[] = []
+  for (const raw of text.split(/\r?\n/)) {
+    const l = raw.trim()
+    if (!l || l.startsWith('#')) continue
+    const bsd = l.match(/^[\w-]+\s*\((.+)\)\s*=\s*([0-9a-f]+)$/i)
+    const gnu = l.match(/^\\?([0-9a-f]{8,})\s+\*?(.+)$/i)
+    if (bsd) out.push({ name: bsd[1], hash: bsd[2].toLowerCase() })
+    else if (gnu) out.push({ name: gnu[2].replace(/^\.\//, ''), hash: gnu[1].toLowerCase() })
+  }
+  return out
+}
+
+function BulkHash({ onSingle }: { onSingle: () => void }) {
+  const [algos, setAlgos] = useState<HashName[]>(['SHA-256'])
+  const [sumAlgo, setSumAlgo] = useState<HashName>('SHA-256')
+  const [rows, setRows] = useState<Hashed[]>([])
+  const [sums, setSums] = useState('')
+  const order = useRef(new Map<string, number>())
+
+  const toggle = (a: HashName) => {
+    const next = algos.includes(a) ? algos.filter((x) => x !== a) : HASHES.filter((x) => x === a || algos.includes(x))
+    setAlgos(next)
+    if (!next.includes(sumAlgo) && next.length) setSumAlgo(next[0])
+  }
+
+  const process: BatchProcess = async (file, ctx) => {
+    const data = new Uint8Array(await file.arrayBuffer())
+    const hashes: Hashed['hashes'] = {}
+    for (const a of algos) { hashes[a] = toHex(await hash(a, data)); if (ctx.signal.aborted) throw new Error('Stopped') }
+    const path = fileKey(file)
+    // keep the table in the order files were added, even though they finish out of order
+    if (!order.current.has(path)) order.current.set(path, order.current.size)
+    setRows((cur) => [...cur.filter((r) => r.path !== path), { path, size: file.size, hashes }].sort((a, b) => order.current.get(a.path)! - order.current.get(b.path)!))
+    const line = `${hashes[sumAlgo] ?? hashes[algos[0]]}  ${path}\n`
+    return { name: `${file.name}.${(algos.includes(sumAlgo) ? sumAlgo : algos[0]).replace(/-/g, '').toLowerCase()}`, blob: new Blob([line], { type: 'text/plain' }), note: `${(algos.includes(sumAlgo) ? sumAlgo : algos[0])} ${line.slice(0, 16)}…` }
+  }
+
+  const listed = parseSums(sums)
+  const verdict = (r: Hashed): { v: Verdict; algo?: string } => {
+    const entry = listed.find((e) => e.name === r.path) ?? listed.find((e) => lastPart(e.name) === lastPart(r.path))
+    if (!entry) return { v: 'not listed' }
+    const hit = (Object.entries(r.hashes) as [HashName, string][]).find(([, h]) => h === entry.hash)
+    if (hit) return { v: 'match', algo: hit[0] }
+    // a 32-char MD5 can't match a 64-char SHA-256: point at the algorithm rather than the file
+    return { v: 'mismatch', algo: Object.values(r.hashes).some((h) => h.length === entry.hash.length) ? undefined : 'select the algorithm the list uses' }
+  }
+  const missing = listed.filter((e) => !rows.some((r) => r.path === e.name || lastPart(r.path) === lastPart(e.name)))
+  const ready = rows.filter((r) => r.hashes[sumAlgo])
+
+  const exportCsv = () => {
+    const cols = HASHES.filter((a) => rows.some((r) => r.hashes[a]))
+    const lines = [['File', 'Size (bytes)', ...cols, ...(listed.length ? ['Check'] : [])].join(',')]
+    for (const r of rows) lines.push([csvCell(r.path), String(r.size), ...cols.map((a) => r.hashes[a] ?? ''), ...(listed.length ? [verdict(r).v] : [])].join(','))
+    downloadBlob('checksums.csv', new Blob([lines.join('\n') + '\n'], { type: 'text/csv' }))
+  }
+
+  return (
+    <>
+      <BulkToggle bulk onChange={(b) => { if (!b) onSingle() }} />
+      <div>
+        <div className="field-label" style={{ marginBottom: 6 }}>Algorithms</div>
+        <div className="filter-chips" role="group" aria-label="Algorithms">
+          {HASHES.map((a) => <button key={a} className={`chip ${algos.includes(a) ? 'active' : ''}`} aria-pressed={algos.includes(a)} onClick={() => toggle(a)}>{a}</button>)}
+        </div>
+      </div>
+      <BatchRunner compare={false} process={process} settingsKey={algos.join(',')} runLabel="Hash all" zipName="checksums" concurrency={2} blocked={algos.length ? null : 'Pick at least one algorithm.'} hint="Hashed on your device — nothing is uploaded. Handy to check a folder of downloads or backups." />
+      <Field label="Verify against a checksum file (optional)" hint="Paste the contents of a SHA256SUMS / MD5SUMS file, or drop it below. Files are matched by name.">
+        <textarea aria-label="Checksum list" className="mono" value={sums} onChange={(e) => setSums(e.target.value)} spellCheck={false} style={{ minHeight: 80 }} placeholder="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  file.iso" />
+      </Field>
+      <FileDrop accept=".txt,.sha256,.sha1,.md5,.sha512,.sum,.sums,text/plain" onFiles={async (f) => setSums(await f[0].text())} label="…or drop the checksum file" hint="Read on your device." />
+      {sums.trim() && !listed.length && <div className="error">No checksum lines found. Expected “hash  filename” per line.</div>}
+      {rows.length > 0 && (
+        <>
+          <Row>
+            <Field label="Checksum list uses"><select value={sumAlgo} onChange={(e) => setSumAlgo(e.target.value as HashName)}>{algos.map((a) => <option key={a}>{a}</option>)}</select></Field>
+            <button className="btn primary" style={{ alignSelf: 'flex-end' }} disabled={!ready.length} onClick={() => downloadBlob(sumsName(sumAlgo), new Blob([ready.map((r) => `${r.hashes[sumAlgo]}  ${r.path}\n`).join('')], { type: 'text/plain' }))}><Download size={15} aria-hidden="true" />{sumsName(sumAlgo)}</button>
+            <button className="btn" style={{ alignSelf: 'flex-end' }} onClick={exportCsv}><Download size={15} aria-hidden="true" />CSV</button>
+            <button className="btn" style={{ alignSelf: 'flex-end' }} onClick={() => { setRows([]); order.current.clear() }}>Clear results</button>
+          </Row>
+          {listed.length > 0 && (
+            <div className="muted" style={{ fontSize: 13 }} aria-live="polite">
+              {rows.filter((r) => verdict(r).v === 'match').length} match · {rows.filter((r) => verdict(r).v === 'mismatch').length} mismatch · {rows.filter((r) => verdict(r).v === 'not listed').length} not in the list · {missing.length} listed but not added
+            </div>
+          )}
+          <div style={{ maxHeight: 420, overflow: 'auto', border: '1px solid var(--border)', borderRadius: 8 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead><tr style={{ textAlign: 'left' }}><th style={{ padding: '6px 8px' }}>File</th><th style={{ padding: '6px 4px' }}>Size</th>{algos.map((a) => <th key={a} style={{ padding: '6px 4px' }}>{a}</th>)}{listed.length > 0 && <th style={{ padding: '6px 8px' }}>Check</th>}</tr></thead>
+              <tbody>
+                {rows.map((r) => {
+                  const v = listed.length ? verdict(r) : null
+                  return (
+                    <tr key={r.path} style={{ borderTop: '1px solid var(--border)', verticalAlign: 'top' }}>
+                      <td style={{ padding: '6px 8px', wordBreak: 'break-all' }}>{r.path}</td>
+                      <td className="muted" style={{ padding: '6px 4px', whiteSpace: 'nowrap' }}>{fmtBytes(r.size)}</td>
+                      {algos.map((a) => <td key={a} className="mono" style={{ padding: '6px 4px', wordBreak: 'break-all', fontSize: 12 }}>{r.hashes[a] ?? '—'}</td>)}
+                      {v && <td style={{ padding: '6px 8px', whiteSpace: 'nowrap', color: v.v === 'match' ? 'var(--ok)' : v.v === 'mismatch' ? 'var(--danger)' : undefined }} className={v.v === 'not listed' ? 'muted' : undefined}>{v.v === 'match' ? `✓ Match (${v.algo})` : v.v === 'mismatch' ? `✗ Mismatch${v.algo ? ` — ${v.algo}` : ''}` : 'Not listed'}</td>}
+                    </tr>
+                  )
+                })}
+                {missing.map((m) => (
+                  <tr key={`missing-${m.name}`} style={{ borderTop: '1px solid var(--border)' }}>
+                    <td style={{ padding: '6px 8px', wordBreak: 'break-all' }}>{m.name}</td>
+                    <td colSpan={algos.length + 1} className="muted" style={{ padding: '6px 4px' }}>—</td>
+                    <td style={{ padding: '6px 8px', color: 'var(--danger)', whiteSpace: 'nowrap' }}>Missing</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+      <p className="muted" style={{ margin: 0, fontSize: 13 }}>Each file also gets its own <code>.sha256</code>-style file in the ZIP. Hash names in the list are matched by full path first, then by file name.</p>
+    </>
+  )
+}
 
 export default function HashGenerator() {
   const [input, setInput] = useState('hello world')
@@ -17,6 +145,7 @@ export default function HashGenerator() {
   const [hashes, setHashes] = useState<Record<string, Uint8Array>>({})
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [bulk, setBulk] = useState(false)
 
   const names: string[] = mode === 'hmac' ? [...HMAC_HASHES] : all ? [...HASHES] : COMMON
 
@@ -38,8 +167,10 @@ export default function HashGenerator() {
   const want = expected.trim().toLowerCase().replace(/\s/g, '')
   const matchName = want ? names.find((n) => { const b = hashes[n]; return b && (toHex(b) === want || toBase64(b).toLowerCase() === want) }) : undefined
 
+  if (bulk) return <BulkHash onSingle={() => setBulk(false)} />
   return (
     <>
+      <BulkToggle bulk={false} onChange={setBulk} single="One file or text" />
       <div className="seg" role="group" aria-label="Mode" style={{ alignSelf: 'flex-start' }}>
         <button aria-pressed={mode === 'hash'} onClick={() => setMode('hash')}>Hash</button>
         <button aria-pressed={mode === 'hmac'} onClick={() => setMode('hmac')}>HMAC (with key)</button>

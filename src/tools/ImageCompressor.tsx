@@ -1,8 +1,54 @@
 import { useEffect, useState } from 'react'
 import { Link2, Link2Off, RotateCcw } from 'lucide-react'
 import { baseName, canvasFits, canvasToBlob, downloadBlob, extOf, Field, FileDrop, fmtBytes, imageSize, loadImage, NumberInput, prepareCanvas, Row, Stat } from '../components/ui'
+import BatchRunner, { BulkToggle, type BatchProcess } from '../components/Batch'
+
+type Fit = 'keep' | 'max' | 'width' | 'percent'
+
+/** Resize (never enlarging) and re-encode one image — shared by bulk mode. */
+async function compressOne(file: File, o: { fit: Fit; size: number; format: string; quality: number }) {
+  const img = await loadImage(file).catch(() => { throw new Error('Not an image this browser can open (HEIC/RAW: convert to JPG first).') })
+  const { w, h } = imageSize(img)
+  const k = o.fit === 'percent' ? o.size / 100 : o.fit === 'max' ? Math.min(1, o.size / Math.max(w, h)) : o.fit === 'width' ? Math.min(1, o.size / w) : 1
+  const W = Math.max(1, Math.round(w * k)), H = Math.max(1, Math.round(h * k))
+  if (!canvasFits(W, H)) throw new Error('Too large for the browser to process.')
+  const { c, ctx } = prepareCanvas(W, H, o.format)
+  ctx.drawImage(img, 0, 0, W, H)
+  const blob = await canvasToBlob(c, o.format, o.quality / 100)
+  return { name: `${baseName(file.name)}.${extOf(blob.type)}`, blob, note: `${W}×${H}` }
+}
+
+function BulkCompressor({ onSingle }: { onSingle: () => void }) {
+  const [fit, setFit] = useState<Fit>('max')
+  const [size, setSize] = useState(1920)
+  const [quality, setQuality] = useState(80)
+  const [format, setFormat] = useState('image/webp')
+  const process: BatchProcess = (file) => compressOne(file, { fit, size, format, quality })
+  return (
+    <>
+      <BulkToggle bulk onChange={(b) => { if (!b) onSingle() }} />
+      <Row>
+        <Field label="Resize">
+          <select value={fit} onChange={(e) => { const f = e.target.value as Fit; setFit(f); setSize(f === 'percent' ? 50 : 1920) }}>
+            <option value="keep">Keep original size</option><option value="max">Longest side up to…</option><option value="width">Width up to…</option><option value="percent">Scale to a percentage</option>
+          </select>
+        </Field>
+        {fit !== 'keep' && <Field label={fit === 'percent' ? 'Percent' : 'Pixels'}><NumberInput min={1} max={fit === 'percent' ? 100 : 16384} value={size} onValue={(v) => setSize(Math.round(v))} /></Field>}
+        <Field label="Format">
+          <select value={format} onChange={(e) => setFormat(e.target.value)}>
+            <option value="image/webp">WebP (smallest)</option><option value="image/jpeg">JPG</option><option value="image/png">PNG (lossless)</option>
+          </select>
+        </Field>
+      </Row>
+      {format !== 'image/png' && <Field label={`Quality: ${quality}%`}><input type="range" min={10} max={100} value={quality} onChange={(e) => setQuality(+e.target.value)} /></Field>}
+      <p className="muted" style={{ margin: 0, fontSize: 13 }}>Images smaller than the limit are never enlarged.</p>
+      <BatchRunner accept="image/*" process={process} settingsKey={`${fit}|${size}|${format}|${quality}`} runLabel="Compress all" zipName="compressed-images" />
+    </>
+  )
+}
 
 export default function ImageCompressor() {
+  const [bulk, setBulk] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [img, setImg] = useState<HTMLImageElement | null>(null)
   const [origUrl, setOrigUrl] = useState('')
@@ -52,8 +98,10 @@ export default function ImageCompressor() {
   const sizeError = img && !canvasFits(Math.round(width), Math.round(height)) ? 'That size is too large for the browser to process. Keep each side under 16,384px.' : null
   const saved = file && out ? Math.round((1 - out.blob.size / file.size) * 100) : 0
 
+  if (bulk) return <BulkCompressor onSingle={() => setBulk(false)} />
   return (
     <>
+      <BulkToggle bulk={false} onChange={setBulk} />
       <FileDrop accept="image/*" onFiles={(f) => setFile(f[0])} label={file ? `${file.name} — ${fmtBytes(file.size)} · drop or click to replace` : 'Drop an image here, or click to choose'} hint="JPG, PNG, WebP, GIF or BMP. Your image never leaves this device." />
       {error && <div className="error" role="alert">{error}</div>}
       {img && file && (
@@ -94,7 +142,6 @@ export default function ImageCompressor() {
               <Row>
                 <button className="btn primary" onClick={() => downloadBlob(`${baseName(file.name)}-${Math.round(width)}w.${ext}`, out.blob)}>Download {ext.toUpperCase()}</button>
                 <button className="btn" onClick={reset}><RotateCcw size={15} aria-hidden="true" />Reset</button>
-                <span className="muted" style={{ fontSize: 13 }}>Need many images at once? Use the Image Format Converter.</span>
               </Row>
             </>
           )}

@@ -1,11 +1,44 @@
 import { useEffect, useRef, useState } from 'react'
 import { degrees, PDFDocument } from 'pdf-lib'
 import { baseName, downloadBlob, ErrorBox, FileDrop, Row } from '../components/ui'
+import BatchRunner, { BulkToggle, type BatchProcess } from '../components/Batch'
 import { isEncryptedError, openPdf, PASSWORD_MESSAGE, pdfBlob, renderPage } from '../lib/pdf'
 
 interface PageState { src: number; rotate: number; deleted: boolean; thumb?: string }
 
+/** Build a new PDF from the source pages listed in `plan(pageCount)`, each with extra rotation. */
+async function organizePdf(file: File, plan: (count: number) => { src: number; rotate: number }[]) {
+  const src = await PDFDocument.load(await file.arrayBuffer())
+  const out = await PDFDocument.create()
+  const keep = plan(src.getPageCount())
+  const copied = await out.copyPages(src, keep.map((p) => p.src))
+  copied.forEach((pg, k) => { pg.setRotation(degrees((pg.getRotation().angle + keep[k].rotate) % 360)); out.addPage(pg) })
+  return pdfBlob(await out.save())
+}
+
+const TURNS = [[90, '↻ 90° right'], [180, '180°'], [270, '↺ 90° left']] as const
+
+function BulkRotate({ onSingle }: { onSingle: () => void }) {
+  const [turn, setTurn] = useState(90)
+  const process: BatchProcess = async (file) => {
+    try {
+      return { name: `${baseName(file.name)}-rotated.pdf`, blob: await organizePdf(file, (n) => Array.from({ length: n }, (_, i) => ({ src: i, rotate: turn }))) }
+    } catch (e) { throw isEncryptedError(e) ? new Error(PASSWORD_MESSAGE) : e }
+  }
+  return (
+    <>
+      <BulkToggle bulk onChange={(b) => { if (!b) onSingle() }} />
+      <div className="seg" role="group" aria-label="Rotate all pages by" style={{ alignSelf: 'flex-start' }}>
+        {TURNS.map(([d, label]) => <button key={d} aria-pressed={turn === d} onClick={() => setTurn(d)}>{label}</button>)}
+      </div>
+      <p className="muted" style={{ margin: 0, fontSize: 13 }}>Rotates every page of every file. To reorder or delete pages, use one file at a time.</p>
+      <BatchRunner accept="application/pdf,.pdf" process={process} settingsKey={String(turn)} runLabel="Rotate all" zipName="rotated-pdfs" />
+    </>
+  )
+}
+
 export default function PdfOrganize() {
+  const [bulk, setBulk] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [pages, setPages] = useState<PageState[]>([])
   const [busy, setBusy] = useState(false)
@@ -40,18 +73,15 @@ export default function PdfOrganize() {
     if (!file) return
     setBusy(true)
     try {
-      const src = await PDFDocument.load(await file.arrayBuffer())
-      const out = await PDFDocument.create()
-      const keep = pages.filter((p) => !p.deleted)
-      const copied = await out.copyPages(src, keep.map((p) => p.src))
-      copied.forEach((pg, k) => { pg.setRotation(degrees((pg.getRotation().angle + keep[k].rotate) % 360)); out.addPage(pg) })
-      downloadBlob(`${baseName(file.name)}-organized.pdf`, pdfBlob(await out.save()))
+      downloadBlob(`${baseName(file.name)}-organized.pdf`, await organizePdf(file, () => pages.filter((p) => !p.deleted)))
     } catch (e) { setError(isEncryptedError(e) ? PASSWORD_MESSAGE : (e as Error).message) } finally { setBusy(false) }
   }
 
   const kept = pages.filter((p) => !p.deleted).length
+  if (bulk) return <BulkRotate onSingle={() => setBulk(false)} />
   return (
     <>
+      <BulkToggle bulk={false} onChange={setBulk} />
       <FileDrop accept="application/pdf,.pdf" disabled={busy} onFiles={(f) => setFile(f[0])} label={file ? `📄 ${file.name} (click to change)` : undefined} />
       <ErrorBox message={error} />
       {pages.length > 0 && (

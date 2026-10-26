@@ -436,3 +436,9 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px s
 .te-tab.active { background: var(--surface); border-color: var(--border); color: var(--text); font-weight: 600; margin-bottom: -1px; }
 .te-close { display: inline-grid; place-items: center; width: 18px; height: 18px; border: 0; border-radius: 4px; background: none; color: inherit; cursor: pointer; }
 .te-close:hover { background: rgb(128 128 128 / .2); }
+
+/* bulk processing */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.9s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+.new-tag.bulk-tag { color: var(--ok); background: var(--ok-soft); margin-left: 4px; }

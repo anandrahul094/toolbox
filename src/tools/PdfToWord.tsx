@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import type { TextItem } from 'pdfjs-dist/types/src/display/api'
 import { baseName, canvasToBlob, downloadBlob, ErrorBox, Field, FileDrop, Progress, Row } from '../components/ui'
+import BatchRunner, { BulkToggle, type BatchProcess } from '../components/Batch'
 import { isEncryptedError, openPdf, PASSWORD_MESSAGE, renderPage } from '../lib/pdf'
 
 interface Line { y: number; x: number; size: number; text: string; right: number }
@@ -52,9 +53,88 @@ async function pageParagraphs(doc: PDFDocumentProxy, n: number) {
   return { paras, width: vp.width, height: vp.height }
 }
 
+type Mode = 'text' | 'image'
+const SCANNED_NOTE = 'Very little text was found — this looks like a scanned PDF. Try “Exact look” mode, or Image to Text (OCR) on the pages.'
+
+/** Build a .docx from an open PDF. `scanned` means the text mode found almost no text. */
+async function pdfToDocx(doc: PDFDocumentProxy, mode: Mode, o: { page?: (n: number, total: number) => void; stop?: () => boolean } = {}) {
+  const D = await import('docx')
+  const sections: import('docx').ISectionOptions[] = []
+  let chars = 0
+  for (let n = 1; n <= doc.numPages; n++) {
+    if (o.stop?.()) throw new Error('Stopped')
+    o.page?.(n, doc.numPages)
+    if (mode === 'text') {
+      const { paras, width, height } = await pageParagraphs(doc, n)
+      chars += paras.reduce((s, p) => s + p.text.length, 0)
+      sections.push({
+        properties: { page: { size: { width: width * 20, height: height * 20 }, margin: { top: 1000, bottom: 1000, left: 1100, right: 1100 } } },
+        children: paras.length ? paras.map((p) => new D.Paragraph({
+          heading: p.heading ? D.HeadingLevel.HEADING_2 : undefined,
+          spacing: { after: 120 },
+          children: p.text.split('\t').flatMap((t, i) => [...(i ? [new D.TextRun({ text: '\t' })] : []), new D.TextRun({ text: t, size: Math.round(Math.min(40, Math.max(8, p.size)) * 2), bold: p.heading || undefined })]),
+        })) : [new D.Paragraph('')],
+      })
+    } else {
+      const canvas = await renderPage(doc, n, 2)
+      const data = await (await canvasToBlob(canvas, 'image/jpeg', 0.88)).arrayBuffer()
+      const base = (await doc.getPage(n)).getViewport({ scale: 1 })
+      sections.push({
+        properties: { page: { size: { width: base.width * 20, height: base.height * 20 }, margin: { top: 0, bottom: 0, left: 0, right: 0, header: 0, footer: 0 } } },
+        // 96 px per inch in Word = 4/3 px per point; a hair smaller so Word doesn't push it to a new page
+        children: [new D.Paragraph({ spacing: { before: 0, after: 0 }, children: [new D.ImageRun({ type: 'jpg', data, transformation: { width: base.width * (4 / 3) - 2, height: base.height * (4 / 3) - 2 } })] })],
+      })
+    }
+    await new Promise((r) => setTimeout(r, 0))
+  }
+  const blob = await D.Packer.toBlob(new D.Document({ creator: 'The Toolbox', styles: { default: { document: { run: { font: 'Calibri' } } } }, sections }))
+  return { blob, scanned: mode === 'text' && chars < 20 * doc.numPages }
+}
+
+const MODE_HELP: Record<Mode, string> = {
+  text: 'Keeps the text, paragraphs and headings so you can edit them in Word or Google Docs. Columns, tables and images are not rebuilt.',
+  image: 'Each page is placed as a picture, so it looks identical but the text can’t be edited.',
+}
+
+function ModeSettings({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void }) {
+  return (
+    <>
+      <Row>
+        <Field label="Conversion">
+          <select value={mode} onChange={(e) => setMode(e.target.value as Mode)}>
+            <option value="text">Editable text (layout is simplified)</option>
+            <option value="image">Exact look (pages as pictures, not editable)</option>
+          </select>
+        </Field>
+      </Row>
+      <p className="muted" style={{ margin: 0, fontSize: 13 }}>{MODE_HELP[mode]}</p>
+    </>
+  )
+}
+
+function BulkToWord({ onSingle }: { onSingle: () => void }) {
+  const [mode, setMode] = useState<Mode>('text')
+  const process: BatchProcess = async (file, ctx) => {
+    let doc: PDFDocumentProxy
+    try { doc = await openPdf(file) } catch (e) { throw new Error(isEncryptedError(e) ? PASSWORD_MESSAGE : 'This file could not be opened as a PDF.') }
+    try {
+      const { blob, scanned } = await pdfToDocx(doc, mode, { page: (n, total) => ctx.progress((n - 1) / total), stop: () => ctx.signal.aborted })
+      return { name: `${baseName(file.name)}.docx`, blob, note: scanned ? 'Very little text found — looks scanned; try “Exact look”' : undefined }
+    } finally { doc.destroy() }
+  }
+  return (
+    <>
+      <BulkToggle bulk onChange={(b) => { if (!b) onSingle() }} />
+      <ModeSettings mode={mode} setMode={setMode} />
+      <BatchRunner compare={false} accept="application/pdf,.pdf" process={process} settingsKey={mode} runLabel="Convert all" zipName="word-documents" concurrency={1} />
+    </>
+  )
+}
+
 export default function PdfToWord() {
+  const [bulk, setBulk] = useState(false)
   const [file, setFile] = useState<File | null>(null)
-  const [mode, setMode] = useState<'text' | 'image'>('text')
+  const [mode, setMode] = useState<Mode>('text')
   const [progress, setProgress] = useState<[number, number] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [note, setNote] = useState<string | null>(null)
@@ -65,58 +145,20 @@ export default function PdfToWord() {
     let doc: PDFDocumentProxy
     try { doc = await openPdf(file) } catch (e) { setError(isEncryptedError(e) ? PASSWORD_MESSAGE : 'This file could not be opened as a PDF.'); return }
     try {
-      const D = await import('docx')
-      const sections: import('docx').ISectionOptions[] = []
-      let chars = 0
-      for (let n = 1; n <= doc.numPages; n++) {
-        setProgress([n, doc.numPages])
-        if (mode === 'text') {
-          const { paras, width, height } = await pageParagraphs(doc, n)
-          chars += paras.reduce((s, p) => s + p.text.length, 0)
-          sections.push({
-            properties: { page: { size: { width: width * 20, height: height * 20 }, margin: { top: 1000, bottom: 1000, left: 1100, right: 1100 } } },
-            children: paras.length ? paras.map((p) => new D.Paragraph({
-              heading: p.heading ? D.HeadingLevel.HEADING_2 : undefined,
-              spacing: { after: 120 },
-              children: p.text.split('\t').flatMap((t, i) => [...(i ? [new D.TextRun({ text: '\t' })] : []), new D.TextRun({ text: t, size: Math.round(Math.min(40, Math.max(8, p.size)) * 2), bold: p.heading || undefined })]),
-            })) : [new D.Paragraph('')],
-          })
-        } else {
-          const canvas = await renderPage(doc, n, 2)
-          const data = await (await canvasToBlob(canvas, 'image/jpeg', 0.88)).arrayBuffer()
-          const base = (await doc.getPage(n)).getViewport({ scale: 1 })
-          sections.push({
-            properties: { page: { size: { width: base.width * 20, height: base.height * 20 }, margin: { top: 0, bottom: 0, left: 0, right: 0, header: 0, footer: 0 } } },
-            // 96 px per inch in Word = 4/3 px per point; a hair smaller so Word doesn't push it to a new page
-            children: [new D.Paragraph({ spacing: { before: 0, after: 0 }, children: [new D.ImageRun({ type: 'jpg', data, transformation: { width: base.width * (4 / 3) - 2, height: base.height * (4 / 3) - 2 } })] })],
-          })
-        }
-        await new Promise((r) => setTimeout(r, 0))
-      }
-      if (mode === 'text' && chars < 20 * doc.numPages) setNote('Very little text was found — this looks like a scanned PDF. Try “Exact look” mode, or Image to Text (OCR) on the pages.')
-      const out = await D.Packer.toBlob(new D.Document({ creator: 'The Toolbox', styles: { default: { document: { run: { font: 'Calibri' } } } }, sections }))
+      const { blob: out, scanned } = await pdfToDocx(doc, mode, { page: (n, total) => setProgress([n, total]) })
+      if (scanned) setNote(SCANNED_NOTE)
       downloadBlob(`${baseName(file.name)}.docx`, out)
     } catch (e) {
       setError(`Couldn’t convert this PDF: ${(e as Error).message}`)
     } finally { setProgress(null); doc.destroy() }
   }
 
+  if (bulk) return <BulkToWord onSingle={() => setBulk(false)} />
   return (
     <>
+      <BulkToggle bulk={false} onChange={setBulk} />
       <FileDrop accept="application/pdf,.pdf" disabled={!!progress} onFiles={(f) => { setFile(f[0]); setError(null); setNote(null) }} label={file ? `📄 ${file.name} (click to change)` : 'Drop a PDF here, or click to choose'} hint="Converted on your device — nothing is uploaded." />
-      <Row>
-        <Field label="Conversion">
-          <select value={mode} onChange={(e) => setMode(e.target.value as typeof mode)}>
-            <option value="text">Editable text (layout is simplified)</option>
-            <option value="image">Exact look (pages as pictures, not editable)</option>
-          </select>
-        </Field>
-      </Row>
-      <p className="muted" style={{ margin: 0, fontSize: 13 }}>
-        {mode === 'text'
-          ? 'Keeps the text, paragraphs and headings so you can edit them in Word or Google Docs. Columns, tables and images are not rebuilt.'
-          : 'Each page is placed as a picture, so it looks identical but the text can’t be edited.'}
-      </p>
+      <ModeSettings mode={mode} setMode={setMode} />
       {progress && <Progress value={progress[0]} max={progress[1]} label="Converting pages" />}
       <ErrorBox message={error} />
       {note && <div className="notice"><span>{note}</span></div>}
