@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
-import { BookOpen, Compass, Download, FolderOpen, Share, History, Home, LogIn, LogOut, MessageSquare, Moon, PanelLeftClose, PanelLeftOpen, Search, Settings, Sparkles, Star, Sun, Wrench } from 'lucide-react'
+import { BookOpen, Compass, Download, FolderOpen, History, Home, LogIn, LogOut, MessageSquare, Moon, PanelLeftClose, PanelLeftOpen, Search, Settings, Sparkles, Star, Sun, Wrench } from 'lucide-react'
 import { auth, useUser } from '../lib/backend'
 import { toast } from '../toast'
 import { CATEGORIES, tools } from '../registry'
