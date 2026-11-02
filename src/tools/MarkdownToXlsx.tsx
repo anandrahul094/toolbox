@@ -103,7 +103,7 @@ function makeWorkbook(markdown: string, title: string) {
     ws['!autofilter'] = { ref }
     ws['!freeze'] = { xSplit: 0, ySplit: 1 }
     fitColumns(ws, rows)
-    token.header.forEach((cell: any, col: number) => {
+    token.header.forEach((_cell: any, col: number) => {
       const address = XLSX.utils.encode_cell({ r: 0, c: col })
       if (ws[address]) ws[address].s = { font: { bold: true }, fill: { fgColor: { rgb: 'EAF0F6' } } }
     })
