@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
-import { FileDrop, Row } from '../components/ui'
+import { Field, FileDrop, Row } from '../components/ui'
 
 const SAMPLE = `# Project notes
 
