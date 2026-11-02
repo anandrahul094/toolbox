@@ -11,6 +11,7 @@ import { SearchBox } from './Search'
 import { LANG, pathInLang, tr } from '../i18n'
 import { useInstall } from '../lib/pwa'
 import { catLabel } from '../i18n/localize'
+import WorkshopMascot from './WorkshopMascot'
 
 const darkQuery = () => matchMedia('(prefers-color-scheme: dark)')
 const useSystemDark = () => useSyncExternalStore((cb) => { const mq = darkQuery(); mq.addEventListener('change', cb); return () => mq.removeEventListener('change', cb) }, () => darkQuery().matches)
@@ -246,6 +247,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         </footer>
       </div>
       <BottomNav />
+      <WorkshopMascot />
       <Toaster />
     </div>
   )
