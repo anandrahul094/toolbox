@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Document, HeadingLevel, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, AlignmentType } from 'docx'
+import { Document, HeadingLevel, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { Field, FileDrop, Row } from '../components/ui'
