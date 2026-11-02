@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 /* ── Tokens ─────────────────────────────────────────────── */
 :root {
   --bg: #f3f0e8;
@@ -558,7 +559,6 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px s
   --danger: #a61b16; --danger-soft: #fee2d2; --ok: #247344;
   --ok-soft: #d8f3df; --focus: #fbbf24; color-scheme: light;
 }
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 body {
   background-color: #202936;
   background-image: radial-gradient(#66717b 1px, transparent 1px), linear-gradient(135deg,#273443,#1f2937 60%,#17212c);
