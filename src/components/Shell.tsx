@@ -73,7 +73,6 @@ function Sidebar() {
         })}
       </nav>
       <div className="sidebar-foot">
-        <InstallButton />
         <p>{tr("No account needed. Your bench and pockets are saved in this browser.")}</p>
         <button className="icon-only" onClick={() => actions.setSettings({ sidebarCollapsed: !collapsed })} aria-label={collapsed ? tr("Expand sidebar") : tr("Collapse sidebar")} title={collapsed ? tr("Expand sidebar") : tr("Collapse sidebar")}>
           {collapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
@@ -91,6 +90,7 @@ function Topbar() {
     <header className="topbar">
       <span className="mobile-brand"><Brand /></span>
       <SearchBox />
+      <InstallButton />
       <span style={{ marginLeft: 'auto' }} />
       <LangSwitch />
       <AccountArea />
@@ -134,27 +134,15 @@ function HindiBanner() {
 
 function InstallButton() {
   const { state, install } = useInstall()
-  if (state !== 'ready') return null
-  return <button className="btn" style={{ width: '100%', justifyContent: 'center', marginBottom: 8 }} onClick={install}><Download size={15} aria-hidden="true" /><span className="nav-text">{tr('Install app')}</span></button>
-}
-
-// offered once people have looked around a little; never again after "Not now"
-function InstallBanner() {
-  const { state, install } = useInstall()
-  const { pathname } = useLocation()
-  const [hidden, setHidden] = useState(() => { try { return localStorage.getItem('toolbox.install.dismissed') === '1' } catch { return true } })
-  const [views, setViews] = useState(0)
-  useEffect(() => { setViews((v) => v + 1) }, [pathname])
-  if (hidden || views < 3 || (state !== 'ready' && state !== 'ios')) return null
-  const close = () => { try { localStorage.setItem('toolbox.install.dismissed', '1') } catch { /* ignore */ } setHidden(true) }
+  if (state === 'installed' || state === 'unavailable') return null
+  const label = state === 'ios'
+    ? tr('To install: use your browser Share menu, then Add to Home Screen')
+    : tr('Install The Toolbox as an app — opens from your home screen and works offline.')
   return (
-    <div className="lang-banner" role="region" aria-label={tr('Install app')}>
-      <span>{state === 'ios'
-        ? <>{tr('Add The Toolbox to your Home Screen: tap')} <Share size={14} aria-label="Share" style={{ verticalAlign: '-2px' }} /> {tr('then “Add to Home Screen”.')}</>
-        : tr('Install The Toolbox as an app — opens from your home screen and works offline.')}</span>
-      {state === 'ready' && <button className="btn primary" onClick={async () => { await install(); close() }}>{tr('Install')}</button>}
-      <button className="btn" onClick={close}>{tr('Not now')}</button>
-    </div>
+    <button className="icon-only install-icon" onClick={state === 'ready' ? install : undefined}
+      aria-label={label} title={label} type="button">
+      <Download size={19} aria-hidden="true" />
+    </button>
   )
 }
 
@@ -239,7 +227,6 @@ export default function Shell({ children }: { children: ReactNode }) {
       <div className="main">
         <Topbar />
         <HindiBanner />
-        <InstallBanner />
         <main id="main" className="page" tabIndex={-1} style={{ outline: 'none' }}>{children}</main>
         <footer className="footer">
           <span>{tr('The Toolbox · {n} tools · Tools process your files and text in your browser; nothing you enter is uploaded.', { n: tools.length })}</span>
