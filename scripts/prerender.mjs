@@ -9,8 +9,8 @@ import { fileURLToPath } from 'node:url'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const dist = path.join(root, 'dist')
 const env = { ...loadEnv('production', root, ''), ...process.env }
-const SITE_URL = (env.VITE_SITE_URL || 'https://example.com').replace(/\/+$/, '')
-if (!env.VITE_SITE_URL) console.warn('⚠ VITE_SITE_URL is not set — using https://example.com in canonical links and the sitemap.')
+const SITE_URL = (env.VITE_SITE_URL || 'https://thetoolbox.site').replace(/\/+$/, '')
+if (!env.VITE_SITE_URL) console.warn('⚠ VITE_SITE_URL is not set — using https://thetoolbox.site in canonical links and the sitemap.')
 
 const vite = await createServer({ root, logLevel: 'error', server: { middlewareMode: true }, appType: 'custom' })
 const { tools, allTools, CATEGORIES } = await vite.ssrLoadModule('/src/registry.ts')

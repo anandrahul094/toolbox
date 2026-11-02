@@ -8,6 +8,12 @@
     // the one official address; www and the workers.dev URL redirect here
     "CANONICAL_HOST": "thetoolbox.site"
   },
+  "previews": {
+    // Keep branch previews isolated from the production canonical host.
+    "vars": {
+      "CANONICAL_HOST": "preview.invalid"
+    }
+  },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
