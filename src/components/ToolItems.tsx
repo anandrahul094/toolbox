@@ -30,9 +30,8 @@ export function StarButton({ tool, size = 'sm', withLabel }: { tool: Tool; size?
   }
   if (withLabel) {
     return (
-      <button className="btn" onClick={click} aria-pressed={on}>
-        <Star size={16} fill={on ? 'var(--accent)' : 'none'} color={on ? 'var(--accent)' : 'currentColor'} aria-hidden="true" />
-        {on ? tr("Pinned") : tr("Pin to bench")}
+      <button className={`icon-only tool-action-icon ${on ? 'on' : ''}`} onClick={click} aria-pressed={on} aria-label={on ? tr('Unpin from bench') : tr('Pin to bench')} title={on ? tr('Unpin from bench') : tr('Pin to bench')}>
+        <Star size={18} fill={on ? 'currentColor' : 'none'} aria-hidden="true" />
       </button>
     )
   }
@@ -77,7 +76,7 @@ export function PocketMenu({ tool, variant = 'icon' }: { tool: Tool; variant?: '
   return (
     <div className={`menu-wrap ${open ? 'open' : ''}`} ref={wrap}>
       {variant === 'button'
-        ? <button ref={trigger} className="btn" onClick={() => setOpen(!open)} aria-haspopup="menu" aria-expanded={open}><FolderPlus size={16} aria-hidden="true" />{inCount ? tr(inCount > 1 ? 'In {n} pockets' : 'In {n} pocket', { n: inCount }) : tr("Add to pocket")}</button>
+        ? <button ref={trigger} className={`icon-only tool-action-icon ${inCount ? 'on' : ''}`} onClick={() => setOpen(!open)} aria-haspopup="menu" aria-expanded={open} aria-label={tr("Add to pocket")} title={tr("Add to pocket")}><FolderPlus size={18} aria-hidden="true" /></button>
         : <button ref={trigger} className={`icon-only sm ${inCount ? 'on' : ''}`} onClick={() => setOpen(!open)} aria-haspopup="menu" aria-expanded={open} aria-label={tr('Add {name} to a pocket', { name: tool.name })} title={tr("Add to pocket")}><FolderPlus size={15} aria-hidden="true" /></button>}
       {open && (
         <div className={`menu ${up ? 'up' : ''}`} role="menu" aria-label={tr("Pockets")}>
