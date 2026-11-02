@@ -664,3 +664,36 @@ input, textarea, select { background: #fffdf5; border: 2px solid #171411; border
   .display { font-size: 31px; }
   .tool-head { padding: 12px; }
 }
+
+/* Readability and compact workshop action controls */
+.topbar { align-items: center; }
+.install-icon { flex:none; width:38px; height:38px; border:2px solid #171411; border-radius:11px; background:#fbbf24; color:#25170d; box-shadow:0 3px 0 #171411; position:relative; }
+.install-icon:hover { background:#ffdc66; color:#171411; }
+.install-icon:focus-visible { outline:3px solid #fbbf24; outline-offset:3px; }
+.tool-head { color:#fff9e9; }
+.tool-head h1, .tool-head .th-text h1 { color:#fffdf4 !important; }
+.tool-head p { color:#fff0d6 !important; }
+.tool-head .th-actions { gap:10px; }
+.tool-action-icon { width:40px; height:40px; border:2px solid #171411; border-radius:11px; background:#fff9e9; color:#34251b; box-shadow:0 3px 0 #171411; position:relative; }
+.tool-action-icon:hover { background:#ffedbd; color:#8f1c19; }
+.tool-action-icon.on { color:#8f1c19; background:#ffdf78; }
+.tool-action-icon:focus-visible { outline:3px solid #fbbf24; outline-offset:3px; }
+.page { color:#fff8e8; }
+.page > .section > p, .page > .section > .muted, .page .page-head p, .page .section .muted { color:#e6e8e7; }
+.page .section-head a, .page .section > a { color:#ffcf4a; }
+.page .empty { color:#f5ead4; border-color:#89939a; background:#293746; }
+.page .empty p { color:#f5ead4; }
+.info-cols > .section { background:#fff9e9; color:#211b16; border:2px solid #171411; border-radius:14px; padding:18px; box-shadow:0 4px 0 #111923; }
+.info-cols > .section h2 { color:#8f1919 !important; text-shadow:none; }
+.info-cols .howto { color:#29221b; padding-left:24px; }
+.info-cols .howto li { color:#29221b; padding:3px 0; }
+.info-cols .faq { border-color:#d5c8ad; color:#29221b; }
+.info-cols .faq summary { color:#29221b; }
+.info-cols .faq p { color:#51483e; }
+.info-cols .muted { color:#51483e !important; }
+.page .guide-cta { color:#211b16; background:#fff9e9; border:2px solid #171411; border-radius:12px; padding:14px; box-shadow:0 3px 0 #111923; }
+.page .guide-cta .muted { color:#63594e !important; }
+.page .section-title { color:#f9dfa8; }
+.page .tag { color:#63594e; }
+@media (max-width:900px) { .install-icon { width:36px; height:36px; } .topbar { gap:8px; } }
+@media (max-width:520px) { .topbar .install-icon { width:34px; height:34px; } .tool-head .th-actions { width:100%; justify-content:flex-end; } .info-cols > .section { padding:14px; } }
