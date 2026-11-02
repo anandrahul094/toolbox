@@ -471,3 +471,65 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px s
 .guide-table { border-collapse: collapse; width: 100%; font-size: 14px; }
 .guide-table th, .guide-table td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; vertical-align: top; }
 .guide-table th { background: var(--surface-2); }
+
+
+/* ── Desktop typography refinement ─────────────────────────
+   Keep the existing compact mobile scale unchanged. These
+   overrides apply only to laptop and desktop viewports.
+*/
+@media (min-width: 901px) {
+  body { font-size: 16px; line-height: 1.6; }
+
+  h1 { font-size: 32px; line-height: 1.2; }
+  h2 { font-size: 20px; line-height: 1.3; }
+  h3 { font-size: 17px; line-height: 1.35; }
+
+  p { font-size: 15px; line-height: 1.6; }
+  .page-head p,
+  .tool-head p { font-size: 16px; line-height: 1.55; }
+
+  .nav-item { font-size: 15px; }
+  .nav-item .count { font-size: 13px; }
+  .sidebar-foot p,
+  .footer { font-size: 14px; }
+
+  .eyebrow { font-size: 13px; }
+  .section-title { font-size: 13px; }
+  .section-head a { font-size: 14px; }
+
+  .tile .t-name,
+  .row-item .t-name { font-size: 15px; }
+  .tile .t-desc,
+  .row-item .t-desc,
+  .pocket .p-desc,
+  .cat span.c-desc { font-size: 14px; line-height: 1.5; }
+  .bench-item .t-name { font-size: 14px; }
+  .pocket .p-name,
+  .cat b { font-size: 16px; }
+
+  .btn { font-size: 15px; }
+  .search-input input { font-size: 15px; }
+  .result .r-name { font-size: 15px; }
+  .result .r-desc { font-size: 14px; }
+
+  .field-label { font-size: 14px; }
+  .field-hint,
+  .field-error { font-size: 13px; }
+  .crumbs { font-size: 14px; }
+  .privacy { font-size: 13px; }
+  .faq summary,
+  .faq p { font-size: 15px; }
+  .stat-label { font-size: 13px; }
+  .badge,
+  .chip { font-size: 14px; }
+  table { font-size: 15px; }
+  th { font-size: 13px; }
+
+  .ce-bar,
+  .ce-status,
+  .ce-btn,
+  .ce-lang { font-size: 13px; }
+  .te-tab,
+  .share-btn { font-size: 14px; }
+  .menu .m-title { font-size: 12px; }
+}
