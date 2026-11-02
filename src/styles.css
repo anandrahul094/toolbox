@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 /* ── Tokens ─────────────────────────────────────────────── */
 :root {
   --bg: #f3f0e8;
@@ -532,4 +533,134 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px s
   .te-tab,
   .share-btn { font-size: 14px; }
   .menu .m-title { font-size: 12px; }
+}
+
+
+/* ── Cartoon mechanic workshop skin ───────────────────────── */
+:root {
+  --bg: #202936; --surface: #fff9e9; --surface-2: #f4e9cf;
+  --sage-soft: #fee7a4; --border: #26201c; --border-strong: #171411;
+  --input-border: #51483c; --text: #201b18; --muted: #63594e;
+  --primary: #991b1b; --primary-hover: #741414; --on-primary: #fffaf0;
+  --secondary: #d97706; --accent: #fbbf24; --accent-text: #854d0e;
+  --accent-soft: #fff0bd; --danger: #a61b16; --danger-soft: #fee2d2;
+  --ok: #247344; --ok-soft: #d8f3df; --focus: #fbbf24;
+  --shadow: 0 3px 0 #171411, 0 5px 12px #0003;
+  --shadow-lg: 0 12px 28px #0006;
+  --display: 'Fredoka', 'Trebuchet MS', system-ui, sans-serif;
+  --r-sm: 9px; --r: 13px; --r-lg: 18px;
+}
+:root[data-theme='dark'] {
+  --bg: #202936; --surface: #fff9e9; --surface-2: #f4e9cf;
+  --border: #26201c; --border-strong: #171411; --input-border: #51483c;
+  --text: #201b18; --muted: #63594e; --primary: #991b1b;
+  --primary-hover: #741414; --on-primary: #fffaf0; --secondary: #d97706;
+  --accent: #fbbf24; --accent-text: #854d0e; --accent-soft: #fff0bd;
+  --danger: #a61b16; --danger-soft: #fee2d2; --ok: #247344;
+  --ok-soft: #d8f3df; --focus: #fbbf24; color-scheme: light;
+}
+body {
+  background-color: #202936;
+  background-image: radial-gradient(#66717b 1px, transparent 1px), linear-gradient(135deg,#273443,#1f2937 60%,#17212c);
+  background-size: 22px 22px, auto;
+}
+.app { gap: 0; }
+.sidebar {
+  margin: 12px 0 12px 12px; height: calc(100vh - 24px); border: 3px solid #171411;
+  border-radius: 18px; background: linear-gradient(100deg,#7f1515,#b91c1c 42%,#8f1717);
+  color: #fff8e7; box-shadow: inset 0 0 0 2px #ef7770, 0 8px 0 #111923, 0 14px 24px #0005;
+  padding: 14px 10px; overflow-x: hidden;
+}
+.brand { color: #fff8e7; font-family: var(--display); font-size: 21px; letter-spacing: -.04em; }
+.brand-mark { width: 36px; height: 36px; border: 2px solid #171411; border-radius: 11px; background: #fbbf24; color: #251b12; box-shadow: 0 3px 0 #171411; }
+.nav-label { color: #ffd9a3; font-weight: 700; letter-spacing: .12em; }
+.nav-item { color: #fff8e7; border: 2px solid #5c1010; border-radius: 10px; margin: 2px 0; background: linear-gradient(#c52c27,#941919); box-shadow: 0 3px 0 #4c0d0d; font-weight: 600; }
+.nav-item:hover { background: linear-gradient(#f6b932,#e99a13); color: #251b12; }
+.nav-item.active { color: #24170d; background: linear-gradient(#ffdc66,#fbbf24); border-color: #22160c; box-shadow: 0 3px 0 #4b2d0a; }
+.nav-item .count { color: inherit; }
+.sidebar-foot { border-color: #ef7770; }
+.sidebar-foot p { color: #ffe7d1; }
+.sidebar .icon-only { color: #fff5dd; }
+.main { min-width: 0; }
+.topbar { margin: 12px 12px 0; border: 2px solid #15191e; border-radius: 16px; background: #17212ddd; color: #fff9e9; box-shadow: 0 4px 0 #111923; }
+.topbar .icon-only { color: #fff9e9; }
+.topbar .btn { border-color: #171411; }
+.page { max-width: 1440px; padding-top: 26px; }
+.display, .page h1, .page h2, .page h3 { font-family: var(--display); }
+.display { color: #fff5dc; text-shadow: 0 3px 0 #101820; font-size: clamp(32px,4vw,46px); }
+.page > .section > .muted, .page .page-head p { color: #e0e5e7; }
+.eyebrow { color: #fbbf24; font-weight: 700; }
+.section-head h2, .section > h2 { color: #fff4d9; text-shadow: 0 2px #111923; }
+.search-input, .search.big .search-input { background: #fff9e9; border: 3px solid #171411; border-radius: 13px; box-shadow: 0 4px 0 #111923; }
+.search-pop { border: 2px solid #171411; }
+.tile, .bench-item, .pocket, .cat, .rows, .guide-card {
+  background: #fff9e9; border: 2px solid #211b16; border-radius: 13px; box-shadow: 0 3px 0 #101820;
+}
+.tile:hover, .cat:hover, .pocket:hover { transform: translateY(-2px); box-shadow: 0 5px 0 #101820; }
+.icon-chip { background: #ffe49a; border: 2px solid #2a2118; color: #8f1c19; border-radius: 10px; }
+.cats { gap: 8px; background: transparent; border: 0; overflow: visible; }
+.cat { gap: 12px; }
+.cat:hover { background: #ffedbb; }
+.cat b, .tile .t-name, .pocket .p-name { font-family: var(--display); font-size: 16px; }
+.cat .c-desc, .tile .t-desc, .pocket .p-desc { color: #63594e; }
+.cat .c-count { background: #fbbf24; border: 1px solid #211b16; border-radius: 99px; padding: 2px 8px; color: #24170d; font-weight: 700; }
+.btn { border: 2px solid #171411; border-radius: 10px; box-shadow: 0 3px 0 #171411; font-weight: 700; }
+.btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 #171411; }
+.btn.primary { background: linear-gradient(#c92e29,#991b1b); border-color: #24120f; color: white; }
+.btn.primary:hover:not(:disabled) { background: linear-gradient(#e14337,#991b1b); }
+input, textarea, select { background: #fffdf5; border: 2px solid #171411; border-radius: 9px; }
+.panel { background: #fff7e4; border: 3px solid #171411; border-radius: 16px; box-shadow: 0 6px 0 #111923, 0 12px 24px #0004; }
+.tool-head { background: linear-gradient(90deg,#991b1b,#b91c1c); border: 3px solid #171411; border-radius: 15px; padding: 15px; color: white; box-shadow: 0 5px 0 #111923; }
+.tool-head h1 { color: #fff9e9; }
+.tool-head p { color: #ffe3cf; }
+.tool-head .privacy { background: #ffedb6; color: #4b2b09; }
+.crumbs { color: #f5dba6; }
+.crumbs a { color: #fbbf24; }
+.footer { color: #d9e0e4; border-color: #66717b; }
+.footer a { color: #fbbf24; }
+.workshop-mascot {
+  position: fixed; z-index: 24; right: 18px; bottom: 18px; width: 112px;
+  display: flex; flex-direction: column; align-items: center; pointer-events: none;
+  filter: drop-shadow(0 4px 3px #0005);
+}
+.mascot-figure { position: relative; width: 88px; height: 112px; animation: mascot-breathe 3.2s ease-in-out infinite; }
+.mascot-head { position: absolute; left: 14px; top: 12px; width: 62px; height: 48px; border: 3px solid #171411; border-radius: 21px 21px 17px 17px; background: linear-gradient(#fffdf3,#d9e2e5); box-shadow: inset 0 -5px #aebbc1; }
+.mascot-head:before { content: ''; position: absolute; inset: 6px 7px 10px; border: 2px solid #111923; border-radius: 13px; background: #142b39; }
+.mascot-eye { position: absolute; z-index: 1; top: 17px; width: 7px; height: 11px; border-radius: 50%; background: #4de9e4; box-shadow: 0 0 8px #4de9e4; }
+.mascot-eye.left { left: 22px; } .mascot-eye.right { right: 22px; }
+.mascot-smile { position: absolute; z-index: 2; width: 16px; height: 7px; left: 21px; bottom: 7px; border-bottom: 2px solid #fff; border-radius: 50%; }
+.mascot-antenna { position: absolute; left: 43px; top: 0; height: 15px; border-left: 3px solid #171411; }
+.mascot-antenna:after { content: ''; position: absolute; top: -3px; left: -6px; width: 9px; height: 9px; border-radius: 50%; background: #fbbf24; border: 2px solid #171411; }
+.mascot-ear { position: absolute; top: 25px; left: 7px; width: 12px; height: 22px; border: 3px solid #171411; border-radius: 8px; background: #fbbf24; }
+.mascot-body { position: absolute; left: 24px; top: 59px; width: 45px; height: 38px; border: 3px solid #171411; border-radius: 11px 11px 8px 8px; background: linear-gradient(#df3430,#991b1b); }
+.mascot-badge { position: absolute; left: 13px; top: 6px; width: 15px; height: 15px; display: grid; place-items: center; border-radius: 50%; background: #fbbf24; border: 2px solid #171411; color: #24170d; font: 700 9px var(--display); }
+.mascot-arm { position: absolute; top: 65px; width: 13px; height: 28px; border: 3px solid #171411; border-radius: 9px; background: #e5e9e7; }
+.arm-left { left: 12px; transform: rotate(22deg); } .arm-right { right: 0; transform: rotate(-25deg); display: grid; place-items: center; color: #fbbf24; }
+.mascot-leg { position: absolute; top: 92px; width: 17px; height: 18px; border: 3px solid #171411; border-radius: 5px 5px 8px 8px; background: #384451; }
+.leg-left { left: 28px; } .leg-right { right: 10px; }
+.mascot-caption { margin-top: 0; padding: 3px 9px; border: 2px solid #171411; border-radius: 99px; background: #fbbf24; color: #24170d; font: 600 11px var(--display); white-space: nowrap; }
+.mascot-thumb, .mascot-torch, .mascot-smoke, .mascot-spark { display: none; position: absolute; }
+.mascot-processing .mascot-figure { animation: mascot-weld .42s ease-in-out infinite alternate; }
+.mascot-processing .mascot-torch { display: block; right: -5px; top: 56px; color: #ffcf33; font-size: 28px; animation: mascot-spark 0.35s infinite alternate; }
+.mascot-processing .mascot-spark { display: block; right: 0; top: 27px; color: #ffcf33; font-size: 30px; animation: mascot-spark .3s infinite alternate; }
+.mascot-success .mascot-figure { animation: mascot-cheer .55s ease-in-out infinite alternate; }
+.mascot-success .mascot-thumb { display: block; right: -9px; top: 35px; color: #fbbf24; background: #991b1b; border: 2px solid #171411; border-radius: 50%; padding: 5px; }
+.mascot-error .mascot-head { filter: grayscale(1) brightness(.65); }
+.mascot-error .mascot-smoke { display: block; top: -10px; left: 8px; color: #c6cbd0; font-size: 36px; animation: mascot-smoke 1s ease-out infinite; }
+.mascot-error .mascot-eye { background: white; box-shadow: none; }
+@keyframes mascot-breathe { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-5px) rotate(1deg); } }
+@keyframes mascot-weld { to { transform: translateY(-3px) rotate(-4deg); } }
+@keyframes mascot-cheer { to { transform: translateY(-8px) rotate(5deg); } }
+@keyframes mascot-spark { to { transform: scale(1.35) rotate(20deg); opacity: .5; } }
+@keyframes mascot-smoke { from { transform: translateY(5px) scale(.7); opacity: 0; } to { transform: translateY(-18px) scale(1.2); opacity: .85; } }
+@media (max-width: 900px) {
+  .sidebar { margin: 0; height: auto; border-radius: 0 0 14px 14px; }
+  .topbar { margin: 8px 8px 0; }
+  .workshop-mascot { right: 8px; bottom: 76px; transform: scale(.78); transform-origin: bottom right; }
+  .page { padding-bottom: 130px; }
+}
+@media (max-width: 520px) {
+  .workshop-mascot { transform: scale(.65); }
+  .display { font-size: 31px; }
+  .tool-head { padding: 12px; }
 }
