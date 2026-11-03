@@ -733,3 +733,49 @@ body,
   color: #fbbf24;
 }
 
+/* ── Contrast fix: empty states and notifications ─────────── */
+.page .empty {
+  color: #d9e0e4;
+}
+.page .empty h3 {
+  color: #fff8e7;
+}
+.panel .empty {
+  color: var(--muted);
+}
+.panel .empty h3 {
+  color: var(--text);
+}
+.page .pocket.create {
+  color: #d9e0e4;
+}
+.page .pocket.create:hover {
+  color: #201b18;
+  background: #fbbf24;
+  border-color: #fbbf24;
+}
+
+/* The workshop's dark text/background tokens are too similar for a toast. */
+.toast {
+  background: #fff9e9;
+  color: #201b18;
+  border: 2px solid #171411;
+}
+
+/* Muted metadata inside cream cards stays dark, even on the dark page. */
+.page .tile .muted,
+.page .bench-item .muted,
+.page .pocket .muted,
+.page .cat .muted,
+.page .rows .muted,
+.page .guide-card .muted,
+.page .tile .tag,
+.page .bench-item .tag,
+.page .pocket .tag,
+.page .cat .tag,
+.page .rows .tag,
+.page .guide-card .tag,
+.stat .stat-label {
+  color: var(--muted);
+}
+
