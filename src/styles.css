@@ -779,3 +779,25 @@ body,
   color: var(--muted);
 }
 
+/* ── Contrast fix: nested panel headings and links ────────── */
+.panel h1,
+.panel h2,
+.panel h3,
+.panel .display,
+.panel .section-head h2,
+.panel .section > h2 {
+  color: var(--text);
+  text-shadow: none;
+}
+.panel .eyebrow {
+  color: var(--accent-text);
+}
+.panel a:not(.btn) {
+  color: var(--primary);
+}
+
+/* Inline links on the dark canvas should not inherit the dark red token. */
+.page a:not(.btn):not(.tile):not(.cat):not(.pocket):not(.guide-card):not(.guide-cta):not(.share-btn):not(.cover) {
+  color: #fbbf24;
+}
+
