@@ -664,3 +664,72 @@ input, textarea, select { background: #fffdf5; border: 2px solid #171411; border
   .display { font-size: 31px; }
   .tool-head { padding: 12px; }
 }
+
+/* ── Contrast fix: dark workshop canvas ─────────────────────
+   Keep the dark ink token for cream cards and form controls,
+   but use a light inherited foreground on the dark page canvas.
+*/
+body,
+.page {
+  color: #fff8e7;
+}
+
+/* Restore dark ink inside the light work surfaces. */
+.panel,
+.rating-box,
+.rows,
+.drop,
+.file-item,
+.thumb,
+.stat,
+.output,
+.search-pop,
+.menu,
+.lang-banner,
+.code-editor,
+.ce-palette,
+.ce-dialog {
+  color: var(--text);
+}
+
+/* Muted text needs a lighter tone on the dark page background. */
+.page .muted,
+.page .tag,
+.page .section-title,
+.page .stat-label,
+.info-cols .faq p {
+  color: #d9e0e4;
+}
+
+/* These muted labels sit on cream panels and should stay dark. */
+.panel .muted,
+.panel .tag,
+.panel .section-title,
+.panel .stat-label,
+.rating-box .muted,
+.rows .muted,
+.drop .muted,
+.file-item .muted,
+.thumb .muted,
+.stat .muted,
+.output .muted,
+.search-pop .muted,
+.menu .muted,
+.lang-banner .muted {
+  color: var(--muted);
+}
+
+/* The how-to and FAQ columns sit directly on the dark canvas. */
+.info-cols .faq {
+  border-color: #66717b;
+}
+.info-cols .faq p {
+  color: #d9e0e4;
+}
+
+/* Links on the dark canvas use the workshop's bright accent. */
+.page .section-head a,
+.page > a:not(.btn):not(.guide-cta):not(.guide-card):not(.share-btn):not(.cover) {
+  color: #fbbf24;
+}
+
