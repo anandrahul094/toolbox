@@ -68,7 +68,7 @@ export function ShareButton({ path, text }: { path: string; text: string }) {
   }
   return (
     <div ref={wrap} style={{ position: 'relative' }}>
-      <button className="btn" onClick={click} aria-haspopup="menu" aria-expanded={open}><Share2 size={16} aria-hidden="true" />{tr('Share')}</button>
+      <button className="icon-only tool-action-icon" onClick={click} aria-haspopup="menu" aria-expanded={open} aria-label={tr('Share')} title={tr('Share')}><Share2 size={18} aria-hidden="true" /></button>
       {open && (
         <div className="menu share-menu" role="menu">
           {shareTargets(path, text).map(({ id, label, color, Icon, href }) => (
