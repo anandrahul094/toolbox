@@ -14,8 +14,6 @@ const SAMPLE = `<!doctype html>
 </body>
 </html>`
 
-const escapeAttr = (s: string) => s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]!))
-
 export default function HtmlToPdf() {
   const [source, setSource] = useState(SAMPLE)
   const [title, setTitle] = useState('HTML document')
