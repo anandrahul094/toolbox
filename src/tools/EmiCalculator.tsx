@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Field, NumberInput, Row, Stat } from '../components/ui'
+import { Field, NumberInput, Row, Stat, ValueBars } from '../components/ui'
 
 const money = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 0 })
 
@@ -46,6 +46,7 @@ export default function EmiCalculator() {
             </div>
             <div className="muted" style={{ fontSize: 13, marginTop: 6 }}>■ Principal {(100 - pct).toFixed(1)}% · <span style={{ color: '#f59e0b' }}>■</span> Interest {pct.toFixed(1)}%</div>
           </div>
+          <ValueBars title="Outstanding loan balance" items={r.schedule.filter((s) => s.year <= 10 || s.year % 5 === 0 || s.year === years).map((s) => ({ label: `Year ${s.year}`, value: s.balance }))} valueLabel={(v) => money(v)} />
           <table>
             <thead><tr><th>Year</th><th>Principal paid</th><th>Interest paid</th><th>Balance</th></tr></thead>
             <tbody>{(showAll ? r.schedule : r.schedule.slice(0, 5)).map((s) => (

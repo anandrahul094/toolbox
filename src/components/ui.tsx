@@ -58,6 +58,19 @@ export function Stat({ label, value }: { label: string; value: ReactNode }) {
   )
 }
 
+export function LoadingState({ label = 'Getting your workspace ready…', detail = 'Preparing this tool on your device' }: { label?: string; detail?: string }) {
+  return (
+    <div className="tool-loading" role="status" aria-live="polite" aria-busy="true">
+      <span className="tool-loading-orbit" aria-hidden="true"><span /><span /><span /></span>
+      <span className="tool-loading-copy">
+        <strong>{tr(label)}</strong>
+        <span>{tr(detail)}</span>
+      </span>
+      <span className="tool-loading-track" aria-hidden="true"><span /></span>
+    </div>
+  )
+}
+
 export function ErrorBox({ message }: { message?: string | null }) {
   return message ? <div className="error" role="alert">{message}</div> : null
 }
@@ -232,5 +245,29 @@ export function NumberInput({ value, onValue, min, max, step, ...rest }: { value
       />
       {invalid && <span className="field-error" role="alert">{tr('Enter a number {range}.', { range })}</span>}
     </>
+  )
+}
+
+
+/** Compact, responsive visual preview for calculated series. */
+export function ValueBars({ title, items, valueLabel = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 0 }) }: {
+  title: string
+  items: { label: string; value: number }[]
+  valueLabel?: (value: number) => string
+}) {
+  const max = Math.max(1, ...items.map((item) => Math.max(0, item.value)))
+  return (
+    <section className="value-preview" aria-label={title}>
+      <div className="value-preview-head"><strong>{title}</strong><span>{items.length} points</span></div>
+      <div className="value-preview-bars">
+        {items.map((item) => (
+          <div className="value-preview-row" key={item.label}>
+            <span>{item.label}</span>
+            <div className="value-preview-track"><div style={{ width: `${Math.max(0, Math.min(100, item.value / max * 100))}%` }} /></div>
+            <strong>{valueLabel(item.value)}</strong>
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }
