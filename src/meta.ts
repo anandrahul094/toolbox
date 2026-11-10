@@ -2,9 +2,9 @@ import {
   AppWindow, AtSign, BadgePercent, Binary, Blend, Braces, Calculator, CalendarClock, CalendarDays, CaseSensitive, Clock, Code, Coins, Combine, Contact,
   Crop, Database, Dices, Diff, Droplets, Eraser, FileCode, FileDigit, FileImage, FileJson, FileOutput, FileStack, FileText, FileType, Fingerprint, Gauge,
   Globe, Hash, HeartPulse, Image, Images, Info, Keyboard, KeyRound, Landmark, LayoutGrid, Link, Link2, ListOrdered, Lock, Mail, MessageCircle,
-  Minimize2, MonitorSmartphone, Network, Palette, Percent, Phone, PiggyBank, Pilcrow, Pipette, QrCode, Quote, Radio, Ratio, Receipt, Regex, Repeat, Replace,
-  Ruler, ScanText, Scissors, ScrollText, Server, Share2, Shield, Square, Stamp, Table, Tags, Terminal, Text, Timer, TrendingUp, Type, Wallet, Wifi,
-  Wrench, Code2, PenTool, Briefcase, Scissors as ScissorsIcon, Eraser as EraserIcon, IdCard, FileDown, Smartphone, ScanLine, Barcode, Signature, Film, Music, FileSignature, ScanEye, Laugh, LayoutDashboard, Spline, Sheet, FileArchive, FileLock2, LockOpen, FileType2, FileVideo, ArrowRightLeft, Clock4, ReceiptText, Sigma, ChartSpline, Variable, Grid3x3, ChartBar, FlaskConical, Zap, CircuitBoard, GraduationCap, FerrisWheel, Gamepad2, Grid2x2, Worm, Brain, Bomb, ChefHat, SquareTerminal, Binary as BinaryIcon, FileCode2, Code as CodeIcon, LockKeyhole, KeySquare, ScrollText as Scroll, type LucideIcon,
+  Minimize2, MonitorNetwork, Palette, Percent, Phone, PiggyBank, Pilcrow, Pipette, QrCode, Quote, Radio, Ratio, Receipt, Regex, Repeat, Replace,
+  Ruler, ScanText, Scissors, Server, Share2, Shield, Square, Stamp, Table, Tags, Terminal, Text, Timer, Type, Wifi,
+  Wrench, Code2, PenTool, Briefcase, Scissors as ScissorsIcon, Eraser as EraserIcon, IdCard, FileDown, Smartphone, Film, Music, FileSignature, ScanEye, Laugh, LayoutDashboard, Spline, Sheet, FileArchive, FileLock2, LockOpen, FileType2, FileVideo, Sigma, ChartSpline, Variable, Grid3x3, ChartBar, FlaskConical, FerrisWheel, Gamepad2, Grid2x2, Worm, Brain, Bomb, ChefHat, SquareTerminal, Binary as BinaryIcon, FileCode2, Code as CodeIcon, LockKeyhole, KeySquare, ScrollText as Scroll, type LucideIcon,
 } from 'lucide-react'
 import type { Category } from './registry'
 
