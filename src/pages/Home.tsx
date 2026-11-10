@@ -104,7 +104,7 @@ export default function Home() {
 }
 
 // a few guides, loaded separately so the home page stays light
-const POPULAR = ['ssc-photo-signature-size', 'compress-image-to-20kb-50kb', 'gst-invoice-format-free', 'cgpa-to-percentage']
+const POPULAR = ['compress-image-to-20kb-50kb', 'merge-pdf-files', 'convert-image-to-webp', 'format-json']
 function PopularGuides() {
   const [list, setList] = useState<{ slug: string; title: string; minutes: number }[]>([])
   useEffect(() => {
