@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import DOMPurify from 'dompurify'
-import { ErrorBox, FileDrop, Progress, Row, downloadBlob, baseName } from '../components/ui'
+import { ErrorBox, Field, FileDrop, Progress, Row, downloadBlob, baseName } from '../components/ui'
 import { getPdfjs, isEncryptedError, PASSWORD_MESSAGE } from '../lib/pdf'
 
 type TextItem = { str: string; transform: number[]; width: number; height: number }
