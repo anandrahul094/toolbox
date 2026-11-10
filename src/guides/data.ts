@@ -159,8 +159,8 @@ const ALL_GUIDES: Guide[] = [
         table: {
           head: ['Size', 'Commonly used for'],
           rows: [
-            ['35 × 45 mm', 'India visa and many forms, UK, Europe, Australia'],
-            ['2 × 2 in (51 × 51 mm)', 'India passport, USA'],
+            ['35 × 45 mm', 'Common for UK, Europe and other international applications'],
+            ['2 × 2 in (51 × 51 mm)', 'United States'],
             ['50 × 70 mm', 'Canada'],
             ['33 × 48 mm', 'China'],
             ['35 × 35 mm', 'Some forms'],
@@ -527,7 +527,7 @@ const ALL_GUIDES: Guide[] = [
       ['Will the Word file look exactly like the PDF?', "In Editable text mode the text is kept but the layout is simplified. In Exact look mode it looks the same but cannot be edited."],
       ['Can I convert a scanned PDF to editable Word?', "Not directly. Use the Image to Text (OCR) tool to get the text, then paste it into Word."],
       ['Is my PDF uploaded?', "No. The conversion happens in your browser and the file stays on your device."],
-      ['Does it work with Hindi PDFs?', "If the PDF contains real text, the text is copied as it is. Some PDFs store Hindi text in a way that does not copy well; in that case, try the OCR tool with Hindi selected."],
+
     ],
     related: ['extract-text-from-image-hindi-english', 'remove-password-from-pdf', 'reduce-pdf-size'],
   },
