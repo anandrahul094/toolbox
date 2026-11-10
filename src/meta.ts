@@ -15,8 +15,6 @@ export const CATEGORY_ICONS: Record<Category, LucideIcon> = {
 export const TOOL_ICONS: Record<string, LucideIcon> = {
   'image-compressor': Minimize2, 'image-editor': Crop, 'image-converter': Repeat, 'image-watermark': Stamp, 'exif-viewer': Info, 'image-palette': Pipette,
   'favicon-generator': AppWindow, 'social-image-resizer': Share2, 'image-base64': FileCode, 'background-remover': ScissorsIcon, 'watermark-remover': EraserIcon,
-  'exam-photo-resizer': IdCard, 'compress-image-to-size': FileDown, 'heic-to-jpg': Smartphone, 'qr-scanner': ScanLine, 'barcode-generator': Barcode, 'signature-maker': Signature,
-  'ssc-photo-resizer': IdCard, 'bank-exam-photo-resizer': IdCard, 'upsc-photo-resizer': IdCard, 'neet-photo-resizer': IdCard, 'signature-resizer': Signature,
   'compress-image-to-20kb': FileDown, 'compress-image-to-50kb': FileDown, 'compress-image-to-100kb': FileDown, 'compress-image-to-200kb': FileDown, 'compress-image-to-500kb': FileDown, 'compress-image-to-1mb': FileDown,
   'jpg-to-png': Repeat, 'png-to-jpg': Repeat, 'webp-to-jpg': Repeat, 'jpg-to-webp': Repeat, 'png-to-webp': Repeat, 'jpg-to-pdf': FileImage, 'pdf-to-jpg': Images, 'rotate-pdf': LayoutGrid, 'age-calculator': CalendarDays, 'character-counter': Pilcrow,
   'pdf-merge': Combine, 'pdf-split': Scissors, 'pdf-organize': LayoutGrid, 'image-to-pdf': FileImage, 'pdf-to-image': Images, 'pdf-page-numbers': ListOrdered,
@@ -37,8 +35,6 @@ export const TOOL_ICONS: Record<string, LucideIcon> = {
   'text-to-binary': BinaryIcon, 'binary-to-text': BinaryIcon, 'text-to-hex': BinaryIcon, 'hex-to-text': BinaryIcon, rot13: Scroll, 'gzip-decompress': ChefHat, 'md5-generator': Fingerprint, 'sha256-generator': Fingerprint,
   'spin-wheel': FerrisWheel, 'tic-tac-toe': Grid3x3, 'game-2048': Grid2x2, 'snake-game': Worm, 'memory-game': Brain, minesweeper: Bomb,
   'graph-plotter': ChartSpline, 'equation-solver': Variable, 'matrix-calculator': Grid3x3, 'statistics-calculator': ChartBar, 'molar-mass': FlaskConical,
-  'ohms-law': Zap, 'resistor-color-code': CircuitBoard, 'cgpa-calculator': GraduationCap, 'sig-figs': Hash,
-  'currency-converter': ArrowRightLeft, 'world-clock': Clock4, 'invoice-generator': ReceiptText,
   'protect-pdf': FileLock2, 'unlock-pdf': LockOpen, 'pdf-to-word': FileType2, 'compress-video': FileVideo,
   'sign-pdf': FileSignature, 'crop-pdf': Crop, 'video-to-mp3': Music, 'video-to-gif': Film, 'excel-csv': Sheet, 'zip-tool': FileArchive,
   random: Dices, 'typing-test': Keyboard,
@@ -47,7 +43,7 @@ export const toolIcon = (id: string, category: Category): LucideIcon => TOOL_ICO
 
 // Curated: tools added in the latest release, newest first. Not a popularity measure.
 export const RECENTLY_ADDED = ['text-editor', 'data-transformer', 'encrypt-text', 'hex-viewer', 'code-beautifier', 'xml-formatter', 'classic-ciphers', 'bcrypt', 'spin-wheel', 'tic-tac-toe', 'game-2048', 'snake-game', 'memory-game', 'minesweeper', 'calculator', 'graph-plotter', 'equation-solver', 'matrix-calculator', 'statistics-calculator', 'molar-mass', 'ohms-law', 'resistor-color-code', 'sig-figs', 'currency-converter', 'world-clock', 'pdf-to-word', 'compress-video', 'unlock-pdf', 'protect-pdf', 'sign-pdf', 'passport-photo', 'image-to-text', 'video-to-mp3', 'excel-csv', 'collage-maker', 'video-to-gif', 'crop-pdf', 'image-to-svg', 'meme-maker', 'zip-tool', 'compress-image-to-size', 'heic-to-jpg', 'qr-scanner', 'barcode-generator', 'signature-maker', 'background-remover', 'watermark-remover', 'pdf-merge', 'pdf-split', 'pdf-organize', 'image-to-pdf', 'pdf-to-image', 'pdf-compress', 'image-editor', 'image-converter', 'exif-viewer', 'favicon-generator', 'social-image-resizer', 'qr-wifi', 'meta-tags', 'cidr', 'typing-test', 'text-cleaner']
-export const NEW_SET = new Set(RECENTLY_ADDED.concat(['ssc-photo-resizer', 'bank-exam-photo-resizer', 'upsc-photo-resizer', 'neet-photo-resizer', 'signature-resizer', 'pdf-page-numbers', 'pdf-watermark', 'pdf-to-text', 'image-watermark', 'image-palette', 'compound-interest', 'salary-hike', 'profit-margin', 'inflation', 'lakh-crore', 'rupees-words', 'qr-vcard', 'qr-whatsapp', 'qr-email', 'qr-phone', 'find-replace', 'text-extractor', 'morse-code', 'utm-builder', 'user-agent']))
+export const NEW_SET = new Set(RECENTLY_ADDED.concat(['pdf-page-numbers', 'pdf-watermark', 'pdf-to-text', 'image-watermark', 'image-palette', 'compound-interest', 'salary-hike', 'profit-margin', 'inflation', 'qr-vcard', 'qr-whatsapp', 'qr-email', 'qr-phone', 'find-replace', 'text-extractor', 'morse-code', 'utm-builder', 'user-agent']))
 
 // Built-in starter pockets: shortcuts into the catalogue, separate from the person's own pockets
 export const STARTER_POCKETS: { slug: string; name: string; description: string; toolIds: string[] }[] = [
