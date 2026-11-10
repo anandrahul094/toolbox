@@ -41,6 +41,8 @@ const withProps = (load: () => Promise<{ default: ComponentType<never> }>, props
   load().then((m) => ({ default: () => createElement(m.default as ComponentType<Record<string, unknown>>, props) }))
 const alias = (tool: Tool): Tool => ({ ...tool, alias: true })
 const convert = (to: string, from: string) => withProps(() => import('./tools/ImageConverter'), { to, from })
+const toKB = (targetKB: number) => withProps(() => import('./tools/CompressToSize'), { targetKB })
+const KB_HOW = (kb: string) => ['Upload your image', `The tool finds the highest quality that fits under ${kb}`, 'Download the compressed image']
 
 const qr = (preset: string) => () => import('./tools/QrCode').then((m) => ({ default: () => createElement(m.default, { preset }) }))
 const QR_HOW = ['Fill in the details', 'Pick colors, size and error correction', 'Download the QR code as PNG or SVG and test it with your phone camera']
@@ -201,9 +203,6 @@ export const allTools: Tool[] = [
   ...[20, 50, 100, 200, 500].map((kb) => alias(t(`compress-image-to-${kb}kb`, `Compress Image to ${kb}KB`, 'Image', `Reduce a JPG or PNG photo to under ${kb} KB in seconds — free, private, no upload.`, [`${kb}kb`, `image ${kb}kb`, `photo ${kb}kb`, `resize to ${kb}kb`, 'compress image'], toKB(kb), KB_HOW(`${kb} KB`)))),
   alias(t('compress-image-to-1mb', 'Compress Image to 1MB', 'Image', 'Reduce a large photo to under 1 MB for email and uploads — free, private, no upload.', ['1mb', 'image under 1mb', 'photo 1mb'], toKB(1024), KB_HOW('1 MB'))),
   alias(t('ssc-photo-resizer', 'SSC Photo & Signature Resizer', 'Image', 'Resize your photo to 20–50 KB and signature to 10–20 KB for SSC CGL, CHSL, MTS and GD forms.', ['ssc', 'ssc cgl photo', 'ssc chsl', 'ssc mts', 'ssc gd'], exam('ssc-photo'), EXAM_HOW, EXAM_FAQ)),
-  alias(t('upsc-photo-resizer', 'UPSC Photo & Signature Resizer', 'Image', 'Resize your photo and signature to the 20–300 KB limits for UPSC online forms.', ['upsc', 'upsc cse photo', 'ias form photo'], exam('upsc-photo'), EXAM_HOW, EXAM_FAQ)),
-  alias(t('neet-photo-resizer', 'NEET / JEE Photo & Signature Resizer', 'Image', 'Resize your photo (10–200 KB) and signature (4–30 KB) for NTA forms: NEET, JEE Main and CUET.', ['neet', 'jee main', 'cuet', 'nta photo'], exam('nta-photo'), EXAM_HOW, EXAM_FAQ)),
-  alias(t('signature-resizer', 'Signature Resizer for Exam Forms', 'Image', 'Resize a scanned signature to 10–20 KB with a clean white background for exam applications.', ['signature resize', 'signature 20kb', 'signature 10kb', 'scan signature'], exam('ssc-sign'), EXAM_HOW, EXAM_FAQ)),
   ...([['jpg-to-png', 'JPG to PNG', 'image/png', 'JPG'], ['png-to-jpg', 'PNG to JPG', 'image/jpeg', 'PNG'], ['webp-to-jpg', 'WebP to JPG', 'image/jpeg', 'WebP'], ['jpg-to-webp', 'JPG to WebP', 'image/webp', 'JPG'], ['png-to-webp', 'PNG to WebP', 'image/webp', 'PNG']] as const).map(([id, name, to, from]) =>
     alias(t(id, `${name} Converter`, 'Image', `Convert ${from} images to ${name.split(' to ')[1]} in bulk — free and private, nothing is uploaded.`, [name.toLowerCase(), `convert ${from.toLowerCase()}`, id.replace(/-/g, ' ')], convert(to, from), [`Add one or more ${from} images`, 'Adjust quality if you like', 'Download each file or all as a ZIP']))),
   alias(t('jpg-to-pdf', 'JPG to PDF Converter', 'PDF', 'Turn JPG photos and scans into one PDF, in the order you choose.', ['jpg to pdf', 'photo to pdf', 'image to pdf'], () => import('./tools/ImageToPdf'), ['Add your JPG images and put them in order', 'Choose the page size and margins', 'Create and download the PDF'])),
