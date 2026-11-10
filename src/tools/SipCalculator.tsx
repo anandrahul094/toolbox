@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Field, Row, Stat, NumberInput } from '../components/ui'
+import { Field, Row, Stat, NumberInput, ValueBars } from '../components/ui'
 import { inr } from '../lib/money'
 
 export default function SipCalculator() {
@@ -44,6 +44,7 @@ export default function SipCalculator() {
         </div>
         <div className="muted" style={{ fontSize: 13, marginTop: 6 }}>■ Invested {pct.toFixed(0)}% · <span style={{ color: '#16a34a' }}>■</span> Returns {(100 - pct).toFixed(0)}%</div>
       </div>
+      <ValueBars title="Portfolio growth preview" items={r.rows.filter((row) => row.year <= 10 || row.year % 5 === 0 || row.year === years).map((row) => ({ label: `Year ${row.year}`, value: row.value }))} valueLabel={(v) => inr(v)} />
       <table>
         <thead><tr><th>Year</th><th>Invested</th><th>Value</th></tr></thead>
         <tbody>{r.rows.filter((row) => row.year <= 5 || row.year % 5 === 0 || row.year === years).map((row) => <tr key={row.year}><td>{row.year}</td><td>{inr(row.invested)}</td><td>{inr(row.value)}</td></tr>)}</tbody>
