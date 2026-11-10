@@ -1,7 +1,7 @@
 import {
   AppWindow, AtSign, BadgePercent, Binary, Blend, Braces, Calculator, CalendarClock, CalendarDays, CaseSensitive, Clock, Code, Coins, Combine, Contact,
   Crop, Database, Dices, Diff, Droplets, Eraser, FileCode, FileDigit, FileImage, FileJson, FileOutput, FileStack, FileText, FileType, Fingerprint, Gauge,
-  Globe, Hash, HeartPulse, Image, Images, IndianRupee, Info, Keyboard, KeyRound, Landmark, LayoutGrid, Link, Link2, ListOrdered, Lock, Mail, MessageCircle,
+  Globe, Hash, HeartPulse, Image, Images, Info, Keyboard, KeyRound, Landmark, LayoutGrid, Link, Link2, ListOrdered, Lock, Mail, MessageCircle,
   Minimize2, MonitorSmartphone, Network, Palette, Percent, Phone, PiggyBank, Pilcrow, Pipette, QrCode, Quote, Radio, Ratio, Receipt, Regex, Repeat, Replace,
   Ruler, ScanText, Scissors, ScrollText, Server, Share2, Shield, Square, Stamp, Table, Tags, Terminal, Text, Timer, TrendingUp, Type, Wallet, Wifi,
   Wrench, Code2, PenTool, Briefcase, Scissors as ScissorsIcon, Eraser as EraserIcon, IdCard, FileDown, Smartphone, ScanLine, Barcode, Signature, Film, Music, FileSignature, ScanEye, Laugh, LayoutDashboard, Spline, Sheet, FileArchive, FileLock2, LockOpen, FileType2, FileVideo, ArrowRightLeft, Clock4, ReceiptText, Sigma, ChartSpline, Variable, Grid3x3, ChartBar, FlaskConical, Zap, CircuitBoard, GraduationCap, FerrisWheel, Gamepad2, Grid2x2, Worm, Brain, Bomb, ChefHat, SquareTerminal, Binary as BinaryIcon, FileCode2, Code as CodeIcon, LockKeyhole, KeySquare, ScrollText as Scroll, type LucideIcon,
@@ -9,7 +9,7 @@ import {
 import type { Category } from './registry'
 
 export const CATEGORY_ICONS: Record<Category, LucideIcon> = {
-  Image: Image, PDF: FileText, 'Video & Audio': Film, Text: Type, Developer: Code2, 'Web & SEO': Globe, Design: PenTool, 'QR Codes': QrCode, 'Math & Science': Sigma, 'Finance & India': IndianRupee, Everyday: Briefcase, 'Fun & Games': Gamepad2,
+  Image: Image, PDF: FileText, 'Video & Audio': Film, Text: Type, Developer: Code2, 'Web & SEO': Globe, Design: PenTool, 'QR Codes': QrCode, 'Math & Science': Sigma, Finance: Coins, Everyday: Briefcase, 'Fun & Games': Gamepad2,
 }
 
 export const TOOL_ICONS: Record<string, LucideIcon> = {
@@ -28,9 +28,9 @@ export const TOOL_ICONS: Record<string, LucideIcon> = {
   'number-base': FileDigit, chmod: Shield,
   'meta-tags': Tags, 'utm-builder': Link2, 'user-agent': MonitorSmartphone, cidr: Network, 'http-status': Server,
   'color-converter': Palette, gradient: Blend, 'box-shadow': Square, 'svg-minifier': FileOutput, 'aspect-ratio': Ratio,
-  'qr-code': QrCode, 'qr-wifi': Wifi, 'qr-vcard': Contact, 'qr-upi': IndianRupee, 'qr-whatsapp': MessageCircle, 'qr-email': Mail, 'qr-phone': Phone,
-  gst: Receipt, emi: Landmark, sip: TrendingUp, 'compound-interest': PiggyBank, 'ctc-inhand': Wallet, 'salary-hike': BadgePercent, 'profit-margin': Coins,
-  inflation: Gauge, 'lakh-crore': ScrollText, 'rupees-words': IndianRupee, percentage: Percent, 'tip-split': Receipt,
+  'qr-code': QrCode, 'qr-wifi': Wifi, 'qr-vcard': Contact, 'qr-whatsapp': MessageCircle, 'qr-email': Mail, 'qr-phone': Phone,
+  emi: Landmark, 'compound-interest': PiggyBank, 'salary-hike': BadgePercent, 'profit-margin': Coins,
+  inflation: Gauge, percentage: Percent, 'tip-split': Receipt,
   calculator: Calculator, 'unit-converter': Ruler, timezone: Globe, 'date-diff': CalendarDays, timer: Timer, password: Lock, bmi: HeartPulse,
   'passport-photo': IdCard, 'image-to-text': ScanEye, 'meme-maker': Laugh, 'collage-maker': LayoutDashboard, 'image-to-svg': Spline,
   'text-editor': SquareTerminal, 'data-transformer': ChefHat, 'hex-viewer': BinaryIcon, 'code-beautifier': CodeIcon, 'xml-formatter': FileCode2, 'encrypt-text': LockKeyhole, bcrypt: KeySquare, 'classic-ciphers': Scroll,
@@ -46,15 +46,15 @@ export const TOOL_ICONS: Record<string, LucideIcon> = {
 export const toolIcon = (id: string, category: Category): LucideIcon => TOOL_ICONS[id] ?? CATEGORY_ICONS[category] ?? Wrench
 
 // Curated: tools added in the latest release, newest first. Not a popularity measure.
-export const RECENTLY_ADDED = ['text-editor', 'data-transformer', 'encrypt-text', 'hex-viewer', 'code-beautifier', 'xml-formatter', 'classic-ciphers', 'bcrypt', 'spin-wheel', 'tic-tac-toe', 'game-2048', 'snake-game', 'memory-game', 'minesweeper', 'calculator', 'graph-plotter', 'equation-solver', 'matrix-calculator', 'statistics-calculator', 'cgpa-calculator', 'molar-mass', 'ohms-law', 'resistor-color-code', 'sig-figs', 'invoice-generator', 'currency-converter', 'world-clock', 'pdf-to-word', 'compress-video', 'unlock-pdf', 'protect-pdf', 'sign-pdf', 'passport-photo', 'image-to-text', 'video-to-mp3', 'excel-csv', 'collage-maker', 'video-to-gif', 'crop-pdf', 'image-to-svg', 'meme-maker', 'zip-tool', 'exam-photo-resizer', 'compress-image-to-size', 'heic-to-jpg', 'qr-scanner', 'barcode-generator', 'signature-maker', 'background-remover', 'watermark-remover', 'pdf-merge', 'pdf-split', 'pdf-organize', 'image-to-pdf', 'pdf-to-image', 'pdf-compress', 'image-editor', 'image-converter', 'exif-viewer', 'favicon-generator', 'social-image-resizer', 'gst', 'sip', 'ctc-inhand', 'qr-upi', 'qr-wifi', 'meta-tags', 'cidr', 'typing-test', 'text-cleaner']
+export const RECENTLY_ADDED = ['text-editor', 'data-transformer', 'encrypt-text', 'hex-viewer', 'code-beautifier', 'xml-formatter', 'classic-ciphers', 'bcrypt', 'spin-wheel', 'tic-tac-toe', 'game-2048', 'snake-game', 'memory-game', 'minesweeper', 'calculator', 'graph-plotter', 'equation-solver', 'matrix-calculator', 'statistics-calculator', 'molar-mass', 'ohms-law', 'resistor-color-code', 'sig-figs', 'currency-converter', 'world-clock', 'pdf-to-word', 'compress-video', 'unlock-pdf', 'protect-pdf', 'sign-pdf', 'passport-photo', 'image-to-text', 'video-to-mp3', 'excel-csv', 'collage-maker', 'video-to-gif', 'crop-pdf', 'image-to-svg', 'meme-maker', 'zip-tool', 'compress-image-to-size', 'heic-to-jpg', 'qr-scanner', 'barcode-generator', 'signature-maker', 'background-remover', 'watermark-remover', 'pdf-merge', 'pdf-split', 'pdf-organize', 'image-to-pdf', 'pdf-to-image', 'pdf-compress', 'image-editor', 'image-converter', 'exif-viewer', 'favicon-generator', 'social-image-resizer', 'qr-wifi', 'meta-tags', 'cidr', 'typing-test', 'text-cleaner']
 export const NEW_SET = new Set(RECENTLY_ADDED.concat(['ssc-photo-resizer', 'bank-exam-photo-resizer', 'upsc-photo-resizer', 'neet-photo-resizer', 'signature-resizer', 'pdf-page-numbers', 'pdf-watermark', 'pdf-to-text', 'image-watermark', 'image-palette', 'compound-interest', 'salary-hike', 'profit-margin', 'inflation', 'lakh-crore', 'rupees-words', 'qr-vcard', 'qr-whatsapp', 'qr-email', 'qr-phone', 'find-replace', 'text-extractor', 'morse-code', 'utm-builder', 'user-agent']))
 
 // Built-in starter pockets: shortcuts into the catalogue, separate from the person's own pockets
 export const STARTER_POCKETS: { slug: string; name: string; description: string; toolIds: string[] }[] = [
-  { slug: 'office', name: 'Office work', description: 'Documents, PDFs and everyday paperwork', toolIds: ['pdf-merge', 'pdf-split', 'image-to-pdf', 'pdf-to-text', 'word-counter', 'text-cleaner', 'rupees-words', 'gst', 'date-diff', 'csv-json'] },
+  { slug: 'office', name: 'Office work', description: 'Documents, PDFs and everyday paperwork', toolIds: ['pdf-merge', 'pdf-split', 'image-to-pdf', 'pdf-to-text', 'word-counter', 'text-cleaner', 'date-diff', 'csv-json'] },
   { slug: 'developer', name: 'Developer kit', description: 'Formatters, encoders and debugging helpers', toolIds: ['json-formatter', 'yaml-json', 'base64', 'jwt-decoder', 'regex-tester', 'timestamp', 'uuid', 'sql-formatter', 'cron', 'text-diff'] },
   { slug: 'creator', name: 'Creator & social', description: 'Images sized and ready to post', toolIds: ['social-image-resizer', 'image-compressor', 'image-editor', 'image-watermark', 'qr-code', 'favicon-generator', 'meta-tags', 'utm-builder'] },
-  { slug: 'money', name: 'Money matters', description: 'Salary, loans, savings and tax', toolIds: ['ctc-inhand', 'salary-hike', 'emi', 'sip', 'compound-interest', 'gst', 'inflation', 'percentage'] },
+  { slug: 'money', name: 'Money matters', description: 'Salary, loans, savings and tax', toolIds: ['salary-hike', 'emi', 'compound-interest', 'inflation', 'profit-margin', 'percentage', 'tip-split'] },
 ]
 
 // Tools with a "Many files (bulk)" mode — shown with a Bulk tag and filter
