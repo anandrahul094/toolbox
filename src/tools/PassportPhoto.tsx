@@ -5,8 +5,8 @@ import { baseName, canvasToBlob, downloadBlob, ErrorBox, Field, FileDrop, fmtByt
 // Common photo sizes. Head height is the share of the photo from chin to top of head.
 interface Size { id: string; label: string; wmm: number; hmm: number; head: [number, number] }
 const SIZES: Size[] = [
-  { id: '35x45', label: '35 × 45 mm — India visa & forms, UK, Europe, Australia', wmm: 35, hmm: 45, head: [0.7, 0.8] },
-  { id: '51x51', label: '2 × 2 in (51 × 51 mm) — India passport, USA', wmm: 50.8, hmm: 50.8, head: [0.5, 0.69] },
+  { id: '35x45', label: '35 × 45 mm — UK, Europe and many international applications', wmm: 35, hmm: 45, head: [0.7, 0.8] },
+  { id: '51x51', label: '2 × 2 in (51 × 51 mm) — United States', wmm: 50.8, hmm: 50.8, head: [0.5, 0.69] },
   { id: '50x70', label: '50 × 70 mm — Canada', wmm: 50, hmm: 70, head: [0.44, 0.51] },
   { id: '33x48', label: '33 × 48 mm — China', wmm: 33, hmm: 48, head: [0.58, 0.69] },
   { id: '35x35', label: '35 × 35 mm', wmm: 35, hmm: 35, head: [0.6, 0.75] },

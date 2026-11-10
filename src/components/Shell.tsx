@@ -8,7 +8,7 @@ import { CATEGORY_ICONS } from '../meta'
 import { actions, useStore } from '../store'
 import { dismiss, pause, resume, useToasts } from '../toast'
 import { SearchBox } from './Search'
-import { LANG, pathInLang, tr } from '../i18n'
+import { tr } from '../i18n'
 import { useInstall } from '../lib/pwa'
 import { catLabel } from '../i18n/localize'
 import WorkshopMascot from './WorkshopMascot'
@@ -92,43 +92,11 @@ function Topbar() {
       <span className="mobile-brand"><Brand /></span>
       <SearchBox />
       <span style={{ marginLeft: 'auto' }} />
-      <LangSwitch />
       <AccountArea />
       <button className="icon-only" onClick={() => actions.setSettings({ theme: dark ? 'light' : 'dark' })} aria-label={dark ? tr("Switch to light theme") : tr("Switch to dark theme")} title={tr("Toggle theme")}>
         {dark ? <Sun size={17} /> : <Moon size={17} />}
       </button>
     </header>
-  )
-}
-
-// full page load, so the registry and text load in the other language
-function LangSwitch() {
-  const { pathname, search } = useLocation()
-  const other = LANG === 'hi' ? 'en' : 'hi'
-  const href = pathInLang(pathname, other) + search // router paths never include the /hi prefix
-  return (
-    <a href={href} hrefLang={other} lang={other} className="btn ghost-text lang-switch" title={tr(other === 'hi' ? 'Read this page in Hindi' : 'Read this page in English')}
-      onClick={() => { try { localStorage.setItem('toolbox.lang', other) } catch { /* private mode */ } }}>
-      {other === 'hi' ? 'हिंदी' : 'English'}
-    </a>
-  )
-}
-
-// offered once to visitors whose browser prefers Hindi
-function HindiBanner() {
-  const [show, setShow] = useState(() => {
-    if (LANG !== 'en') return false
-    try { return !localStorage.getItem('toolbox.lang') && /^hi\b/i.test(navigator.language) } catch { return false }
-  })
-  const { pathname, search } = useLocation()
-  if (!show) return null
-  const close = (v: string) => { try { localStorage.setItem('toolbox.lang', v) } catch { /* private mode */ } setShow(false) }
-  return (
-    <div className="lang-banner" role="region" aria-label="भाषा">
-      <span>यह साइट हिंदी में भी उपलब्ध है।</span>
-      <a className="btn primary" href={pathInLang(pathname, 'hi') + search} onClick={() => close('hi')}>हिंदी में देखें</a>
-      <button className="btn" onClick={() => close('en')}>No thanks</button>
-    </div>
   )
 }
 
@@ -238,8 +206,7 @@ export default function Shell({ children }: { children: ReactNode }) {
       <Sidebar />
       <div className="main">
         <Topbar />
-        <HindiBanner />
-        <InstallBanner />
+          <InstallBanner />
         <main id="main" className="page" tabIndex={-1} style={{ outline: 'none' }}>{children}</main>
         <footer className="footer">
           <span>{tr('The Toolbox · {n} tools · Tools process your files and text in your browser; nothing you enter is uploaded.', { n: tools.length })}</span>

@@ -4,8 +4,7 @@ import { CopyButton, downloadBlob, ErrorBox, Field, FileDrop, Progress, Row, bas
 import BatchRunner, { BulkToggle, type BatchProcess, type BatchResult } from '../components/Batch'
 
 const LANGS = [
-  ['eng', 'English'], ['hin', 'Hindi'], ['eng+hin', 'English + Hindi'], ['ben', 'Bengali'], ['tam', 'Tamil'], ['tel', 'Telugu'], ['mar', 'Marathi'],
-  ['guj', 'Gujarati'], ['kan', 'Kannada'], ['mal', 'Malayalam'], ['pan', 'Punjabi'], ['urd', 'Urdu'], ['spa', 'Spanish'], ['fra', 'French'], ['deu', 'German'],
+  ['eng', 'English'], ['spa', 'Spanish'], ['fra', 'French'], ['deu', 'German'], ['por', 'Portuguese'], ['ita', 'Italian'], ['nld', 'Dutch'], ['chi_sim', 'Chinese (Simplified)'], ['chi_tra', 'Chinese (Traditional)'], ['jpn', 'Japanese'], ['kor', 'Korean'], ['ara', 'Arabic'], ['rus', 'Russian'],
 ] as const
 
 type Logger = (m: { status: string; progress: number }) => void

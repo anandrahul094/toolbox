@@ -6,7 +6,7 @@ import { getPdfjs, isEncryptedError, PASSWORD_MESSAGE } from '../lib/pdf'
 type TextItem = { str: string; transform: number[]; width: number; height: number }
 type Line = { y: number; x: number; right: number; size: number; text: string }
 
-const LANGS = [['eng','English'],['hin','Hindi'],['eng+hin','English + Hindi'],['ben','Bengali'],['asm','Assamese'],['urd','Urdu'],['spa','Spanish'],['fra','French']] as const
+const LANGS = [['eng','English'],['spa','Spanish'],['fra','French'],['deu','German'],['por','Portuguese'],['ita','Italian'],['nld','Dutch'],['chi_sim','Chinese (Simplified)'],['chi_tra','Chinese (Traditional)'],['jpn','Japanese'],['kor','Korean'],['ara','Arabic'],['rus','Russian']] as const
 
 function escapeHtml(s: string) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!)) }
 
