@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Shell from './components/Shell'
 import Home from './pages/Home'
 import Explore from './pages/Explore'
@@ -18,10 +18,16 @@ const GuidesIndex = lazy(() => import('./pages/Guides').then((m) => ({ default: 
 const GuidePage = lazy(() => import('./pages/Guides').then((m) => ({ default: m.GuidePage })))
 const wait = (el: JSX.Element) => <Suspense fallback={<div className="muted" role="status">…</div>}>{el}</Suspense>
 
+function LegacyHindiRedirect() {
+  const { pathname, search, hash } = useLocation()
+  return <Navigate to={{ pathname: pathname.replace(/^\/hi(?=\/|$)/, '') || '/', search, hash }} replace />
+}
+
 export default function App() {
   return (
     <Shell>
       <Routes>
+        <Route path="/hi/*" element={<LegacyHindiRedirect />} />
         <Route path="/" element={<Home />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/category/:slug" element={<Explore />} />
