@@ -7,5 +7,5 @@ export const LANGS: { id: Lang; label: string; native: string }[] = [
 export const LANG: Lang = 'en'
 export const langPrefix = (_lang: Lang = LANG) => ''
 export function pathInLang(pathname: string, _lang: Lang) {
-  return pathname.replace(/^\\/hi(?=\\/|$)/, '') || '/'
+  return pathname.replace(/^\/hi(?=\/|$)/, '') || '/'
 }
