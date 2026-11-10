@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Field, Row, Stat, NumberInput } from '../components/ui'
+import { Field, Row, Stat, NumberInput, ValueBars } from '../components/ui'
 import { inr } from '../lib/money'
 
 const FREQ: [string, number][] = [['Yearly', 1], ['Half-yearly', 2], ['Quarterly', 4], ['Monthly', 12], ['Daily', 365]]
@@ -40,6 +40,7 @@ export default function CompoundInterest() {
         <Stat label="Maturity value" value={inr(r.bal)} />
         <Stat label="Effective annual rate" value={`${r.effective.toFixed(2)}%`} />
       </div>
+      <ValueBars title="Compound growth preview" items={r.rows.filter((row) => row.year <= 10 || row.year % 5 === 0 || row.year === years).map((row) => ({ label: `Year ${row.year}`, value: row.balance }))} valueLabel={(v) => inr(v)} />
       <table>
         <thead><tr><th>Year</th><th>Deposited</th><th>Interest</th><th>Balance</th></tr></thead>
         <tbody>{r.rows.map((row) => <tr key={row.year}><td>{row.year}</td><td>{inr(row.deposits)}</td><td>{inr(row.interest)}</td><td>{inr(row.balance)}</td></tr>)}</tbody>
