@@ -58,6 +58,19 @@ export function Stat({ label, value }: { label: string; value: ReactNode }) {
   )
 }
 
+export function LoadingState({ label = 'Getting your workspace ready…', detail = 'Preparing this tool on your device' }: { label?: string; detail?: string }) {
+  return (
+    <div className="tool-loading" role="status" aria-live="polite" aria-busy="true">
+      <span className="tool-loading-orbit" aria-hidden="true"><span /><span /><span /></span>
+      <span className="tool-loading-copy">
+        <strong>{tr(label)}</strong>
+        <span>{tr(detail)}</span>
+      </span>
+      <span className="tool-loading-track" aria-hidden="true"><span /></span>
+    </div>
+  )
+}
+
 export function ErrorBox({ message }: { message?: string | null }) {
   return message ? <div className="error" role="alert">{message}</div> : null
 }
