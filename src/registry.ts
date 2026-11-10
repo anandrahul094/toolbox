@@ -143,7 +143,6 @@ export const allTools: Tool[] = [
   t('qr-code', 'QR Code Generator', 'QR Codes', 'Create QR codes for links, text, Wi-Fi, contacts, UPI and more.', ['qr', 'qr code', 'barcode', 'link'], qr('text'), QR_HOW),
   t('qr-wifi', 'Wi-Fi QR Code', 'QR Codes', 'Let guests join your Wi-Fi by scanning a code.', ['wifi password', 'wireless', 'network qr'], qr('wifi'), QR_HOW, [['Is my Wi-Fi password sent anywhere?', 'No. The code is generated in your browser. Anyone who scans it can read the password, so share it only with people you trust.']]),
   t('qr-vcard', 'Contact (vCard) QR Code', 'QR Codes', 'Share your contact card — scan to save.', ['vcard', 'business card', 'contact'], qr('vcard'), QR_HOW),
-  t('qr-upi', 'UPI Payment QR Code', 'QR Codes', 'Generate a UPI QR code to receive payments in any UPI app.', ['upi', 'gpay', 'phonepe', 'paytm', 'payment qr', 'india'], qr('upi'), QR_HOW, [['Is this safe?', 'The QR only encodes your UPI ID, name and optional amount. Always scan it yourself to confirm the details before sharing.']]),
   t('qr-whatsapp', 'WhatsApp QR Code', 'QR Codes', 'Open a WhatsApp chat with a pre-filled message.', ['whatsapp', 'chat link', 'wa.me'], qr('whatsapp'), QR_HOW),
   t('qr-email', 'Email QR Code', 'QR Codes', 'Scan to compose an email with subject and body.', ['mailto', 'email'], qr('email'), QR_HOW),
   t('qr-phone', 'Phone & SMS QR Code', 'QR Codes', 'Scan to call a number or send a text message.', ['call', 'sms', 'phone number'], qr('phone'), QR_HOW),
