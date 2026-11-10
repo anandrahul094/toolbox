@@ -12,6 +12,7 @@ import RateTool, { RatingSummaryBadge, useRatingSummary } from '../components/Ra
 import { setMeta } from './meta'
 import { ShareBar, ShareButton } from '../components/Share'
 import { tr } from '../i18n'
+import { LoadingState } from '../components/ui'
 import { catLabel } from '../i18n/localize'
 
 export default function ToolPage() {
@@ -70,7 +71,7 @@ export default function ToolPage() {
 
       <section className="panel" aria-label={tr('{name} workspace', { name: tool.name })}>
         <ErrorBoundary key={tool.id} scope="tool">
-          <Suspense fallback={<div className="muted" role="status">{tr("Loading tool…")}</div>}>
+          <Suspense fallback={<LoadingState />}>
             <Comp />
           </Suspense>
         </ErrorBoundary>
