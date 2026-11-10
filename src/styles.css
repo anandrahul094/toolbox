@@ -801,3 +801,74 @@ body,
   color: #fbbf24;
 }
 
+
+
+/* ── Tool loading: contained, calm, and layout-stable ─────── */
+.tool-loading {
+  min-height: 190px;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-content: center;
+  align-items: center;
+  gap: 8px 16px;
+  padding: clamp(20px, 4vw, 34px);
+  color: var(--text);
+}
+.tool-loading-orbit {
+  grid-row: span 2;
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #e8c98c;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #fff8e5, #ffe6a5);
+  box-shadow: 0 3px 0 #211b16;
+}
+.tool-loading-orbit::before,
+.tool-loading-orbit::after {
+  content: '';
+  position: absolute;
+  border: 2px solid transparent;
+  border-top-color: #991b1b;
+  border-right-color: #d97706;
+  border-radius: 50%;
+  inset: 6px;
+  animation: tool-loading-spin 1.15s linear infinite;
+}
+.tool-loading-orbit::after {
+  inset: 13px;
+  border-top-color: #d97706;
+  border-right-color: transparent;
+  animation-duration: .8s;
+  animation-direction: reverse;
+}
+.tool-loading-orbit span { display: none; }
+.tool-loading-copy { display: grid; gap: 4px; }
+.tool-loading-copy strong { font-family: var(--display); font-size: 16px; color: var(--text); }
+.tool-loading-copy > span { font-size: 13px; color: var(--muted); }
+.tool-loading-track {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #eadfc7;
+}
+.tool-loading-track span {
+  display: block;
+  width: 38%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #991b1b, #fbbf24);
+  animation: tool-loading-progress 1.5s ease-in-out infinite;
+}
+@keyframes tool-loading-spin { to { transform: rotate(360deg); } }
+@keyframes tool-loading-progress {
+  0% { transform: translateX(-110%); }
+  55% { transform: translateX(170%); }
+  100% { transform: translateX(310%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tool-loading-orbit::before, .tool-loading-orbit::after, .tool-loading-track span { animation: none; }
+  .tool-loading-track span { width: 100%; opacity: .45; }
+}
