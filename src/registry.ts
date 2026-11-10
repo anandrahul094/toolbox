@@ -1,6 +1,4 @@
 import { createElement, lazy, type ComponentType, type LazyExoticComponent } from 'react'
-import { LANG } from './i18n/lang'
-import { localizeTool } from './i18n/localize'
 
 export type Category = 'Image' | 'PDF' | 'Video & Audio' | 'Text' | 'Developer' | 'Web & SEO' | 'Design' | 'QR Codes' | 'Math & Science' | 'Finance' | 'Everyday' | 'Fun & Games'
 
@@ -215,8 +213,6 @@ export const allTools: Tool[] = [
   alias(t('character-counter', 'Character Counter', 'Text', 'Count characters, words and lines — with and without spaces.', ['character count', 'letter counter', 'count characters'], () => import('./tools/WordCounter'), ['Type or paste your text', 'Character and word counts update as you type'])),
 ]
 
-// Hindi pages show Hindi names, descriptions and help (English search words still match)
-if (LANG !== 'en') allTools.forEach((x, i) => { allTools[i] = localizeTool(x, LANG) })
 
 /** the catalogue shown in lists; landing pages for specific searches are reachable by link and search */
 export const tools: Tool[] = allTools.filter((x) => !x.alias)
