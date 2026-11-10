@@ -247,3 +247,27 @@ export function NumberInput({ value, onValue, min, max, step, ...rest }: { value
     </>
   )
 }
+
+
+/** Compact, responsive visual preview for calculated series. */
+export function ValueBars({ title, items, valueLabel = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 0 }) }: {
+  title: string
+  items: { label: string; value: number }[]
+  valueLabel?: (value: number) => string
+}) {
+  const max = Math.max(1, ...items.map((item) => Math.max(0, item.value)))
+  return (
+    <section className="value-preview" aria-label={title}>
+      <div className="value-preview-head"><strong>{title}</strong><span>{items.length} points</span></div>
+      <div className="value-preview-bars">
+        {items.map((item) => (
+          <div className="value-preview-row" key={item.label}>
+            <span>{item.label}</span>
+            <div className="value-preview-track"><div style={{ width: `${Math.max(0, Math.min(100, item.value / max * 100))}%` }} /></div>
+            <strong>{valueLabel(item.value)}</strong>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
