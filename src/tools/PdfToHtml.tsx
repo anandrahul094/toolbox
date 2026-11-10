@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import DOMPurify from 'dompurify'
 import { ErrorBox, FileDrop, Progress, Row, downloadBlob, baseName } from '../components/ui'
 import { getPdfjs, isEncryptedError, PASSWORD_MESSAGE } from '../lib/pdf'
 
@@ -155,7 +156,7 @@ h1{font-size:1.7em}h2{font-size:1.3em}p{margin:.55em 0}.notice{color:#777;font-s
     <ErrorBox message={error}/>
     <Row><button className="btn primary" disabled={!file||!!progress} onClick={run}>{progress?'Converting…':'Convert to HTML'}</button>
     <button className="btn" disabled={!html} onClick={()=>downloadBlob(`${baseName(title)}.html`,new Blob([html],{type:'text/html;charset=utf-8'}))}>Download HTML</button></Row>
-    {html&&<><h3>Converted preview</h3><div className="markdown output" style={{background:'#fff',color:'#222',padding:18,maxHeight:440,overflow:'auto'}} dangerouslySetInnerHTML={{__html:html.replace(/<script[\\s\\S]*?<\\/script>/gi,'')}}/><details><summary>View HTML source</summary><textarea readOnly value={html} rows={16}/></details></>}
+    {html&&<><h3>Converted preview</h3><div className="markdown output" style={{background:'#fff',color:'#222',padding:18,maxHeight:440,overflow:'auto'}} dangerouslySetInnerHTML={{__html:DOMPurify.sanitize(html)}}/><details><summary>View HTML source</summary><textarea readOnly value={html} rows={16}/></details></>}
     <p className="field-hint">OCR language files download the first time and are cached by the browser. OCR may misread low-quality scans. Visual mode keeps layout as images rather than editable elements. Fully automatic recovery of original table cells, reading order and document semantics is not guaranteed.</p>
   </>
 }
