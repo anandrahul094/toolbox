@@ -2,7 +2,7 @@ import type { Guide } from './types'
 
 const UPDATED = '2026-10-26'
 
-export const GUIDES: Guide[] = [
+const ALL_GUIDES: Guide[] = [
   // 1
   {
     slug: 'ssc-photo-signature-size',
@@ -974,3 +974,8 @@ export const GUIDES: Guide[] = [
     related: ['merge-pdf-free', 'remove-password-from-pdf', 'gst-invoice-format-free'],
   },
 ]
+
+
+// Region-specific application, tax and language guides are not part of the global catalogue.
+const REGIONAL_GUIDES = new Set(['ssc-photo-signature-size', 'gst-invoice-format-free', 'cgpa-to-percentage', 'extract-text-from-image-hindi-english', 'upi-qr-code-for-shop', 'passport-size-photo-at-home'])
+export const GUIDES: Guide[] = ALL_GUIDES.filter((guide) => !REGIONAL_GUIDES.has(guide.slug))
