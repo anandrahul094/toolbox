@@ -9,14 +9,14 @@ A free, browser-based collection of everyday utilities for working with files, t
 
 The Toolbox brings commonly used online utilities into one searchable workspace. The product is designed around a simple principle: make useful tools accessible without forcing users to install separate applications or create an account for everyday tasks.
 
-The project brief describes a catalogue of 150+ tools across image, PDF, video/audio, text, developer, web/SEO, design, QR/barcode, maths/science, finance, everyday productivity, and games.
+The project brief describes a catalogue of 130+ tools across image, PDF, video/audio, text, developer, web/SEO, design, QR/barcode, maths/science, finance, everyday productivity, and games.
 
 ## Product principles
 
 - **Browser-first processing:** file and text workflows are designed to run on the user's device using JavaScript and WebAssembly where appropriate.
 - **Low-friction access:** core tools are available without mandatory sign-up.
 - **Privacy-conscious design:** the product is designed to avoid uploading user files for local processing.
-- **India-first, globally useful:** includes India-oriented utilities such as GST, UPI QR, salary calculations, exam photo sizing, and lakh/crore formatting, alongside general-purpose tools.
+- **Global audience:** general-purpose utilities for people worldwide, with English as the current interface language.
 - **Performance:** tool modules are loaded on demand so heavier libraries are not required on every page.
 - **Accessibility:** keyboard support, visible focus states, responsive layouts, and accessible result messaging are part of the product brief.
 
@@ -31,9 +31,9 @@ The project brief describes a catalogue of 150+ tools across image, PDF, video/a
 | Developer | JSON, YAML, SQL, Base64, JWT, hashes, encoders |
 | Web & SEO | Meta tags, UTM builder, user-agent parser |
 | Design | Color tools, gradients, shadows, SVG utilities |
-| QR & barcode | QR generation, scanning, UPI, Wi-Fi, barcode |
+| QR & barcode | QR generation, scanning, Wi-Fi, barcode |
 | Maths & science | Calculator, graphs, equations, statistics |
-| Finance | GST, EMI, SIP, salary hike, CTC, invoice generation |
+| Finance | Interest, EMI, salary growth, profit margin, inflation, tipping |
 | Everyday | Unit/time conversion, age, currency, ZIP utilities |
 | Fun | Typing test, random picker, puzzles and games |
 
@@ -91,7 +91,7 @@ npm run build
 npm run preview
 ```
 
-The build runs TypeScript checks, Vite production bundling, and the project's prerender script. The generated static output is written to `dist/`.
+The build runs TypeScript checks, Vite production bundling, a catalogue integrity audit (category coverage, icons, duplicate IDs and guide-to-tool references), and the prerender script. The generated static output is written to `dist/`.
 
 ## Project structure
 
