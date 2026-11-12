@@ -26,8 +26,12 @@ try {
   }
 
   const toolIds = new Set(allTools.map((tool) => tool.id))
+  const guideSlugs = new Set(GUIDES.map((guide) => guide.slug))
   for (const guide of GUIDES) {
     if (!toolIds.has(guide.toolId)) errors.push(`Guide "${guide.slug}" points to missing tool "${guide.toolId}".`)
+    for (const related of guide.related) {
+      if (!guideSlugs.has(related)) errors.push(`Guide "${guide.slug}" links to missing guide "${related}".`)
+    }
   }
 
   if (errors.length) {
