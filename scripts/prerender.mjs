@@ -125,7 +125,7 @@ let homeDesc = ''
 
   const simple = (route, title, description, h1, text, opts = {}) => add({ route, title, description, body: `${nav}<main><h1>${esc(h1)}</h1><p>${esc(text)}</p></main>`, changefreq: 'yearly', priority: '0.4', ...opts })
   simple('/feedback', ...L.feedback)
-  // legal pages are English only; the Hindi addresses still work but point search engines to the English copy
+  // Legal and account pages are excluded from search indexing where appropriate.
   simple('/privacy', `Privacy policy — ${SITE_NAME}`, `How ${SITE_NAME} handles your data: tools run in your browser and your files are never uploaded.`, 'Privacy policy', 'Tools run in your browser; your files and text are never uploaded.')
   simple('/terms', `Terms of use — ${SITE_NAME}`, `The terms for using ${SITE_NAME}'s free online tools.`, 'Terms of use', 'The terms for using these free online tools.')
   for (const [route, label] of [['/login', 'Log in'], ['/join', 'Join'], ['/forgot-password', 'Forgot password'], ['/reset-password', 'Reset password'], ['/favourites', 'Pinned tools'], ['/pockets', 'My pockets'], ['/recent', 'Recently used'], ['/settings', 'Settings']]) {
