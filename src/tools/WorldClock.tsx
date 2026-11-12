@@ -40,9 +40,9 @@ function zonedDateTime(value: string, tz: string): Date | null {
   const [date, time] = value.split('T')
   if (!date || !time) return null
   const [y, mo, d] = date.split('-').map(Number)
-  const [h, mi] = time.split(':').map(Number)
-  if (![y, mo, d, h, mi].every(Number.isFinite)) return null
-  const target = Date.UTC(y, mo - 1, d, h, mi)
+  const [h, mi, sec = 0] = time.split(':').map(Number)
+  if (![y, mo, d, h, mi, sec].every(Number.isFinite)) return null
+  const target = Date.UTC(y, mo - 1, d, h, mi, sec)
   let guess = target
   try {
     // Iterate to account for the zone's offset on the requested date (including DST).
@@ -53,8 +53,7 @@ function zonedDateTime(value: string, tz: string): Date | null {
       guess = next
     }
     const result = new Date(guess)
-    const check = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(result)
-    return check === value.replace('T', ', ').replace(/-(\\d{2})-(\\d{2}), /, '-$2-$1, ') || Number.isFinite(result.getTime()) ? result : null
+    return Number.isFinite(result.getTime()) ? result : null
   } catch { return null }
 }
 
@@ -70,7 +69,7 @@ export default function WorldClock() {
   const [q, setQ] = useState('')
   const [convertOpen, setConvertOpen] = useState(false)
   const [sourceZone, setSourceZone] = useState('UTC')
-  const [sourceDateTime, setSourceDateTime] = useState('2026-11-12T19:30')
+  const [sourceDateTime, setSourceDateTime] = useState('2026-11-12T19:30:36')
   const convertedAt = useMemo(() => zonedDateTime(sourceDateTime, sourceZone), [sourceDateTime, sourceZone])
 
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(t) }, [])
@@ -99,7 +98,7 @@ export default function WorldClock() {
           {new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: !h24 }).format(at)}
         </div>
         <div className="muted" style={{ fontSize: 13 }}>
-          {new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short' }).format(now)} · {mine ? tz : fmtDiff(diff)}
+          {new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short' }).format(at)} · {mine ? tz : fmtDiff(diff)}
         </div>
         {!mine && <button className="icon-only" style={{ position: 'absolute', top: 8, right: 8 }} aria-label={`Remove ${label}`} onClick={() => setClocks(clocks.filter(([n, z]) => !(n === label && z === tz)))}><X size={14} /></button>}
       </div>
