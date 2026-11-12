@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/audit-registry.mjs && node scripts/prerender.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "audit:catalogue": "node scripts/audit-registry.mjs"
   },
   "dependencies": {
     "@breezystack/lamejs": "^1.2.7",
