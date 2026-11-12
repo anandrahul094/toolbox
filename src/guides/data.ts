@@ -978,4 +978,7 @@ const ALL_GUIDES: Guide[] = [
 
 // Region-specific application, tax and language guides are not part of the global catalogue.
 const REGIONAL_GUIDES = new Set(['ssc-photo-signature-size', 'gst-invoice-format-free', 'cgpa-to-percentage', 'extract-text-from-image-hindi-english', 'upi-qr-code-for-shop', 'passport-size-photo-at-home'])
-export const GUIDES: Guide[] = ALL_GUIDES.filter((guide) => !REGIONAL_GUIDES.has(guide.slug))
+const PUBLIC_GUIDE_SLUGS = new Set(ALL_GUIDES.filter((guide) => !REGIONAL_GUIDES.has(guide.slug)).map((guide) => guide.slug))
+export const GUIDES: Guide[] = ALL_GUIDES
+  .filter((guide) => PUBLIC_GUIDE_SLUGS.has(guide.slug))
+  .map((guide) => ({ ...guide, related: guide.related.filter((slug) => PUBLIC_GUIDE_SLUGS.has(slug)) }))
