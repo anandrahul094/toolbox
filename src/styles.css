@@ -896,3 +896,54 @@ body,
   .value-preview { padding: 11px; }
   .value-preview-row { grid-template-columns: 54px minmax(24px, 1fr) minmax(62px, auto); gap: 7px; font-size: 11px; }
 }
+
+
+/* Accessibility: keep search selection and account actions readable in every theme. */
+.search-pop .result,
+.search-pop .result .r-name,
+.search-pop .result .r-desc,
+.search-pop .result .muted,
+.search-pop .result .tag {
+  color: var(--text);
+}
+.search-pop .result:hover,
+.search-pop .result.sel,
+.search-pop .result[aria-selected='true'] {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.search-pop .result:hover .r-name,
+.search-pop .result.sel .r-name,
+.search-pop .result[aria-selected='true'] .r-name,
+.search-pop .result:hover .r-desc,
+.search-pop .result.sel .r-desc,
+.search-pop .result[aria-selected='true'] .r-desc,
+.search-pop .result:hover .muted,
+.search-pop .result.sel .muted,
+.search-pop .result[aria-selected='true'] .muted,
+.search-pop .result:hover .tag,
+.search-pop .result.sel .tag,
+.search-pop .result[aria-selected='true'] .tag {
+  color: var(--on-primary);
+}
+.search-pop .result:hover svg,
+.search-pop .result.sel svg,
+.search-pop .result[aria-selected='true'] svg {
+  color: var(--on-primary);
+}
+
+/* The header can sit over a dark surface; never render the login action as
+   dark text on a dark/transparent background. */
+.topbar .auth-buttons .btn.ghost-text {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+.topbar .auth-buttons .btn.ghost-text svg,
+.topbar .auth-buttons .btn.ghost-text span {
+  color: inherit;
+}
+.topbar .auth-buttons .btn.ghost-text:hover {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+}
