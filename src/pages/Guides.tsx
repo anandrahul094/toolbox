@@ -28,7 +28,7 @@ function GuideCard({ g }: { g: Guide }) {
 }
 
 export function GuidesIndex() {
-  useEffect(() => { setMeta(tr('How-to guides — The Toolbox'), tr('Step-by-step guides for exam photo sizes, PDFs, GST invoices, CGPA, EMI and more — with free tools that work in your browser.')) }, [])
+  useEffect(() => { setMeta(tr('How-to guides — The Toolbox'), tr('Practical guides for PDFs, images, documents, calculations and more — with free tools that work in your browser.')) }, [])
   return (
     <>
       <div className="page-head"><div>

@@ -39,7 +39,6 @@ export default defineConfig({
         shortcuts: [
           { name: 'Compress image', url: '/tool/image-compressor', icons: [{ src: '/icons/icon-192.png', sizes: '192x192' }] },
           { name: 'Merge PDF', url: '/tool/pdf-merge', icons: [{ src: '/icons/icon-192.png', sizes: '192x192' }] },
-          { name: 'Exam photo resizer', url: '/tool/exam-photo-resizer', icons: [{ src: '/icons/icon-192.png', sizes: '192x192' }] },
           { name: 'All tools', url: '/explore', icons: [{ src: '/icons/icon-192.png', sizes: '192x192' }] },
         ],
       },
