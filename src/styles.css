@@ -1550,3 +1550,66 @@ body,
   .page > .guide-cta:hover,
   .page > .section[aria-labelledby="related-h"] .tile:hover { transform: none; }
 }
+
+
+/* ── Phase 6: accessible interaction and motion polish ─── */
+:where(a, button, input, textarea, select, summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+:where(button, [role="button"]):focus-visible {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 5px color-mix(in srgb, var(--primary) 72%, transparent);
+}
+:where(a, button, summary) { -webkit-tap-highlight-color: transparent; }
+:where(button, input, textarea, select) { accent-color: var(--primary); }
+:where(button, a, summary) { touch-action: manipulation; }
+:where(button, input, textarea, select, summary):disabled,
+:where(button, input, textarea, select)[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+:where(a, button, summary):focus:not(:focus-visible) { outline: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  .page a:not(.cover),
+  .footer a,
+  .crumbs a { text-underline-offset: 3px; }
+}
+@media (pointer: coarse) {
+  .page .icon-only,
+  .page .t-actions .icon-only,
+  .topbar .icon-only { min-width: 40px; min-height: 40px; }
+  .page .faq summary,
+  .page details > summary { min-height: 42px; align-content: center; }
+  .page .btn,
+  .page button.btn,
+  .page .chip { min-height: 40px; }
+}
+@media (prefers-contrast: more) {
+  :root {
+    --border: color-mix(in srgb, var(--text) 38%, var(--surface));
+    --input-border: color-mix(in srgb, var(--text) 55%, var(--surface));
+  }
+  .muted,
+  .page .tile .t-desc,
+  .page .row-item .t-desc,
+  .page .field-hint { color: var(--text); }
+}
+@media (forced-colors: active) {
+  :where(a, button, input, textarea, select, summary, [role="button"]):focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 3px;
+  }
+  .page .privacy,
+  .page .badge,
+  .page .new-tag { border: 1px solid currentColor; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
