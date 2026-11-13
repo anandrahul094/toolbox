@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { Moon, Sun, X } from 'lucide-react'
 import { Field, Row } from '../components/ui'
 
@@ -34,6 +33,31 @@ const fmtDiff = (m: number) => {
   return `${h ? `${h}h` : ''}${h && mm ? ' ' : ''}${mm ? `${mm}m` : ''} ${m > 0 ? 'ahead' : 'behind'}`
 }
 
+// Convert a local wall-clock value in an IANA time zone into a UTC instant.
+// Intl supplies the correct offset for the selected date, including DST.
+function zonedDateTime(value: string, tz: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value)
+  if (!match) return null
+  const [, ys, mos, ds, hs, mis, ss = '0'] = match
+  const [y, mo, d, h, mi, sec] = [ys, mos, ds, hs, mis, ss].map(Number)
+  if (mo < 1 || mo > 12 || d < 1 || d > 31 || h > 23 || mi > 59 || sec > 59) return null
+  const target = Date.UTC(y, mo - 1, d, h, mi, sec)
+  // Reject impossible calendar dates instead of silently normalizing them.
+  const checkDate = new Date(target)
+  if (checkDate.getUTCFullYear() !== y || checkDate.getUTCMonth() !== mo - 1 || checkDate.getUTCDate() !== d) return null
+  try {
+    let instant = target
+    for (let i = 0; i < 4; i++) {
+      const next = target - offsetMin(tz, new Date(instant)) * 60000
+      if (next === instant) break
+      instant = next
+    }
+    return new Date(instant)
+  } catch {
+    return null
+  }
+}
+
 function load(): [string, string][] {
   try { const v = JSON.parse(localStorage.getItem(KEY) ?? 'null'); if (Array.isArray(v)) return v } catch { /* ignore */ }
   return DEFAULT as [string, string][]
@@ -44,6 +68,10 @@ export default function WorldClock() {
   const [now, setNow] = useState(() => new Date())
   const [h24, setH24] = useState(false)
   const [q, setQ] = useState('')
+  const [convertOpen, setConvertOpen] = useState(false)
+  const [sourceZone, setSourceZone] = useState('UTC')
+  const [sourceDateTime, setSourceDateTime] = useState('2026-11-12T19:30:36')
+  const convertedAt = useMemo(() => zonedDateTime(sourceDateTime, sourceZone), [sourceDateTime, sourceZone])
 
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(t) }, [])
   useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(clocks)) } catch { /* ignore */ } }, [clocks])
@@ -57,21 +85,20 @@ export default function WorldClock() {
   }, [q])
   const add = (c: [string, string]) => { if (!clocks.some(([n, z]) => n === c[0] && z === c[1])) setClocks([...clocks, c]); setQ('') }
 
-  const local = offsetMin(LOCAL, now)
-  const card = (label: string, tz: string, mine = false) => {
-    const hour = +new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', hourCycle: 'h23' }).format(now)
+  const card = (label: string, tz: string, mine = false, at: Date = now) => {
+    const hour = +new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', hourCycle: 'h23' }).format(at)
     const day = hour >= 6 && hour < 18
-    const diff = offsetMin(tz, now) - local
+    const diff = offsetMin(tz, at) - offsetMin(LOCAL, at)
     return (
       <div key={label + tz} className="tile" style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: 14, position: 'relative', border: mine ? '1px solid var(--accent)' : undefined }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
           {day ? <Sun size={15} aria-label="Daytime" /> : <Moon size={15} aria-label="Night-time" />}{label}{mine && <span className="muted" style={{ fontWeight: 400 }}>· you</span>}
         </div>
         <div style={{ fontSize: 30, fontWeight: 600, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }}>
-          {new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: !h24 }).format(now)}
+          {new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: !h24 }).format(at)}
         </div>
         <div className="muted" style={{ fontSize: 13 }}>
-          {new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short' }).format(now)} · {mine ? tz : fmtDiff(diff)}
+          {new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short' }).format(at)} · {mine ? tz : fmtDiff(diff)}
         </div>
         {!mine && <button className="icon-only" style={{ position: 'absolute', top: 8, right: 8 }} aria-label={`Remove ${label}`} onClick={() => setClocks(clocks.filter(([n, z]) => !(n === label && z === tz)))}><X size={14} /></button>}
       </div>
@@ -95,11 +122,44 @@ export default function WorldClock() {
         </div>
         <label className="check" style={{ alignSelf: 'flex-end' }}><input type="checkbox" checked={h24} onChange={(e) => setH24(e.target.checked)} /> 24-hour</label>
       </Row>
+      <section className="tile" style={{ display: 'grid', gap: 12, padding: 16 }}>
+        <button type="button" onClick={() => setConvertOpen((open) => !open)} aria-expanded={convertOpen} style={{ justifySelf: 'start', fontWeight: 600 }}>
+          {convertOpen ? '− Hide date & time converter' : '+ Convert a specific date & time'}
+        </button>
+        {convertOpen && (
+          <div style={{ display: 'grid', gap: 12 }}>
+            <Row>
+              <Field label="Date and time">
+                <input type="datetime-local" step="1" value={sourceDateTime} onChange={(e) => setSourceDateTime(e.target.value)} />
+              </Field>
+              <Field label="Entered time zone">
+                <select value={sourceZone} onChange={(e) => setSourceZone(e.target.value)}>
+                  {Array.from(new Set([...CITIES.map(([, tz]) => tz), ...ZONES, 'UTC'])).sort().map((tz) => (
+                    <option key={tz} value={tz}>{tz}</option>
+                  ))}
+                </select>
+              </Field>
+            </Row>
+            {!convertedAt ? (
+              <p role="alert" style={{ color: 'var(--danger, #b42318)', margin: 0 }}>Enter a valid date and time for the selected time zone.</p>
+            ) : (
+              <>
+                <p className="muted" style={{ margin: 0, fontSize: 13 }}>Equivalent local times for the same instant. Dates update automatically when the conversion crosses midnight.</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10 }}>
+                  {card(cityName(sourceZone), sourceZone, false, convertedAt)}
+                  {card(cityName(LOCAL), LOCAL, true, convertedAt)}
+                  {clocks.filter(([, tz]) => tz !== sourceZone && tz !== LOCAL).map(([label, tz]) => card(label, tz, false, convertedAt))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </section>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10 }}>
         {card(cityName(LOCAL), LOCAL, true)}
         {clocks.map(([label, tz]) => card(label, tz))}
       </div>
-      <p className="muted" style={{ margin: 0, fontSize: 13 }}>Daylight saving is handled automatically. Planning a call? Use the <Link to="/tool/timezone">Time Zone Converter</Link> to compare a specific time.</p>
+      <p className="muted" style={{ margin: 0, fontSize: 13 }}>Daylight saving is handled automatically. Planning a call? Use “Convert a specific date & time” above to compare a date and time across your selected zones.</p>
     </>
   )
 }
