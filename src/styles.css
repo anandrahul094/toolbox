@@ -1408,3 +1408,145 @@ body,
   .page .guide-card,
   .page .guide .guide-cta { transition: none; }
 }
+
+
+/* ── Phase 5: focused tool workspace experience ─────────── */
+.page > .crumbs {
+  width: fit-content;
+  max-width: 100%;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+}
+.page > .crumbs a { text-decoration: none; }
+.page > .crumbs a:hover { color: var(--primary); text-decoration: underline; }
+
+.page > .tool-head {
+  position: relative;
+  align-items: center;
+  gap: 18px;
+  padding: clamp(16px, 2.4vw, 24px);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--primary) 9%, transparent), transparent 62%),
+    var(--surface);
+  box-shadow: var(--shadow);
+}
+.page > .tool-head > .icon-chip,
+.page > .tool-head > :first-child {
+  flex: 0 0 auto;
+}
+.page > .tool-head .th-text { min-width: min(100%, 260px); }
+.page > .tool-head .th-text h1 {
+  margin: 0;
+  letter-spacing: -.035em;
+  line-height: 1.12;
+}
+.page > .tool-head .th-text p { max-width: 62ch; }
+.page > .tool-head .th-actions {
+  align-self: center;
+  justify-content: flex-end;
+}
+.page > .tool-head .th-actions .btn,
+.page > .tool-head .th-actions button {
+  min-height: 38px;
+}
+.page > .tool-head .privacy {
+  border: 1px solid color-mix(in srgb, var(--ok) 18%, transparent);
+  font-weight: 550;
+}
+
+.page > .panel {
+  position: relative;
+  overflow: clip;
+  gap: 18px;
+  padding: clamp(16px, 2.6vw, 28px);
+  border-radius: 18px;
+  box-shadow: 0 10px 34px color-mix(in srgb, var(--text) 5%, transparent);
+}
+.page > .panel:focus-within {
+  border-color: color-mix(in srgb, var(--primary) 38%, var(--border));
+}
+.page > .guide-cta {
+  min-height: 76px;
+  border-radius: 14px;
+  padding: 16px 18px;
+  transition: border-color .16s ease, background .16s ease, transform .16s ease, box-shadow .16s ease;
+}
+.page > .guide-cta:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+  text-decoration: none;
+}
+.page > .info-cols {
+  gap: clamp(18px, 3vw, 34px);
+  padding-top: 8px;
+}
+.page > .info-cols > .section {
+  min-width: 0;
+  padding: clamp(14px, 2vw, 20px);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.page > .info-cols h2 {
+  margin: 0;
+  letter-spacing: -.02em;
+}
+.page > .info-cols .howto {
+  display: grid;
+  gap: 10px;
+  padding-left: 26px;
+  line-height: 1.65;
+}
+.page > .info-cols .howto li { padding-left: 4px; }
+.page > .info-cols .faq {
+  padding: 13px 0;
+}
+.page > .info-cols .faq summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 28px;
+  line-height: 1.45;
+}
+.page > .info-cols .faq summary::marker { color: var(--primary); }
+.page > .info-cols .faq[open] summary { color: var(--primary); }
+.page > .info-cols .faq p { line-height: 1.65; }
+
+.page > .section[aria-labelledby="related-h"] {
+  padding-top: 8px;
+}
+.page > .section[aria-labelledby="related-h"] .tile {
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.page > .section[aria-labelledby="related-h"] .tile:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 800px) {
+  .page > .tool-head { align-items: flex-start; }
+  .page > .tool-head .th-actions {
+    width: 100%;
+    justify-content: flex-start;
+    padding-top: 4px;
+  }
+}
+@media (max-width: 560px) {
+  .page > .crumbs { font-size: 12px; }
+  .page > .tool-head { gap: 12px; padding: 15px; border-radius: 14px; }
+  .page > .tool-head .th-text { flex-basis: calc(100% - 58px); }
+  .page > .tool-head .th-actions { gap: 6px; }
+  .page > .panel { padding: 13px; border-radius: 14px; }
+  .page > .info-cols > .section { padding: 14px; }
+  .page > .guide-cta { padding: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page > .guide-cta,
+  .page > .section[aria-labelledby="related-h"] .tile { transition: none; }
+  .page > .guide-cta:hover,
+  .page > .section[aria-labelledby="related-h"] .tile:hover { transform: none; }
+}
