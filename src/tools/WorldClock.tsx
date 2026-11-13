@@ -37,7 +37,7 @@ const fmtDiff = (m: number) => {
 // Convert a local wall-clock value in an IANA time zone into a UTC instant.
 // Intl supplies the correct offset for the selected date, including DST.
 function zonedDateTime(value: string, tz: string): Date | null {
-  const match = /^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2})(?::(\\d{2}))?$/.exec(value)
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value)
   if (!match) return null
   const [, ys, mos, ds, hs, mis, ss = '0'] = match
   const [y, mo, d, h, mi, sec] = [ys, mos, ds, hs, mis, ss].map(Number)
@@ -100,7 +100,7 @@ export default function WorldClock() {
           {new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: !h24 }).format(at)}
         </div>
         <div className="muted" style={{ fontSize: 13 }}>
-          {new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short' }).format(now)} · {mine ? tz : fmtDiff(diff)}
+          {new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short' }).format(at)} · {mine ? tz : fmtDiff(diff)}
         </div>
         {!mine && <button className="icon-only" style={{ position: 'absolute', top: 8, right: 8 }} aria-label={`Remove ${label}`} onClick={() => setClocks(clocks.filter(([n, z]) => !(n === label && z === tz)))}><X size={14} /></button>}
       </div>
