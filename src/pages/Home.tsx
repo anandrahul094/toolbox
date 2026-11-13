@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, BookOpen, Plus, Star } from 'lucide-react'
+import { ArrowRight, BookOpen, Plus, Sparkles, Star } from 'lucide-react'
 import { useState } from 'react'
 import { CATEGORIES, findTool, tools } from '../registry'
 import { CATEGORY_ICONS, RECENTLY_ADDED, STARTER_POCKETS } from '../meta'
@@ -38,13 +38,23 @@ export default function Home() {
 
   return (
     <>
-      <section className="section" style={{ gap: 14, paddingTop: 8 }}>
-        <span className="eyebrow">{tr('{n} tools · no sign-up', { n: tools.length })}</span>
-        <h1 className="display">{tr("Everything in its place.")}</h1>
-        <p className="muted" style={{ margin: '-4px 0 4px', fontSize: 16 }}>{tr("Small tools for everyday jobs, all in one toolbox.")}</p>
-        <SearchBox big id="home-search" />
-        <div className="filter-chips" aria-label={tr("Example searches")}>
-          {SUGGESTIONS.slice(0, 5).map((s) => <Link key={s} to={`/explore?q=${encodeURIComponent(s)}`} className="chip">{s}</Link>)}
+      <section className="home-hero" aria-labelledby="home-title">
+        <div className="home-hero-copy">
+          <span className="eyebrow"><Sparkles size={13} aria-hidden="true" />{tr('{n} tools · no sign-up', { n: tools.length })}</span>
+          <h1 id="home-title" className="display">{tr("A little tool for every task.")}</h1>
+          <p className="home-lede">{tr("Useful online tools, thoughtfully organised. Get things done without the clutter.")}</p>
+          <SearchBox big id="home-search" />
+          <div className="home-suggestions" aria-label={tr("Popular searches")}><span>{tr("Try")}</span>{SUGGESTIONS.slice(0, 4).map((s) => <Link key={s} to={`/explore?q=${encodeURIComponent(s)}`} className="chip">{s}</Link>)}</div>
+          <div className="home-trust"><span><i className="trust-dot" />{tr("Free to use")}</span><span><i className="trust-dot" />{tr("No account required")}</span><span><i className="trust-dot" />{tr("Browser-based tools")}</span></div>
+        </div>
+        <div className="home-hero-art" aria-hidden="true">
+          <div className="hero-art-orbit orbit-one" /><div className="hero-art-orbit orbit-two" />
+          <div className="hero-art-card"><span className="hero-card-kicker"><Sparkles size={14} />{tr("Your everyday toolkit")}</span>
+            <div className="hero-tool-icons">{CATEGORIES.slice(0, 8).map((c) => { const Icon = CATEGORY_ICONS[c.id]; return <span key={c.id}><Icon size={20} /></span> })}</div>
+            <strong>{tr("One place. Many possibilities.")}</strong><span className="muted">{tr("Find the right tool and get straight to work.")}</span>
+          </div>
+          <div className="hero-float hero-float-top"><span className="hero-float-icon"><Star size={15} fill="currentColor" /></span><span><b>{tr("Your favourites")}</b><small>{tr("Always close at hand")}</small></span></div>
+          <div className="hero-float hero-float-bottom"><span className="hero-float-icon"><span>✓</span></span><span><b>{tr("Private by design")}</b><small>{tr("Processing stays in your browser")}</small></span></div>
         </div>
       </section>
 
