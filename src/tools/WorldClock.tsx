@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { Moon, Sun, X } from 'lucide-react'
 import { Field, Row } from '../components/ui'
 
@@ -86,11 +85,10 @@ export default function WorldClock() {
   }, [q])
   const add = (c: [string, string]) => { if (!clocks.some(([n, z]) => n === c[0] && z === c[1])) setClocks([...clocks, c]); setQ('') }
 
-  const local = offsetMin(LOCAL, now)
   const card = (label: string, tz: string, mine = false, at: Date = now) => {
     const hour = +new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', hourCycle: 'h23' }).format(at)
     const day = hour >= 6 && hour < 18
-    const diff = offsetMin(tz, at) - local
+    const diff = offsetMin(tz, at) - offsetMin(LOCAL, at)
     return (
       <div key={label + tz} className="tile" style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: 14, position: 'relative', border: mine ? '1px solid var(--accent)' : undefined }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
@@ -124,6 +122,39 @@ export default function WorldClock() {
         </div>
         <label className="check" style={{ alignSelf: 'flex-end' }}><input type="checkbox" checked={h24} onChange={(e) => setH24(e.target.checked)} /> 24-hour</label>
       </Row>
+      <section className="tile" style={{ display: 'grid', gap: 12, padding: 16 }}>
+        <button type="button" onClick={() => setConvertOpen((open) => !open)} aria-expanded={convertOpen} style={{ justifySelf: 'start', fontWeight: 600 }}>
+          {convertOpen ? '− Hide date & time converter' : '+ Convert a specific date & time'}
+        </button>
+        {convertOpen && (
+          <div style={{ display: 'grid', gap: 12 }}>
+            <Row>
+              <Field label="Date and time">
+                <input type="datetime-local" step="1" value={sourceDateTime} onChange={(e) => setSourceDateTime(e.target.value)} />
+              </Field>
+              <Field label="Entered time zone">
+                <select value={sourceZone} onChange={(e) => setSourceZone(e.target.value)}>
+                  {Array.from(new Set([...CITIES.map(([, tz]) => tz), ...ZONES, 'UTC'])).sort().map((tz) => (
+                    <option key={tz} value={tz}>{tz}</option>
+                  ))}
+                </select>
+              </Field>
+            </Row>
+            {!convertedAt ? (
+              <p role="alert" style={{ color: 'var(--danger, #b42318)', margin: 0 }}>Enter a valid date and time for the selected time zone.</p>
+            ) : (
+              <>
+                <p className="muted" style={{ margin: 0, fontSize: 13 }}>Equivalent local times for the same instant. Dates update automatically when the conversion crosses midnight.</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10 }}>
+                  {card(cityName(sourceZone), sourceZone, false, convertedAt)}
+                  {card(cityName(LOCAL), LOCAL, true, convertedAt)}
+                  {clocks.filter(([, tz]) => tz !== sourceZone && tz !== LOCAL).map(([label, tz]) => card(label, tz, false, convertedAt))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </section>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10 }}>
         {card(cityName(LOCAL), LOCAL, true)}
         {clocks.map(([label, tz]) => card(label, tz))}
