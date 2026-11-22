@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
-import { BookOpen, Compass, Download, FolderOpen, Share, History, Home, LogIn, LogOut, MessageSquare, Moon, PanelLeftClose, PanelLeftOpen, Search, Settings, Sparkles, Star, Sun, Wrench } from 'lucide-react'
+import { BookOpen, Compass, Download, FolderOpen, Share, History, Home, LogIn, LogOut, MessageSquare, Moon, PanelLeftClose, PanelLeftOpen, Search, Settings, Sparkles, Star, Sun } from 'lucide-react'
 import { auth, useUser } from '../lib/backend'
 import { toast } from '../toast'
 import { CATEGORIES, tools } from '../registry'
@@ -30,7 +30,18 @@ function useThemeEffect() {
 function Brand() {
   return (
     <Link to="/" className="brand" aria-label={tr("The Toolbox home")}>
-      <span className="brand-mark"><Wrench size={17} strokeWidth={2} aria-hidden="true" /></span>
+      <span className="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3.5" width="18" height="17" rx="3.2" stroke="currentColor" strokeWidth="1.6" />
+          <path d="M3.8 8h16.4" stroke="currentColor" strokeWidth="1.4" />
+          <circle cx="6.3" cy="5.8" r=".8" fill="#FBBF24" />
+          <circle cx="9" cy="5.8" r=".8" fill="#FFF9E9" />
+          <rect x="6" y="10.2" width="4.5" height="4.2" rx="1" fill="#FFF9E9" />
+          <rect x="13.5" y="10.2" width="4.5" height="4.2" rx="1" fill="#FBBF24" />
+          <rect x="6" y="16" width="4.5" height="2.4" rx=".7" fill="#FBBF24" />
+          <rect x="13.5" y="16" width="4.5" height="2.4" rx=".7" fill="#FFF9E9" />
+        </svg>
+      </span>
       <span className="brand-name">{tr("The Toolbox")}</span>
     </Link>
   )
